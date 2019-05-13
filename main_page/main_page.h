@@ -27,7 +27,7 @@ public slots:
 private slots:
 
     void accept_tell_window_step_page(int page);
-
+    void accept_change_page(const int &page);
 signals:
     void tell_window_step_page(int page);
 

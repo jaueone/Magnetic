@@ -42,3 +42,8 @@ void ScreenCheck::on_pushButton_4_released()
 {
     emit tell_window_step_page(1);
 }
+
+void ScreenCheck::on_pushButton_8_released()
+{
+    this->ui->stackedWidget->setCurrentIndex(0);
+}

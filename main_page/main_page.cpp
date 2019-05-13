@@ -20,6 +20,7 @@ MainPage::MainPage(QWidget *parent) :
     this->connect(this->ui->pushButton,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_2,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_3,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
+    this->connect(this->screencheck,&ScreenCheck::tell_mainpage_step_page, this, &MainPage::accept_change_page);
 }
 
 MainPage::~MainPage()
@@ -66,4 +67,9 @@ void MainPage::accept_button_clicked(const bool &checked)
 void MainPage::accept_tell_window_step_page(int page)
 {
     emit tell_window_step_page(1);
+}
+
+void MainPage::accept_change_page(const int &page)
+{
+    this->ui->stackedWidget->setCurrentIndex(page);
 }

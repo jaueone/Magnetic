@@ -852,6 +852,16 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
     </item>
    </layout>
   </widget>
+  <widget class="QGraphicsView" name="graphicsView">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>51</y>
+     <width>501</width>
+     <height>481</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
