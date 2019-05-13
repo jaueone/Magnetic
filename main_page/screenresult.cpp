@@ -52,7 +52,6 @@ void ScreenResult::paint_pie()
     chart_pie->legend()->hide();
     chart_pie->setBackgroundVisible(false);
 
-
 }
 
 void ScreenResult::paint_bar()
