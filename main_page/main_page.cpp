@@ -11,10 +11,12 @@ MainPage::MainPage(QWidget *parent) :
     screencheck = new ScreenCheck();
     screenresult = new ScreenResult();
 
+
     this->ui->stackedWidget->removeWidget(this->ui->page);
     this->ui->stackedWidget->removeWidget(this->ui->page_2);
     this->ui->stackedWidget->addWidget(screencheck);
     this->ui->stackedWidget->addWidget(screenresult);
+    this->connect(this->screencheck, &ScreenCheck::tell_window_step_page,this,&MainPage::accept_tell_window_step_page);
     this->connect(this->ui->pushButton,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_2,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_3,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
@@ -41,6 +43,11 @@ void MainPage::set_current_page(const int &page)
     }
 }
 
+void MainPage::setMen(const Meninfo &info)
+{
+    this->screenresult->setMen(info);
+}
+
 void MainPage::accept_button_clicked(const bool &checked)
 {
     if (checked!=true)
@@ -54,4 +61,9 @@ void MainPage::accept_button_clicked(const bool &checked)
     else if (this->sender() == this->ui->pushButton_3) {
         this->ui->stackedWidget->setCurrentIndex(2);
     }
+}
+
+void MainPage::accept_tell_window_step_page(int page)
+{
+    emit tell_window_step_page(1);
 }

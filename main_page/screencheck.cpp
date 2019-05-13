@@ -37,8 +37,8 @@ void ScreenCheck::addlabel(const QString &name, const QString &content)
     this->ui->verticalLayout_4->addWidget(this->object_label_map[name]);
 }
 
-void ScreenCheck::on_pushButton_4_clicked()
+
+void ScreenCheck::on_pushButton_4_released()
 {
-    nae += "s";
-    this->addlabel(nae, nae);
+    emit tell_window_step_page(1);
 }

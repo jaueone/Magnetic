@@ -4,5 +4,6 @@
         <file>image/不合格.png</file>
         <file>image/合格.png</file>
         <file>image/picture.png</file>
+        <file>image/arrow.png</file>
     </qresource>
 </RCC>

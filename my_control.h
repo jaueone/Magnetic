@@ -14,3 +14,4 @@ public:
     virtual ~Label() {}
 };
 #endif // MY_CONTROL_H
+

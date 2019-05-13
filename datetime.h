@@ -10,15 +10,12 @@
 #include <QHBoxLayout>
 #include <QDate>
 #include <QTime>
-#include <QDebug>
-#include <QStringLiteral>
-#include <QTextCodec>
+
 
 class DateTime:public QFrame
 {
 public:
     DateTime(QWidget *parent=nullptr):QFrame(parent){
-        QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
         timer = new QTimer(this);
         datetime = new QLabel(this);
         layout = new QHBoxLayout(this);
@@ -50,7 +47,6 @@ private:
     QLabel *datetime;
     QTimer *timer;
     QHBoxLayout *layout;
-
 
 };
 

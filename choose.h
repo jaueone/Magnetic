@@ -1,6 +1,7 @@
 #ifndef CHOOSE_H
 #define CHOOSE_H
 
+#include "login.h"
 #include <QWidget>
 
 namespace Ui {
@@ -15,13 +16,19 @@ public:
     explicit Choose(QWidget *parent = nullptr);
     ~Choose();
 
+    void setMen(const Meninfo &info);
+
 private slots:
     void on_pushButton_2_released();
 
     void on_pushButton_released();
 
+    void on_pushButton_4_released();
+
+    void on_pushButton_3_released();
+
 signals:
-    void tell_window_step_page3(int page);
+    void tell_window_step_page(int page);
 
 private:
     Ui::Choose *ui;

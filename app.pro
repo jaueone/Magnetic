@@ -5,6 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui sql
+QT       += serialport
+QT       += charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,7 +33,8 @@ SOURCES += \
         choose.cpp \
         main_page/screencheck.cpp \
         main_page/screenresult.cpp \
-    main_page/main_page.cpp
+    main_page/main_page.cpp \
+    driveseting.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,7 +44,8 @@ HEADERS += \
     main_page/screencheck.h \
     main_page/screenresult.h \
     my_control.h \
-    main_page/main_page.h
+    main_page/main_page.h \
+    driveseting.h
 
 FORMS += \
         mainwindow.ui \
@@ -49,7 +53,8 @@ FORMS += \
     choose.ui \
     main_page/screencheck.ui \
     main_page/screenresult.ui \
-    main_page/main_page.ui
+    main_page/main_page.ui \
+    driveseting.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

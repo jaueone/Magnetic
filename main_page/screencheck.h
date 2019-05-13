@@ -26,8 +26,11 @@ private slots:
 
     void on_pushButton_3_released();
 
-    void on_pushButton_4_clicked();
 
+    void on_pushButton_4_released();
+
+signals:
+    void tell_window_step_page(int page);
 private:
     Ui::ScreenCheck *ui;
     QMap<QString ,Label *> object_label_map{};
