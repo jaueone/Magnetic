@@ -26,6 +26,36 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+INCLUDEPATH += $$PWD/Includes
+INCLUDEPATH += $$PWD/Includes/GenICam
+INCLUDEPATH   += $$(HALCONROOT)/include
+INCLUDEPATH   += $$(HALCONROOT)/include/halconcpp
+
+LIBS += $$PWD/Libraries/win64/MvCameraControl.lib
+LIBS += $$(HALCONROOT)/lib/$$(HALCONARCH)/halconcpp.lib \
+        $$(HALCONROOT)/lib/$$(HALCONARCH)/halcon.lib
+
+SOURCES += \
+        main.cpp \
+        mainwindow.cpp \
+        login.cpp \
+        choose.cpp \
+        main_page/screencheck.cpp \
+        main_page/screenresult.cpp \
+    main_page/main_page.cpp \
+    driveseting.cpp
+
+HEADERS += \
+        mainwindow.h \
+    login.h \
+    datetime.h \
+    choose.h \
+    main_page/screencheck.h \
+    main_page/screenresult.h \
+    my_control.h \
+    main_page/main_page.h \
+    driveseting.h
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \

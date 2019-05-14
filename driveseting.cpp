@@ -141,7 +141,7 @@ void DriveSeting::on_pushButton_7_released()
         serial->setParity(setting.parity);
         serial->setStopBits(setting.stopBits);
         serial->setFlowControl(setting.flowControl);
-        if (serial->open(QIODevice::ReadWrite) || serial->isOpen()){
+        if (serial->open(QIODevice::ReadWrite) && serial->isOpen()){
             this->ui->pushButton_7->setChecked(true);
             this->ui->pushButton_7->setText("关闭串口");
         }
