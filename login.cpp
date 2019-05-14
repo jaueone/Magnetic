@@ -1,9 +1,12 @@
 #include "login.h"
 #include "ui_login.h"
+#include "my_control.h"
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QProcess>
+#include <QPixmap>
+
 
 Login::Login(QWidget *parent) :
     QFrame(parent),
@@ -43,15 +46,13 @@ void Login::on_lineEdit_textChanged(const QString &arg1)
         return;
     }
     else {
+
+        QPixmap pixmap = Label::draw_ellipse(QString("./picture/%1").arg(info.picture));
+        this->ui->label->setPixmap(pixmap);
         this->ui->lineEdit_2->setText(info.name);
         this->ui->lineEdit->setText(info.number);
-        this->ui->label->setStyleSheet(QString("min-width:  110px;\
-                                               max-width: 110px;\
-                                               min-height: 110px;\
-                                               max-height: 110px;  \
-                                               border-radius: 55px;\
-                                               border:1px solid blue;   \
-                                               border-image: url(%1);").arg(info.picture));
+
+
         this->ui->label->show();
         emit tell_window_men_login(info);
     }
@@ -66,7 +67,7 @@ Meninfo Login::search_meninfo(const QString &number)
     else
     {
         database = QSqlDatabase::addDatabase("QSQLITE");
-        database.setDatabaseName("MyDataBase.db");
+        database.setDatabaseName("./database/MyDataBase.db");
         database.setUserName("XingYeZhiXia");
         database.setPassword("123456");
     }
@@ -78,7 +79,7 @@ Meninfo Login::search_meninfo(const QString &number)
     {
         Meninfo info;
         QSqlQuery query(database);
-        QString str = QString("SELECT * FROM men WHERE id = \"%1\"").arg(number);
+        QString str = QString("SELECT * FROM men WHERE number = \"%1\"").arg(number);
         qDebug() << str;
         if (!query.exec(str)){
             qDebug() << "error";
@@ -103,6 +104,9 @@ void Login::clear()
     this->ui->lineEdit->clear();
     this->ui->lineEdit_2->clear();
 }
+
+
+
 
 void Login::on_pushButton_2_released()
 {

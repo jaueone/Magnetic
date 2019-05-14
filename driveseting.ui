@@ -53,34 +53,10 @@
      <string>选择端口</string>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QComboBox" name="serialPortInfoListBox"/>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="descriptionLabel">
        <property name="text">
         <string>端口类型:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="manufacturerLabel">
-       <property name="text">
-        <string>生产厂商的信息:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="serialNumberLabel">
-       <property name="text">
-        <string>序列号:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="locationLabel">
-       <property name="text">
-        <string>系统位置:</string>
        </property>
       </widget>
      </item>
@@ -91,12 +67,36 @@
        </property>
       </widget>
      </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="manufacturerLabel">
+       <property name="text">
+        <string>生产厂商的信息:</string>
+       </property>
+      </widget>
+     </item>
      <item row="6" column="0">
       <widget class="QLabel" name="pidLabel">
        <property name="text">
         <string>产品编码:</string>
        </property>
       </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="locationLabel">
+       <property name="text">
+        <string>系统位置:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="serialNumberLabel">
+       <property name="text">
+        <string>序列号:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="ComboBox" name="serialPortInfoListBox"/>
      </item>
     </layout>
    </widget>
@@ -270,65 +270,21 @@
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="pushButton_5">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>30</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-    </property>
-    <property name="text">
-     <string>串口扫描</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_6">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>70</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-    </property>
-    <property name="text">
-     <string>应用设置</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton_7">
     <property name="geometry">
      <rect>
       <x>460</x>
-      <y>110</y>
-      <width>71</width>
+      <y>40</y>
+      <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QPushButton{color:white;background-color:rgb(255, 114, 114);border-radius:1px}
-QPushButton::checked{background-color:rgb(124, 255, 101);}</string>
+     <string notr="true">QPushButton{color:black;background-color:rgb(255, 114, 114);border-radius:1px}
+QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
     </property>
     <property name="text">
-     <string/>
+     <string>打开串口</string>
     </property>
     <property name="checkable">
      <bool>true</bool>
@@ -338,6 +294,74 @@ QPushButton::checked{background-color:rgb(124, 255, 101);}</string>
     </property>
     <property name="autoExclusive">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_5">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>80</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>微软雅黑</family>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+    </property>
+    <property name="text">
+     <string>开始测试</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_6">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>120</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>微软雅黑</family>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+    </property>
+    <property name="text">
+     <string>切换图片</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_8">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>160</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>微软雅黑</family>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+    </property>
+    <property name="text">
+     <string>结束测试</string>
     </property>
    </widget>
   </widget>
@@ -595,7 +619,7 @@ QPushButton::checked{background-color:rgb(124, 255, 101);}</string>
        <x>260</x>
        <y>20</y>
        <width>271</width>
-       <height>230</height>
+       <height>236</height>
       </rect>
      </property>
      <layout class="QFormLayout" name="formLayout_4">
@@ -717,30 +741,22 @@ QPushButton::checked{background-color:rgb(124, 255, 101);}</string>
       <item row="7" column="0">
        <widget class="QLabel" name="label_16">
         <property name="text">
-         <string>ShadingSelector</string>
+         <string>NUCEnable</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
-       <widget class="QComboBox" name="comboBox_3">
-        <item>
-         <property name="text">
-          <string>FPNCCorrection</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>PRNUCCorrection</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="1">
+      <item row="8" column="1">
        <widget class="QPushButton" name="pushButton_3">
         <property name="minimumSize">
          <size>
           <width>0</width>
           <height>27</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="font">
@@ -753,7 +769,21 @@ QPushButton::checked{background-color:rgb(124, 255, 101);}</string>
 QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
         </property>
         <property name="text">
+         <string>Execute</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_17">
+        <property name="text">
          <string>ActivateShading</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="checkBox_3">
+        <property name="text">
+         <string>enable</string>
         </property>
        </widget>
       </item>
@@ -852,17 +882,31 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
     </item>
    </layout>
   </widget>
-  <widget class="QGraphicsView" name="graphicsView">
+  <widget class="QLabel" name="label_18">
    <property name="geometry">
     <rect>
      <x>560</x>
-     <y>51</y>
+     <y>50</y>
      <width>501</width>
      <height>481</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(255, 255, 255);
+border:1px solid black;</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">my_control.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

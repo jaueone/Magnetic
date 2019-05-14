@@ -4,6 +4,9 @@
 #include <QWidget>
 #include <QSerialPort>
 #include <QSerialPortInfo>
+#include <QMessageBox>
+#include <QGridLayout>
+#include "my_control.h"
 
 namespace Ui {
 class DriveSeting;
@@ -42,7 +45,7 @@ struct CameraSetting{
     GammaSelector gammaSelector;
 
     float exposureTime;
-    ShadingSelector ShadingSelector;
+    bool nucEnable;
 };
 
 struct SerialSetting {
@@ -68,16 +71,16 @@ public:
     ~DriveSeting();
 
     SerialSetting get_serial_setting();
+    void scan_serial();
 
 private slots:
+    void accept_scan_serial();
+
     void on_pushButton_released();
-    void on_pushButton_6_released();
-
-    void on_pushButton_5_released();
-
-
 
     void on_serialPortInfoListBox_currentIndexChanged(int index);
+
+    void on_pushButton_7_released();
 
 signals:
     void tell_window_step_page(int page);
@@ -85,6 +88,7 @@ signals:
 private:
     Ui::DriveSeting *ui;
     QSerialPort *serial;
+
 };
 
 #endif // DRIVESETING_H

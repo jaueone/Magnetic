@@ -1,4 +1,5 @@
 #include "choose.h"
+#include "my_control.h"
 #include "ui_choose.h"
 #include <QPixmap>
 
@@ -18,19 +19,15 @@ Choose::~Choose()
 void Choose::setMen(const Meninfo &info)
 {
     this->ui->label_2->setText(info.name);
-    this->ui->label->setStyleSheet(QString("min-width:  110px;\
-                                           max-width: 110px;\
-                                           min-height: 110px;\
-                                           max-height: 110px;  \
-                                           border-radius: 55px;\
-                                           border:1px solid blue;   \
-                                           border-image: url(%1);").arg(info.picture));
+    QPixmap pixmap = Label::draw_ellipse(QString("./picture/%1").arg(info.picture));
+    this->ui->label->setPixmap(pixmap);
+
     if (info.isengineer == "yes")
     {
-        this->ui->pushButton_3->hide();
+        this->ui->pushButton_3->show();
     }
     else if (info.isengineer == "no") {
-        this->ui->pushButton_3->show();
+        this->ui->pushButton_3->hide();
     }
 }
 

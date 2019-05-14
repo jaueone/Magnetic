@@ -4,6 +4,7 @@
 #include <QFrame>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QPixmap>
 
 namespace Ui {
 class Login;
