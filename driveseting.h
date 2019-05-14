@@ -72,7 +72,7 @@ public:
 
     SerialSetting get_serial_setting();
     void scan_serial();
-
+    unsigned short int CRC16(unsigned char* pchMsg, unsigned short int wDataLen);
 private slots:
     void accept_scan_serial();
 
