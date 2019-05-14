@@ -155,7 +155,6 @@ void DriveSeting::on_pushButton_7_released()
             QPushButton button("确定");
             messageBox.addButton(&button, QMessageBox::YesRole);
             messageBox.exec();
-
         }
     }
 }
