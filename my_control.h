@@ -6,6 +6,9 @@
 #include <QPixmap>
 #include <QPainterPath>
 #include <QPainter>
+#include <QSqlDatabase>
+
+static QSqlDatabase __database__;
 
 class Label : public QLabel
 {
@@ -46,6 +49,27 @@ signals:
     void tell_serial_scan();
 };
 
+class DB
+{
+public:
+    static QSqlDatabase * interface(){
+        if (QSqlDatabase::contains("qt_sql_default_connection"))
+        {
+            return &__database__;
+        }
+        else {
+            __database__ = QSqlDatabase::addDatabase("QSQLITE");
+            __database__.setDatabaseName("./database/MyDataBase.db");
+            __database__.setUserName("XingYeZhiXia");
+            __database__.setPassword("123456");
+            return &__database__;
+        }
+    }
+protected:
+    DB() {}
+    DB(const DB& other);
+    ~DB(){}
+};
 #endif // MY_CONTROL_H
 
 

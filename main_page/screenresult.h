@@ -28,8 +28,7 @@ public:
     void paint_bar();
 signals:
     void tell_window_step_page(int page);
-private slots:
-    void on_pushButton_released();
+
 
 private:
     Ui::ScreenResult *ui;

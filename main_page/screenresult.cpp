@@ -2,6 +2,7 @@
 #include "ui_screenresult.h"
 #include <QStringLiteral>
 #include <QValueAxis>
+#include <QFont>
 
 ScreenResult::ScreenResult(QWidget *parent) :
     QWidget(parent),
@@ -35,6 +36,12 @@ void ScreenResult::setMen(const Meninfo &info)
 
 void ScreenResult::paint_pie()
 {
+    this->ui->label_17->setParent(chart_pie_view);
+    this->ui->label_18->setParent(chart_pie_view);
+    this->ui->label_17->setGeometry(200,10,100,20);
+    this->ui->label_18->setGeometry(20,170,100,100);
+    this->ui->label_17->show();
+    this->ui->label_18->show();
     series_pie->setPieSize(1.0);
     series_pie->append("不合格率10%", 1);
     series_pie->append("合格率90%" , 9);
@@ -54,6 +61,10 @@ void ScreenResult::paint_pie()
 
 void ScreenResult::paint_bar()
 {
+    QFont font;
+    font.setFamily("微软雅黑");
+    font.setPixelSize(15);
+
 
     QBarSet *set0 = new QBarSet("Jane");
     *set0  << 900 << 800 << 200 << 180 << 210 << 280;
@@ -62,6 +73,7 @@ void ScreenResult::paint_bar()
     series->append(set0);
     series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd); // 设置数据系列标签的位置于数据柱内测上方
     series->setLabelsVisible(true); // 设置显示数据系列标签
+
 
     //QChart *chart = new QChart();
     chart_bar->addSeries(series);
@@ -79,12 +91,11 @@ void ScreenResult::paint_bar()
     chart_bar->legend()->setAlignment(Qt::AlignBottom);
     chart_bar->axisY()->setGridLineVisible(false);
     chart_bar->axisX()->setGridLineVisible(false);
+    chart_bar->axisX()->setLabelsFont(font);
+    chart_bar->axisY()->setLabelsFont(font);
+    chart_bar->setFont(font);
 
     chart_bar_view->setRenderHint(QPainter::Antialiasing);
     this->ui->verticalLayout_2->addWidget(chart_bar_view);
 }
 
-void ScreenResult::on_pushButton_released()
-{
-
-}

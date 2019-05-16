@@ -66,7 +66,7 @@ void MainPage::accept_button_clicked(const bool &checked)
 
 void MainPage::accept_tell_window_step_page(int page)
 {
-    emit tell_window_step_page(1);
+    emit tell_window_step_page(page);
 }
 
 void MainPage::accept_change_page(const int &page)

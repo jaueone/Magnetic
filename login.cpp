@@ -60,25 +60,17 @@ void Login::on_lineEdit_textChanged(const QString &arg1)
 
 Meninfo Login::search_meninfo(const QString &number)
 {
-    if (QSqlDatabase::contains("qt_sql_default_connection"))
+    Meninfo info;
+
+    QSqlDatabase *database = DB::interface();
+    if (!database->open())
     {
-        database = QSqlDatabase::database("qt_sql_default_connection");
+        qDebug() << "Error: Failed to connect database." << database->lastError();
+        return info;
     }
     else
     {
-        database = QSqlDatabase::addDatabase("QSQLITE");
-        database.setDatabaseName("./database/MyDataBase.db");
-        database.setUserName("XingYeZhiXia");
-        database.setPassword("123456");
-    }
-    if (!database.open())
-    {
-        qDebug() << "Error: Failed to connect database." << database.lastError();
-    }
-    else
-    {
-        Meninfo info;
-        QSqlQuery query(database);
+        QSqlQuery query(*database);
         QString str = QString("SELECT * FROM men WHERE number = \"%1\"").arg(number);
         qDebug() << str;
         if (!query.exec(str)){
@@ -93,6 +85,7 @@ Meninfo Login::search_meninfo(const QString &number)
                 info.number = number;
                 qDebug() << info.name;
             }
+           database->close();
            return info;
         }
     }
@@ -108,12 +101,4 @@ void Login::clear()
 
 
 
-void Login::on_pushButton_2_released()
-{
-    QString strFile=tr("osk.exe");
 
-    QProcess* pProcess=new QProcess(this);
-
-    pProcess->startDetached(strFile);
-
-}

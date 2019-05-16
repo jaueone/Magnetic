@@ -370,7 +370,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
     <rect>
      <x>10</x>
      <y>0</y>
-     <width>901</width>
+     <width>1051</width>
      <height>41</height>
     </rect>
    </property>
@@ -411,7 +411,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
      <x>10</x>
      <y>270</y>
      <width>541</width>
-     <height>321</height>
+     <height>271</height>
     </rect>
    </property>
    <property name="font">
@@ -432,7 +432,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
       <x>0</x>
       <y>10</y>
       <width>531</width>
-      <height>311</height>
+      <height>261</height>
      </rect>
     </property>
     <property name="font">
@@ -789,36 +789,14 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
       </item>
      </layout>
     </widget>
-    <widget class="QPushButton" name="pushButton_4">
-     <property name="geometry">
-      <rect>
-       <x>420</x>
-       <y>270</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Microsoft YaHei UI</family>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-     </property>
-     <property name="text">
-      <string>应用</string>
-     </property>
-    </widget>
    </widget>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>560</x>
+     <x>10</x>
      <y>550</y>
-     <width>501</width>
+     <width>1051</width>
      <height>41</height>
     </rect>
    </property>
@@ -859,6 +837,28 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="pushButton_4">
+      <property name="minimumSize">
+       <size>
+        <width>75</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Microsoft YaHei UI</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+      </property>
+      <property name="text">
+       <string>应用</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QPushButton" name="pushButton_2">
       <property name="minimumSize">
        <size>
@@ -876,7 +876,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
 QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
       </property>
       <property name="text">
-       <string>确定</string>
+       <string>保存驱动配置</string>
       </property>
      </widget>
     </item>
@@ -886,9 +886,9 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
    <property name="geometry">
     <rect>
      <x>560</x>
-     <y>50</y>
+     <y>49</y>
      <width>501</width>
-     <height>481</height>
+     <height>490</height>
     </rect>
    </property>
    <property name="styleSheet">

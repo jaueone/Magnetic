@@ -7,6 +7,10 @@
 #include <QMessageBox>
 #include <QGridLayout>
 #include "my_control.h"
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QJsonDocument>
 
 namespace Ui {
 class DriveSeting;
@@ -37,14 +41,14 @@ struct CameraSetting{
     int acquisitionLineRate;
     bool acquisitionLineRateEnable;
 
-    float gain;
+    double gain;
     GainAuto gainAuto;
 
-    float gamma;
+    double gamma;
     bool gammaEnable;
     GammaSelector gammaSelector;
 
-    float exposureTime;
+    double exposureTime;
     bool nucEnable;
 };
 
@@ -71,8 +75,18 @@ public:
     ~DriveSeting();
 
     SerialSetting get_serial_setting();
+    CameraSetting get_camera_setting();
+
+    QByteArray get_serial_bin();
+    QByteArray get_camera_bin();
+
+    void load_setting();
+
+    void save_setting();
+
     void scan_serial();
     unsigned short int CRC16(unsigned char* pchMsg, unsigned short int wDataLen);
+
 private slots:
     void accept_scan_serial();
 
@@ -81,6 +95,10 @@ private slots:
     void on_serialPortInfoListBox_currentIndexChanged(int index);
 
     void on_pushButton_7_released();
+
+    void on_pushButton_2_released();
+
+    void on_pushButton_4_released();
 
 signals:
     void tell_window_step_page(int page);
