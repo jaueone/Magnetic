@@ -29,6 +29,7 @@ void Login::on_pushButton_released()
     Meninfo info = this->search_meninfo(this->ui->lineEdit->text());
     if (info.name == this->ui->lineEdit_2->text() && this->ui->lineEdit_2->text() != ""){
         emit tell_window_step_page(1);
+        emit tell_window_men_login(info);
     }
 
 }
@@ -46,15 +47,11 @@ void Login::on_lineEdit_textChanged(const QString &arg1)
         return;
     }
     else {
-
         QPixmap pixmap = Label::draw_ellipse(QString("./picture/%1").arg(info.picture));
         this->ui->label->setPixmap(pixmap);
         this->ui->lineEdit_2->setText(info.name);
         this->ui->lineEdit->setText(info.number);
-
-
         this->ui->label->show();
-        emit tell_window_men_login(info);
     }
 }
 
@@ -62,7 +59,7 @@ Meninfo Login::search_meninfo(const QString &number)
 {
     Meninfo info;
 
-    QSqlDatabase *database = DB::interface();
+    QSqlDatabase *database = DB::getInterface();
     if (!database->open())
     {
         qDebug() << "Error: Failed to connect database." << database->lastError();
@@ -72,7 +69,6 @@ Meninfo Login::search_meninfo(const QString &number)
     {
         QSqlQuery query(*database);
         QString str = QString("SELECT * FROM men WHERE number = \"%1\"").arg(number);
-        qDebug() << str;
         if (!query.exec(str)){
             qDebug() << "error";
         }
@@ -83,7 +79,6 @@ Meninfo Login::search_meninfo(const QString &number)
                 info.picture = record.value("picture").toString();
                 info.isengineer = record.value("isengineer").toString();
                 info.number = number;
-                qDebug() << info.name;
             }
            database->close();
            return info;

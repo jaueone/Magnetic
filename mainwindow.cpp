@@ -48,6 +48,7 @@ void MainWindow::accept_men_login(const Meninfo &info)
 {
     this->choose->setMen(info);
     this->mainpage->setMen(info);
+    this->drivesetting->init();
 }
 
 void MainWindow::accept_change_page(const int &page)
@@ -66,8 +67,6 @@ void MainWindow::accept_change_page(const int &page)
     }
 }
 
-
-
 void MainWindow::on_stackedpage_changed(const int &page)
 {
     if (page == 0){
@@ -76,6 +75,11 @@ void MainWindow::on_stackedpage_changed(const int &page)
     else {
         this->time->changedstyle("black");
     }
+}
+
+void MainWindow::check_self()
+{
+    this->drivesetting->check_self();
 }
 
 

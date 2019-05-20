@@ -6,66 +6,18 @@
 #include <QSerialPortInfo>
 #include <QMessageBox>
 #include <QGridLayout>
-#include "my_control.h"
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QJsonDocument>
+#include "my_control.h"
+#include "camera.h"
+#include "serial.h"
 
 namespace Ui {
 class DriveSeting;
 }
-enum GainAuto{
-    Off  = 0,
-    Once,
-    Continuous
-};
-enum GammaSelector{
-    User = 1,
-    sRGB
-};
-enum ShadingSelector{
-    FPNCCorrection = 0,
-    PRNUCCorrection
-};
 
-struct CameraSetting{
-    int thresholdValue_whiteDetect;
-    int thresholdValue_blackDetect;
-
-    int width;
-    int height;
-    int offsetX;
-    int offsetY;
-
-    int acquisitionLineRate;
-    bool acquisitionLineRateEnable;
-
-    double gain;
-    GainAuto gainAuto;
-
-    double gamma;
-    bool gammaEnable;
-    GammaSelector gammaSelector;
-
-    double exposureTime;
-    bool nucEnable;
-};
-
-struct SerialSetting {
-    QString name;
-    int baudRate;
-    QString stringBaudRate;
-    QSerialPort::DataBits dataBits;
-    QString stringDataBits;
-    QSerialPort::Parity parity;
-    QString stringParity;
-    QSerialPort::StopBits stopBits;
-    QString stringStopBits;
-    QSerialPort::FlowControl flowControl;
-    QString stringFlowControl;
-    bool localEchoEnabled;
-};
 class DriveSeting : public QWidget
 {
     Q_OBJECT
@@ -74,18 +26,23 @@ public:
     explicit DriveSeting(QWidget *parent = nullptr);
     ~DriveSeting();
 
+    void init();
+
+    void init_camera();
+
     SerialSetting get_serial_setting();
     CameraSetting get_camera_setting();
 
-    QByteArray get_serial_bin();
-    QByteArray get_camera_bin();
-
     void load_setting();
 
-    void save_setting();
+    void save_setting(SerialSetting setting_ser,CameraSetting setting_cam);
 
     void scan_serial();
+
+    void check_self();
+
     unsigned short int CRC16(unsigned char* pchMsg, unsigned short int wDataLen);
+
 
 private slots:
     void accept_scan_serial();
@@ -100,12 +57,19 @@ private slots:
 
     void on_pushButton_4_released();
 
+    void on_pushButton_9_released();
+
+    void on_pushButton_11_clicked();
+
+    void on_pushButton_10_clicked();
+
 signals:
     void tell_window_step_page(int page);
 
 private:
     Ui::DriveSeting *ui;
     QSerialPort *serial;
+    HKCamera *camera;
 
 };
 

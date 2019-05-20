@@ -8,7 +8,6 @@
 #include <QSqlError>
 #include <QSqlRecord>
 
-static const char blankString[] = QT_TRANSLATE_NOOP("SettingsDialog", "None");
 
 
 const unsigned char chCRCHTalbe[] =
@@ -86,17 +85,32 @@ DriveSeting::DriveSeting(QWidget *parent) :
 {
     ui->setupUi(this);
     serial = new QSerialPort(this);
+    camera = new HKCamera();
     this->ui->pushButton_7->setText("打开串口");
-    this->scan_serial();
-    this->load_setting();
+    this->ui->baudRateBox->setCurrentIndex(1);
+    this->ui->dataBitsBox->setCurrentIndex(3);
     this->connect(this->ui->serialPortInfoListBox,&ComboBox::tell_serial_scan, this, &DriveSeting::accept_scan_serial);
-    ui->baudRateBox->setCurrentIndex(1);
-    ui->dataBitsBox->setCurrentIndex(3);
+
+
 }
 
 DriveSeting::~DriveSeting()
 {
     delete ui;
+    delete camera;
+}
+
+void DriveSeting::init()
+{
+    this->init_camera();
+    this->scan_serial();
+    this->load_setting();
+}
+
+void DriveSeting::init_camera()
+{
+    if (MV_OK != camera->enumDevices())
+        return;
 }
 
 SerialSetting DriveSeting::get_serial_setting()
@@ -155,20 +169,20 @@ CameraSetting DriveSeting::get_camera_setting()
     };
 
     CameraSetting setting;
-    setting.thresholdValue_whiteDetect = this->ui->spinBox->value();
-    setting.thresholdValue_blackDetect = this->ui->spinBox_2->value();
-    setting.width = this->ui->spinBox_3->value();
-    setting.height = this->ui->spinBox_4->value();
-    setting.offsetX = this->ui->spinBox_5->value();
-    setting.offsetY = this->ui->spinBox_6->value();
-    setting.acquisitionLineRate = this->ui->spinBox_7->value();
+    setting.thresholdValue_whiteDetect = static_cast<unsigned int>(this->ui->spinBox->value());
+    setting.thresholdValue_blackDetect = static_cast<unsigned int>(this->ui->spinBox_2->value());
+    setting.width = static_cast<unsigned int>(this->ui->spinBox_3->value());
+    setting.height = static_cast<unsigned int>(this->ui->spinBox_4->value());
+    setting.offsetX = static_cast<unsigned int>(this->ui->spinBox_5->value());
+    setting.offsetY = static_cast<unsigned int>(this->ui->spinBox_6->value());
+    setting.acquisitionLineRate = static_cast<unsigned int>(this->ui->spinBox_7->value());
     setting.acquisitionLineRateEnable = this->ui->checkBox->isChecked();
-    setting.exposureTime = this->ui->doubleSpinBox->value();
+    setting.exposureTime = static_cast<float>(this->ui->doubleSpinBox->value());
 
-    setting.gain = this->ui->doubleSpinBox_2->value();
+    setting.gain = static_cast<float>(this->ui->doubleSpinBox_2->value());
     setting.gainAuto =static_cast<GainAuto>(map[this->ui->comboBox->currentText()]);
 
-    setting.gamma = this->ui->doubleSpinBox_3->value();
+    setting.gamma = static_cast<float>(this->ui->doubleSpinBox_3->value());
     setting.gammaSelector = static_cast<GammaSelector>(map[this->ui->comboBox_2->currentText()]);
     setting.gammaEnable = this->ui->checkBox_2->isChecked();
     setting.nucEnable = this->ui->checkBox_3->isChecked();
@@ -176,62 +190,10 @@ CameraSetting DriveSeting::get_camera_setting()
     return setting;
 }
 
-QByteArray DriveSeting::get_serial_bin()
-{
-    SerialSetting serial_setting = this->get_serial_setting();
-    QJsonObject _serial
-    {
-        {"name",serial_setting.name},
-        {"baudRate",serial_setting.stringBaudRate},
-        {"dataBits",serial_setting.stringDataBits},
-        {"parity",serial_setting.stringParity},
-        {"stopBits",serial_setting.stringStopBits},
-        {"flowControl",serial_setting.stringFlowControl},
-    };
-    QJsonDocument serial_doc = QJsonDocument(_serial);
-    QByteArray serial_data = serial_doc.toBinaryData();
-    return serial_data;
-}
-
-QByteArray DriveSeting::get_camera_bin()
-{
-    QMap<int,QString> gain_map {
-        {0,"Off"},
-        {1,"Once"},
-        {2,"Continuous"},
-    };
-    QMap<int,QString> gamma_map {
-        {1,"User"},
-        {2,"sRGB"},
-    };
-    CameraSetting camera_setting = this->get_camera_setting();
-
-    QJsonObject camera
-    {
-        {"thresholdValue_whiteDetect",camera_setting.thresholdValue_whiteDetect},
-        {"thresholdValue_blackDetect",camera_setting.thresholdValue_blackDetect},
-        {"width",camera_setting.width},
-        {"height",camera_setting.height},
-        {"offsetX",camera_setting.offsetX},
-        {"offsetY",camera_setting.offsetY},
-        {"acquisitionLineRate",camera_setting.acquisitionLineRate},
-        {"acquisitionLineRateEnable",camera_setting.acquisitionLineRateEnable},
-        {"gain",camera_setting.gain},
-        {"gainAuto",gain_map[camera_setting.gainAuto]},
-        {"gamma",camera_setting.gamma},
-        {"gammaEnable",camera_setting.gammaEnable},
-        {"gammaSelector",gamma_map[camera_setting.gammaSelector]},
-        {"exposureTime",camera_setting.exposureTime},
-        {"nucEnable",camera_setting.nucEnable},
-    };
-    QJsonDocument camera_doc = QJsonDocument(camera);
-    QByteArray camera_data = camera_doc.toBinaryData();
-    return camera_data;
-}
 
 void DriveSeting::load_setting()
 {
-    QSqlDatabase *database = DB::interface();
+    QSqlDatabase *database = DB::getInterface();
     QJsonDocument ser_doc;
     QJsonDocument cam_doc;
     if (!database->open())
@@ -247,18 +209,19 @@ void DriveSeting::load_setting()
 
         while (query.next()) {
             QSqlRecord rec = query.record();
-            ser_doc = QJsonDocument::fromBinaryData(rec.value("serial_config").toByteArray());
-            cam_doc = QJsonDocument::fromBinaryData(rec.value("camera_config").toByteArray());
+            ser_doc = QJsonDocument::fromJson(rec.value("serial_config").toByteArray());
+            cam_doc = QJsonDocument::fromJson(rec.value("camera_config").toByteArray());
         }
         database->close();
     }
 
     QJsonObject ser_obj = ser_doc.object();
     QJsonObject cam_obj = cam_doc.object();
+
     this->ui->spinBox->setValue(cam_obj["thresholdValue_whiteDetect"].toInt());
     this->ui->spinBox_2->setValue(cam_obj["thresholdValue_blackDetect"].toInt());
     this->ui->spinBox_3->setValue(cam_obj["width"].toInt());
-    this->ui->spinBox_4->setValue(cam_obj["height "].toInt());
+    this->ui->spinBox_4->setValue(cam_obj["height"].toInt());
     this->ui->spinBox_5->setValue(cam_obj["offsetX"].toInt());
     this->ui->spinBox_6->setValue(cam_obj["offsetY"].toInt());
     this->ui->spinBox_7->setValue(cam_obj["acquisitionLineRate"].toInt());
@@ -273,7 +236,7 @@ void DriveSeting::load_setting()
 
     this->ui->comboBox_2->setCurrentText(cam_obj["gammaSelector"].toString());
     this->ui->checkBox_2->setChecked(cam_obj["gammaEnable"].toBool());
-    this->ui->checkBox_2->setChecked(cam_obj["nucEnable"].toBool());
+    this->ui->checkBox_3->setChecked(cam_obj["nucEnable"].toBool());
 
 
 
@@ -296,18 +259,18 @@ void DriveSeting::load_setting()
         messageBox.addButton(&button, QMessageBox::YesRole);
         messageBox.exec();
     }
-
 }
 
 
-void DriveSeting::save_setting()
+
+void DriveSeting::save_setting(SerialSetting setting_ser, CameraSetting setting_cam)
 {
-    QByteArray serial = this->get_serial_bin();
-    QByteArray camera = this->get_camera_bin();
+    QByteArray serial = Serial::get_serial_bin(setting_ser);
+    QByteArray camera = HKCamera::get_camera_bin(setting_cam);
 
     QString str_serial = serial;
     QString str_camera = camera;
-    QSqlDatabase *database = DB::interface();
+    QSqlDatabase *database = DB::getInterface();
 
     if (!database->open())
     {
@@ -326,7 +289,6 @@ void DriveSeting::save_setting()
          }
          database->close();
     }
-
 }
 
 void DriveSeting::scan_serial()
@@ -352,8 +314,12 @@ void DriveSeting::scan_serial()
         this->ui->serialPortInfoListBox->addItem(list.first(), list);
         qDebug() << list;
     }
-
     this->ui->serialPortInfoListBox->addItem(tr("Custom"));
+
+}
+
+void DriveSeting::check_self()
+{
 
 }
 
@@ -426,7 +392,7 @@ void DriveSeting::on_pushButton_7_released()
 
 void DriveSeting::on_pushButton_2_released()
 {
-    this->save_setting();
+    this->save_setting(this->get_serial_setting(), this->get_camera_setting());
 }
 
 
@@ -434,4 +400,35 @@ void DriveSeting::on_pushButton_4_released()
 {
     this->get_camera_setting();
     qDebug() << "apply";
+}
+
+void DriveSeting::on_pushButton_9_released()
+{
+    if (MV_OK != camera->enumDevices())
+        return;
+    if (MV_OK != camera->openDevice(0))
+        return;
+
+
+
+}
+
+void DriveSeting::on_pushButton_11_clicked()
+{
+    if (MV_OK != camera->startCollect())
+        return;
+    if (MV_OK != camera->collectFrame(this->ui->label_18));
+        return;
+    if (MV_OK != camera->stopCollect())
+        return;
+}
+
+void DriveSeting::on_pushButton_10_clicked()
+{
+    CameraSetting setting = camera->get_camera_setting();
+    this->save_setting(this->get_serial_setting(), this->camera->get_camera_setting());
+    this->load_setting();
+    QByteArray by = HKCamera::get_camera_bin(setting);
+    QJsonObject j =  QJsonDocument::fromJson(by).object();
+    qDebug() << j;
 }

@@ -52,7 +52,7 @@ signals:
 class DB
 {
 public:
-    static QSqlDatabase * interface(){
+    static QSqlDatabase * getInterface(){
         if (QSqlDatabase::contains("qt_sql_default_connection"))
         {
             return &__database__;
@@ -67,7 +67,7 @@ public:
     }
 protected:
     DB() {}
-    DB(const DB& other);
+    DB(const DB& other){ }
     ~DB(){}
 };
 #endif // MY_CONTROL_H

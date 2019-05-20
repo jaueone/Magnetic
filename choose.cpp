@@ -24,9 +24,11 @@ void Choose::setMen(const Meninfo &info)
 
     if (info.isengineer == "yes")
     {
+        this->ui->pushButton_5->hide();
         this->ui->pushButton_3->show();
     }
     else if (info.isengineer == "no") {
+        this->ui->pushButton_5->show();
         this->ui->pushButton_3->hide();
     }
 }
@@ -49,4 +51,9 @@ void Choose::on_pushButton_4_released()
 void Choose::on_pushButton_3_released()
 {
     emit tell_window_step_page(2);
+}
+
+void Choose::on_pushButton_5_released()
+{
+
 }

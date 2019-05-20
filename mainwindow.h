@@ -26,6 +26,9 @@ public slots:
     void accept_change_page(const int &page);
     void on_stackedpage_changed(const int &page);
 
+
+    void check_self();
+
 private:
     Ui::MainWindow *ui;
     DateTime *time;
