@@ -41,6 +41,7 @@ void MainWindow::sigcon()
     this->connect(this->ui->stackedWidget,&QStackedWidget::currentChanged,this,&MainWindow::on_stackedpage_changed);
 
     this->connect(this->login,&Login::tell_window_men_login,this,&MainWindow::accept_men_login);
+    this->connect(this->choose,&Choose::tell_window_check_self,this,&MainWindow::check_self);
 
 }
 
@@ -48,7 +49,6 @@ void MainWindow::accept_men_login(const Meninfo &info)
 {
     this->choose->setMen(info);
     this->mainpage->setMen(info);
-    this->drivesetting->init();
 }
 
 void MainWindow::accept_change_page(const int &page)

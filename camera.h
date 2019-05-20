@@ -5,6 +5,7 @@
 #include "CameraParams.h"
 #include "MvErrorDefine.h"
 
+#include <QThread>
 #include <Halcon.h>
 #include <HalconCpp.h>
 #include <QJsonArray>
@@ -15,7 +16,15 @@
 #include <QLabel>
 
 
+
 using namespace HalconCpp;
+
+enum DType{
+    Bool = 0,
+    Int,
+    Float,
+    String,
+};
 
 enum GainAuto{
     Off  = 0,
@@ -65,10 +74,13 @@ public:
     int collectFrame(QLabel *label);
     int stopCollect();
 
+    int closeDevice();
+
     CameraSetting get_camera_setting();
     static QByteArray get_camera_bin(CameraSetting setting);
 
-    int setParams();
+    bool isOpened();
+    int setParams(DType type, char * params, QVariant value);
 private:
     int nRet = -1;
     void *handle = NULL;
@@ -80,5 +92,25 @@ private:
 
     unsigned char*  m_pBufForSaveImage;         // 用于保存图像的缓存
     unsigned int    m_nBufSizeForSaveImage;
+};
+
+class Collect: public QThread
+{
+public:
+    Collect(HKCamera *camera, QLabel *label) {
+        camera_ = camera;
+        label_ = label;
+    }
+    void run(){
+        if (MV_OK != this->camera_->startCollect())
+            return;
+        if (MV_OK != this->camera_->collectFrame(this->label_))
+            return;
+        if (MV_OK != this->camera_->stopCollect())
+            return;
+    }
+protected:
+    HKCamera *camera_;
+    QLabel *label_;
 };
 #endif // CAMERA_H

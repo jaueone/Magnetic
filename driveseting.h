@@ -6,10 +6,6 @@
 #include <QSerialPortInfo>
 #include <QMessageBox>
 #include <QGridLayout>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonValue>
-#include <QJsonDocument>
 #include "my_control.h"
 #include "camera.h"
 #include "serial.h"
@@ -28,22 +24,23 @@ public:
 
     void init();
 
-    void init_camera();
+    QString init_camera();
+
+    QString init_serial();
 
     SerialSetting get_serial_setting();
+
     CameraSetting get_camera_setting();
 
     void load_setting();
 
-    void save_setting(SerialSetting setting_ser,CameraSetting setting_cam);
-
     void scan_serial();
 
-    void check_self();
+    void save_setting(SerialSetting setting_ser,CameraSetting setting_cam);
 
     unsigned short int CRC16(unsigned char* pchMsg, unsigned short int wDataLen);
 
-
+    void check_self();
 private slots:
     void accept_scan_serial();
 
@@ -71,6 +68,8 @@ private:
     QSerialPort *serial;
     HKCamera *camera;
 
+    bool serial_check_self;
+    bool camera_check_self;
 };
 
 #endif // DRIVESETING_H

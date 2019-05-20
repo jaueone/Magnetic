@@ -8,8 +8,6 @@
 #include <QSqlError>
 #include <QSqlRecord>
 
-
-
 const unsigned char chCRCHTalbe[] =
 {
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,// CRC 高位字节值表
@@ -91,7 +89,6 @@ DriveSeting::DriveSeting(QWidget *parent) :
     this->ui->dataBitsBox->setCurrentIndex(3);
     this->connect(this->ui->serialPortInfoListBox,&ComboBox::tell_serial_scan, this, &DriveSeting::accept_scan_serial);
 
-
 }
 
 DriveSeting::~DriveSeting()
@@ -102,15 +99,61 @@ DriveSeting::~DriveSeting()
 
 void DriveSeting::init()
 {
-    this->init_camera();
     this->scan_serial();
     this->load_setting();
+
+    if (this->init_camera() != "opened")
+        this->camera_check_self = false;
+    else
+        this->camera_check_self = true;
+    if (this->init_serial() != "opened")
+        this->serial_check_self = false;
+    else
+        this->serial_check_self = true;
+    QMessageBox messageBox;
+    messageBox.setWindowTitle("警告");
+    messageBox.setIcon(QMessageBox::Warning);
+    QPushButton button("确定");
+    messageBox.addButton(&button, QMessageBox::YesRole);
+    if (!this->camera_check_self && !this->serial_check_self){
+        messageBox.setText("相机自检失败  \n串口自检失败   请联系管理员");
+    }
+    else if (!this->serial_check_self){
+        messageBox.setText("串口自检失败   请联系管理员");
+    }
+    else if (!this->camera_check_self){
+        messageBox.setText("串口自检失败   请联系管理员");
+    }
+    else{
+        messageBox.setWindowTitle("信息");
+        messageBox.setIcon(QMessageBox::Information);
+        messageBox.setText("系统自检成功");
+    }
+    messageBox.exec();
 }
 
-void DriveSeting::init_camera()
+QString DriveSeting::init_camera()
 {
     if (MV_OK != camera->enumDevices())
-        return;
+        return "enum fail";
+    if (MV_OK != camera->openDevice(0))
+        return  "open fail";
+    return "opened";
+}
+
+QString DriveSeting::init_serial()
+{
+    SerialSetting setting = get_serial_setting();
+    serial->setPortName(setting.name);
+    serial->setBaudRate(setting.baudRate);
+    serial->setDataBits(setting.dataBits);
+    serial->setParity(setting.parity);
+    serial->setStopBits(setting.stopBits);
+    serial->setFlowControl(setting.flowControl);
+    if (serial->open(QIODevice::ReadWrite) || serial->isOpen()){
+        return "opened";
+    }
+    return "opened fail";
 }
 
 SerialSetting DriveSeting::get_serial_setting()
@@ -238,27 +281,14 @@ void DriveSeting::load_setting()
     this->ui->checkBox_2->setChecked(cam_obj["gammaEnable"].toBool());
     this->ui->checkBox_3->setChecked(cam_obj["nucEnable"].toBool());
 
-
-
     this->ui->baudRateBox->setCurrentText(ser_obj["baudRate"].toString());
     this->ui->dataBitsBox->setCurrentText(ser_obj["dataBits"].toString());
     this->ui->parityBox->setCurrentText(ser_obj["parity"].toString());
     this->ui->stopBitsBox->setCurrentText(ser_obj["stopBits"].toString());
     this->ui->flowControlBox->setCurrentText(ser_obj["flowControl"].toString());
 
-    if (ser_obj["name"].toString() =="")
-        return;
-    else if (this->ui->serialPortInfoListBox->findText(ser_obj["name"].toString()) >= 0)
-        this->ui->serialPortInfoListBox->setCurrentText(ser_obj["name"].toString());
-    else {
-        QMessageBox messageBox;
-        messageBox.setWindowTitle("警告");
-        messageBox.setIcon(QMessageBox::Warning);
-        messageBox.setText("找不到串口  ");
-        QPushButton button("确定");
-        messageBox.addButton(&button, QMessageBox::YesRole);
-        messageBox.exec();
-    }
+    this->ui->serialPortInfoListBox->setCurrentText(ser_obj["name"].toString());
+
 }
 
 
@@ -320,7 +350,7 @@ void DriveSeting::scan_serial()
 
 void DriveSeting::check_self()
 {
-
+    this->init();
 }
 
 void DriveSeting::accept_scan_serial()
@@ -370,7 +400,7 @@ void DriveSeting::on_pushButton_7_released()
         serial->setParity(setting.parity);
         serial->setStopBits(setting.stopBits);
         serial->setFlowControl(setting.flowControl);
-        if (serial->open(QIODevice::ReadWrite) && serial->isOpen()){
+        if (serial->open(QIODevice::ReadWrite) || serial->isOpen()){
             this->ui->pushButton_7->setChecked(true);
             this->ui->pushButton_7->setText("关闭串口");
         }

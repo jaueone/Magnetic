@@ -10,6 +10,7 @@ HKCamera::HKCamera() {
 
 HKCamera::~HKCamera()
 {
+    this->closeDevice();
     MV_CC_DestroyHandle(handle);
     handle= NULL;
 }
@@ -143,7 +144,11 @@ int HKCamera::stopCollect()
         qDebug("error: StopGrabbing fail [%x]\n", nRet);
         return -1;
     }
+    return 0;
+}
 
+int HKCamera::closeDevice()
+{
     /************************************************************************/
     /* 7. 关闭设备  MV_CC_CloseDevice                                       */
     /************************************************************************/
@@ -165,7 +170,7 @@ int HKCamera::stopCollect()
         qDebug("error: DestroyHandle fail [%x]\n", nRet);
         return -1;
     }
-    qDebug() << "stop colledt";
+    qDebug() << "stop collect";
     return 0;
 }
 
@@ -253,8 +258,33 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
     return camera_data;
 }
 
-int HKCamera::setParams()
+bool HKCamera::isOpened()
 {
+    if (MV_CC_IsDeviceConnected(handle)){
+        qDebug() << "information opened";
+        return true;
+    }
+    return false;
+}
+
+int HKCamera::setParams(DType type, char *params, QVariant value)
+{
+    if (type == DType::Bool){
+        if (MV_OK != MV_CC_SetBoolValue(handle, params,value.toBool()))
+            return -1;
+    }
+    else if (type == DType::Int){
+        if (MV_OK != MV_CC_SetIntValue(handle, params, value.toUInt()))
+            return -1;
+    }
+    else if (type == DType::Float){
+        if (MV_OK != MV_CC_SetFloatValue(handle, params, value.toFloat()))
+            return -1;
+    }
+    else if (type == DType::String){
+
+    }
     return 0;
 }
+
 
