@@ -17,18 +17,11 @@ ScreenCheck::~ScreenCheck()
 
 void ScreenCheck::on_pushButton_released()
 {
+    this->ui->label_7->setText("\346\255\243\345\234\250\346\243\200\346\265\213\345\275\223\344\270\255..."); //正在检测当中...
     this->ui->stackedWidget->setCurrentIndex(1);
+    //this->ui->label_7->setText("\346\243\200\346\265\213\345\244\261\350\264\245"); //检测失败
 }
 
-void ScreenCheck::on_pushButton_2_released()
-{
-    this->ui->stackedWidget->setCurrentIndex(2);
-}
-
-void ScreenCheck::on_pushButton_3_released()
-{
-    this->ui->stackedWidget->setCurrentIndex(0);
-}
 
 void ScreenCheck::addlabel(const QString &name, const QString &content)
 {

@@ -34,7 +34,6 @@ signals:
 private:
     Ui::MainPage *ui;
     ScreenCheck *screencheck;
-    ScreenResult *screenresult;
 
 };
 

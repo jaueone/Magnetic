@@ -31,7 +31,7 @@ private slots:
 
 signals:
     void tell_window_step_page(int page);
-
+    void tell_window_check_self();
 private:
     Ui::Choose *ui;
 };

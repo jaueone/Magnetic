@@ -22,11 +22,6 @@ public:
 private slots:
     void on_pushButton_released();
 
-    void on_pushButton_2_released();
-
-    void on_pushButton_3_released();
-
-
     void on_pushButton_4_released();
 
     void on_pushButton_8_released();
@@ -37,7 +32,7 @@ signals:
 private:
     Ui::ScreenCheck *ui;
     QMap<QString ,Label *> object_label_map{};
-    QString nae;
+
 };
 
 #endif // SCREENCHECK_H

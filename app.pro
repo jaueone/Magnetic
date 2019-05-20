@@ -41,7 +41,7 @@ SOURCES += \
         login.cpp \
         choose.cpp \
         main_page/screencheck.cpp \
-        main_page/screenresult.cpp \
+#        main_page/screenresult.cpp \
     main_page/main_page.cpp \
     driveseting.cpp \
     camera.cpp \
@@ -54,7 +54,7 @@ HEADERS += \
     datetime.h \
     choose.h \
     main_page/screencheck.h \
-    main_page/screenresult.h \
+#    main_page/screenresult.h \
     my_control.h \
     main_page/main_page.h \
     driveseting.h \
@@ -68,7 +68,7 @@ FORMS += \
     login.ui \
     choose.ui \
     main_page/screencheck.ui \
-    main_page/screenresult.ui \
+#    main_page/screenresult.ui \
     main_page/main_page.ui \
     driveseting.ui
 

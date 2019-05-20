@@ -136,6 +136,12 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
         <height>200</height>
        </size>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>163</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <family>微软雅黑</family>

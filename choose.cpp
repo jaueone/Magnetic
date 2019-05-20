@@ -9,6 +9,7 @@ Choose::Choose(QWidget *parent) :
     ui(new Ui::Choose)
 {
     ui->setupUi(this);
+    this->ui->pushButton->hide();
 }
 
 Choose::~Choose()
@@ -24,7 +25,6 @@ void Choose::setMen(const Meninfo &info)
 
     if (info.isengineer == "yes")
     {
-        this->ui->pushButton_5->hide();
         this->ui->pushButton_3->show();
     }
     else if (info.isengineer == "no") {
@@ -55,5 +55,5 @@ void Choose::on_pushButton_3_released()
 
 void Choose::on_pushButton_5_released()
 {
-
+    emit tell_window_check_self();
 }
