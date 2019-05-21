@@ -71,17 +71,16 @@ int HKCamera::startCollect()
         return -1;
     }
     //设置相机图像的像素格式
-    unsigned int enValue = PixelType_Gvsp_Undefined;
+   //unsigned int enValue = PixelType_Gvsp_BayerRG8;
     //unsigned int enValue = PixelType_Gvsp_RGB8_Packed;
-    nRet = MV_CC_SetPixelFormat(handle, enValue);
-    if (MV_OK != nRet)
-    {
-        qDebug("error: SetPixelFormat fail [%x]\n", nRet);
-        return -1;
-    }
+//    nRet = MV_CC_SetPixelFormat(handle, enValue);
+//    if (MV_OK != nRet)
+//    {
+//        qDebug("error: SetPixelFormat fail [%x]\n", nRet);
+//        return -1;
+//    }
     qDebug() << "start collect";
     return 0;
-
 }
 
 int HKCamera::collectFrame(QLabel *label)
@@ -100,8 +99,7 @@ int HKCamera::collectFrame(QLabel *label)
 
     //上层应用程序需要根据帧率，控制好调用该接口的频率
     //此次代码仅供参考，实际应用建议另建线程进行图像帧采集和处理
-    for (int in = 0; in <10 ; in++)
-    {
+
         //pFrameBuf是相机采集到的一帧原始图像数据
         nRet = MV_CC_GetOneFrame(handle, pFrameBuf, MAX_BUF_SIZE+2048, &stInfo);
         /*************************************显示图像**************************************/
@@ -127,11 +125,10 @@ int HKCamera::collectFrame(QLabel *label)
 
         }*/
         GenImage1(&ho_Image, "byte", wid, hgt, (Hlong)(data));
-        WriteImage(ho_Image, "bmp", 0, HTuple("E:/photo/") + 1);
-        Sleep(500);
+       // WriteImage(ho_Image, "bmp", 0, HTuple("E:/photo/") + 1);
+        //Sleep(500);
         delete[]  data;
         /**********************************************************************************/
-    }
     free(pFrameBuf);
     qDebug() << "colledted";
     return 0;
@@ -179,6 +176,11 @@ int HKCamera::closeDevice()
     return 0;
 }
 
+HObject HKCamera::getImage()
+{
+    return ho_Image;
+}
+
 CameraSetting HKCamera::get_camera_setting()
 {
     CameraSetting setting;
@@ -189,9 +191,7 @@ CameraSetting HKCamera::get_camera_setting()
     MVCC_INTVALUE thresholdValue_whiteDetect, thresholdValue_blackDetect,width,height,offsetX,offsetY,acquisitionLineRate;
     MVCC_FLOATVALUE gain, gamma, exposureTime;
     MVCC_ENUMVALUE gainAuto, gammaSelector;
-    qDebug() << acquisitionLineRate.nCurValue << exposureTime.fCurValue << thresholdValue_whiteDetect.nCurValue;
-    MV_CC_GetIntValue(handle, "ThresholdValue_whiteDetect",&thresholdValue_whiteDetect);
-    MV_CC_GetIntValue(handle, "ThresholdValue_blackDetect",&thresholdValue_blackDetect);
+
     MV_CC_GetIntValue(handle, "Width",&width);
     MV_CC_GetIntValue(handle, "Height",&height);
     MV_CC_GetIntValue(handle, "OffsetX",&offsetX);
@@ -222,7 +222,6 @@ CameraSetting HKCamera::get_camera_setting()
     setting.exposureTime = exposureTime.fCurValue;
 
     setting.gainAuto = static_cast<GainAuto>(gainAuto.nCurValue);
-    qDebug() << setting.gainAuto;
     setting.gammaSelector = static_cast<GammaSelector>(gammaSelector.nCurValue);
     return setting;
 }

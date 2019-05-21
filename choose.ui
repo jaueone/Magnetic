@@ -129,35 +129,6 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton_5">
-      <property name="minimumSize">
-       <size>
-        <width>163</width>
-        <height>200</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>163</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>12</pointsize>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:5px}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-      </property>
-      <property name="text">
-       <string>系统自检</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QPushButton" name="pushButton_3">
       <property name="minimumSize">
        <size>

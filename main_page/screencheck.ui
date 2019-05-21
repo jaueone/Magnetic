@@ -147,7 +147,7 @@ border:1px solid rgb(0, 58, 176);</string>
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QWidget" name="verticalLayoutWidget">
@@ -167,7 +167,59 @@ border:1px solid rgb(0, 58, 176);</string>
           <number>10</number>
          </property>
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="lcd_out">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>微软雅黑</family>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
+QPushButton::checked{background-color: rgb(255, 122, 78);}</string>
+           </property>
+           <property name="text">
+            <string>LCD输出</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="lcd_change_image">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>微软雅黑</family>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+           </property>
+           <property name="text">
+            <string>LCD切图</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="start_check">
            <property name="minimumSize">
             <size>
              <width>0</width>

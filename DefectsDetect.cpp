@@ -1,4 +1,4 @@
-#include <stdarg.h>
+
 #include "DefectsDetect.h"
 
 
@@ -12,140 +12,106 @@ DefectsDetect::~DefectsDetect()
 	
 }
 
-void DefectsDetect::run(HObject ho_Image)
+void DefectsDetect::run(HObject &ho_Image)
 {
-	
-  //Image process procedure-1 ,especially for black or bigger size defects
-  hv_medianDegree = 5;
-  hv_thresholdBlack = 34;
-  MedianImage(ho_Image, &ho_ImageMedian, "circle", hv_medianDegree, "mirrored");
-  //invert_image (ImageMedian, ImageInvert)
-  KirschAmp(ho_ImageMedian, &ho_ImageEdgeAmp1);
-  Threshold(ho_ImageEdgeAmp1, &ho_Regions1, hv_thresholdBlack, 255);
-  DilationCircle(ho_Regions1, &ho_RegionDilation1, 12.5);
-  Connection(ho_RegionDilation1, &ho_ConnectedRegions1);
-  SelectGray(ho_ConnectedRegions1, ho_Image, &ho_SelectedRegions, "mean", "and", 
-      0, 55);
-  CountObj(ho_SelectedRegions, &hv_GraySelectedNum);
-  Union1(ho_SelectedRegions, &ho_RegionUnion1);
+   
+    GetImageSize(ho_Image, &hv_Width, &hv_Height);
+    SetWindowAttr("background_color","black");
+    OpenWindow(0,0,1314,876,0,"visible","",&hv_WindowHandle);
+    HDevWindowStack::Push(hv_WindowHandle);
+    if (HDevWindowStack::IsOpen())
+      SetDraw(HDevWindowStack::GetActive(),"margin");
+    if (HDevWindowStack::IsOpen())
+      SetColored(HDevWindowStack::GetActive(),12);
+    // dev_update_window(...); only in hdevelop
+//    if (HDevWindowStack::IsOpen())
+//      DispObj(ho_Image, HDevWindowStack::GetActive());
+
+    hv_Row1 = 975;
+    hv_Column1 = 1055;
+    hv_Row2 = 3340;
+    hv_Column2 = 5360;
+    GenRectangle1(&ho_ROI_0, hv_Row1, hv_Column1, hv_Row2, hv_Column2);
+    ReduceDomain(ho_Image, ho_ROI_0, &ho_ImageReduced);
+    GenRectangle1(&ho_ROI_0, hv_Row1, hv_Column1, hv_Row2, hv_Column2);
+    GenRectangle1(&ho_ROI_L, hv_Row1, hv_Column1, hv_Row2, 0.4*(hv_Column1+hv_Column2));
+    GenRectangle1(&ho_ROI_R, hv_Row1, 0.6*(hv_Column1+hv_Column2), hv_Row2, hv_Column2);
+    ReduceDomain(ho_Image, ho_ROI_0, &ho_ImageReduced);
+
+    //fft_generic (Image, ImageFFT, 'to_freq', -1, 'sqrt', 'dc_center', 'complex')
+    //gen_rectangle1 (Rectangle1, 0, Width/2-1, Height, Width/2+3)
+    //paint_region (Rectangle1, ImageFFT, ImageResult, 0, 'fill')
+    //gen_rectangle1 (Rectangle2, Height/2-2, 0, Height/2+4, Width)
+    //paint_region (Rectangle2, ImageResult, ImageResult, 0, 'fill')
+    //fft_generic (ImageResult, ImageFFT1, 'from_freq', 1, 'sqrt', 'dc_center', 'byte')
+    //rectangle1_domain (ImageFFT1, ImageReduced1, 10, 10, Height-10, Width-10)
+    //scale_image_max (ImageReduced1, ImageScaleMax1)
+
+    //mean_image (ImageScaleMax1, ImageMean, 200, 200)
+    //dyn_threshold (ImageScaleMax1, ImageMean, RegionDynThresh, 2, 'light')
+    //opening_rectangle1 (RegionDynThresh, RegionOpening, 2, 2)
+    //connection (RegionOpening, ConnectedRegions1)
+    //select_shape_std (ConnectedRegions1, SelectedRegions1, 'max_area', 70)
+
+    Rgb1ToGray(ho_ImageReduced, &ho_GrayImage);
+    GaussFilter(ho_GrayImage, &ho_ImageGauss, 7);
 
 
-
-  //Image process  procedure-2 ,especially for white or small size defects
-  hv_smoothDegree = 1.7;
-  hv_thresholdWhite = 50;
-
-  SmoothImage(ho_Image, &ho_ImageSmooth, "gauss", hv_smoothDegree);
-  KirschAmp(ho_ImageSmooth, &ho_ImageEdgeAmp2);
-  Threshold(ho_ImageEdgeAmp2, &ho_Regions2, hv_thresholdWhite, 255);
-  DilationCircle(ho_Regions2, &ho_RegionDilation2, 12.5);
-  Connection(ho_RegionDilation2, &ho_ConnectedRegions2);
-  Union1(ho_ConnectedRegions2, &ho_RegionUnion2);
-
-  //****************
-  Union2(ho_RegionUnion1, ho_RegionUnion2, &ho_RegionUnion);
+    //roberts (ImageGauss, ImageRoberts, 'gradient_sum')
+    //threshold (ImageRoberts, RegionsRoberts, 35, 65)
+    //dilation_rectangle1 (RegionsRoberts, DRegionsRoberts, 7, 7)
+    //connection (DRegionsRoberts, ConnectedDRegionsRoberts)
+    //select_shape_std (ConnectedDRegionsRoberts, SelectedRegions1, 'max_area', 70)
+    //fill_up (SelectedRegions1, FillSelectedRegions1)
+    //erosion_rectangle1 (FillSelectedRegions1, ErosionFill, 27, 27)
+    //reduce_domain (ImageGauss, ErosionFill, ImageReduced)
 
 
-
-  //result feedback
-  CountObj(ho_SelectedRegions, &hv_defectsNum1);
-  CountObj(ho_ConnectedRegions2, &hv_defectsNum2);
-  hv_defectsNum = hv_defectsNum1+hv_defectsNum2;
-
-  //if is not ok ,then...
-  if (0 != (hv_defectsNum>2))
-  {
-    //defects statistic
-    Rectangularity(ho_ConnectedRegions2, &hv_Rectangularity);
-    AreaCenter(ho_ConnectedRegions2, &hv_Area, &hv_Row, &hv_Column);
-    GetGrayval(ho_Image, hv_Row, hv_Column, &hv_Grayval);
-
-    hv_ScratchNum = 0;
-    hv_WhitePointNum = 0;
-    hv_BlackPointNum = 0;
-
-    hv_RecThreshold = 0.85;
-    hv_GrayvalThreshold = 20;
-
-
-    //*********** return parameters  ***********
-    hv_ScratchExist = 0;
-    hv_WhitePointExist = 0;
-    hv_BlackPointExist = 0;
-    hv_ReturnIsOK = 0;
-    //*********** return parameters  ***********
-
-
-    hv_regionNum = hv_Rectangularity.TupleLength();
-
+    //***��Բ��
+    Roberts(ho_ImageGauss, &ho_ImageRoberts1, "gradient_sum");
+    Intensity(ho_ROI_0, ho_ImageRoberts1, &hv_M, &hv_D);
+    Threshold(ho_ImageRoberts1, &ho_RegionsRoberts1, 8, 75);
+    AreaCenter(ho_RegionsRoberts1, &hv_are1, &hv_r1, &hv_c1);
+    Connection(ho_RegionsRoberts1, &ho_coRegionsRoberts1);
+    AreaCenter(ho_coRegionsRoberts1, &hv_are2, &hv_r2, &hv_c2);
+    if (0 != (hv_Row1<hv_r1))
     {
-    HTuple end_val74 = hv_regionNum;
-    HTuple step_val74 = 1;
-    for (hv_Index=1; hv_Index.Continue(end_val74, step_val74); hv_Index += step_val74)
-    {
-      if (0 != (HTuple(hv_Rectangularity[hv_Index-1])>hv_RecThreshold))
+      if (0 != (hv_Column1<hv_c1))
       {
-        hv_ScratchNum += 1;
-        continue;
-      }
-      else if (0 != (HTuple(hv_Grayval[hv_Index-1])>hv_GrayvalThreshold))
-      {
-        hv_WhitePointNum += 1;
-        continue;
-      }
-      else
-      {
-        hv_BlackPointNum += 1;
+        //dilation_circle (RegionsRoberts1, RegionsRoberts1, 50)
+        DilationCircle(ho_RegionsRoberts1, &ho_RegionsRoberts11, 50);
+        //dilation_circle (RegionsRoberts2, RegionsRoberts2, 50)
+        //dilation_circle (RegionsRoberts2, RegionsRoberts2, 50)
+        //erosion_circle (RegionsRoberts2, ErosionRoberts2, 50)
+        Connection(ho_RegionsRoberts11, &ho_ConnectedRegions1);
+        GenContourRegionXld(ho_ConnectedRegions1, &ho_Contours1, "border");
+        SelectShapeXld(ho_Contours1, &ho_SelectedContours1, (((((HTuple("row1").Append("column1")).Append("row2")).Append("column2")).Append("circularity")).Append("contlength")), 
+            "and", (((((HTuple(2).Append(2)).Append(2)).Append(2)).Append(0.7)).Append(2)), 
+            ((((hv_Height-2).TupleConcat(hv_Width-2)).TupleConcat(hv_Height-2)).TupleConcat(hv_Width-2)).TupleConcat((HTuple(1).Append(999999))));
+        //smallest_rectangle1_xld (SelectedContours1, Row11, Column11, Row21, Column21)
+        //gen_rectangle1 (Rectangle, Row11-5, Column11-5, Row21+5, Column21+5)
+
+        GenRegionContourXld(ho_SelectedContours1, &ho_SelectedContours1, "margin");
+
+        CountObj(ho_SelectedContours1, &hv_CircleNum);
+
+        Union1(ho_SelectedContours1, &ho_SelectedContours11);
+        if (HDevWindowStack::IsOpen())
+          DispObj(ho_SelectedContours11, HDevWindowStack::GetActive());
+
+        if (0 != (hv_CircleNum>0))
+        {
+          hv_ReturnIsOK = 0;
+        }
+        else
+        {
+          hv_ReturnIsOK = 1;
+        }
+
+
+
       }
     }
-    }
-
-    hv_BlackPointNum += hv_GraySelectedNum;
-    hv_ResultMessage.Clear();
-    hv_ResultMessage[0] = " Not OK";
-    hv_ResultMessage.Append(//' 划痕: '
-      " \273\256\272\333: "+hv_ScratchNum);
-    hv_ResultMessage.Append(//' 白色缺陷: '
-      " \260\327\311\253\310\261\317\335: "+hv_WhitePointNum);
-    hv_ResultMessage.Append(//' 黑色缺陷: '
-      " \272\332\311\253\310\261\317\335: "+hv_BlackPointNum);
-    hv_Color.Clear();
-    hv_Color[0] = "red";
-    hv_Color[1] = "black";
-    hv_Color[2] = "black";
-    hv_Color[3] = "black";
-    hv_ReturnIsOK = 0;
-  }
-  else
-  {
-    hv_ResultMessage = "OK";
-    hv_Color = "forest green";
-    hv_ReturnIsOK = 1;
-  }
-
-  //*********** return parameters  ***********
-  if (0 != (hv_ScratchNum!=0))
-  {
-    hv_ScratchExist = 1;
-  }
-  if (0 != (hv_WhitePointNum!=0))
-  {
-    hv_WhitePointExist = 1;
-  }
-  if (0 != (hv_BlackPointNum!=0))
-  {
-    hv_BlackPointExist = 1;
-  }
-  //*********** return parameters  ***********
-
-
-  //Display the results
-  if (HDevWindowStack::IsOpen())
-    DispObj(ho_Image, HDevWindowStack::GetActive());
-  if (HDevWindowStack::IsOpen())
-    DispObj(ho_RegionUnion, HDevWindowStack::GetActive());
-
-
 	
 }
 
@@ -163,21 +129,22 @@ bool DefectsDetect::get_result()
 	else
 	_bResult = 0;
 
-	return _bResult;
+    return _bResult;
 }
 
-
-
-int DefectsDetect::get_defectsType()
+Result DefectsDetect::getResult(HObject &ho_Image)
 {
-	if(hv_ScratchExist==1)
-		_iType=0xF1;
-	if (hv_WhitePointExist == 1)
-		_iType = (0xF1 || 0xF2);
-	if (hv_BlackPointExist==1)
-		_iType = (0xF1 || 0xF4);
-		
-		
-	return _iType;
-	
+    run(ho_Image);
+    Result res;
+    if (hv_ReturnIsOK==1)
+    _bResult = 1;
+    else
+    _bResult = 0;
+
+    res.is_ok = _bResult;
+    res.image = ho_SelectedContours11;
+    return res;
 }
+
+
+

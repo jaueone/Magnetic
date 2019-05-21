@@ -98,39 +98,52 @@ DriveSeting::~DriveSeting()
     delete camera;
 }
 
-void DriveSeting::init()
+bool DriveSeting::init()
 {
     this->scan_serial();
     this->load_setting();
 
     if (this->init_camera() != "opened")
-        this->camera_check_self = false;
+        this->Camera_OK = false;
     else
-        this->camera_check_self = true;
+        this->Camera_OK = true;
     if (this->init_serial() != "opened")
-        this->serial_check_self = false;
+        this->Serial_OK = false;
     else
-        this->serial_check_self = true;
+        this->Serial_OK = true;
+
+    if (Camera_OK && Serial_OK)
+        return true;
+    else
+        return false;
+
+}
+
+void DriveSeting::display_init()
+{
     QMessageBox messageBox;
     messageBox.setWindowTitle("警告");
     messageBox.setIcon(QMessageBox::Warning);
     QPushButton button("确定");
     messageBox.addButton(&button, QMessageBox::YesRole);
-    if (!this->camera_check_self && !this->serial_check_self){
+    if (!this->Camera_OK && !this->Serial_OK){
         messageBox.setText("相机自检失败  \n串口自检失败   请联系管理员");
+        messageBox.exec();
     }
-    else if (!this->serial_check_self){
+    else if (!this->Serial_OK){
         messageBox.setText("串口自检失败   请联系管理员");
+        messageBox.exec();
     }
-    else if (!this->camera_check_self){
+    else if (!this->Camera_OK){
         messageBox.setText("相机自检失败   请联系管理员");
+        messageBox.exec();
     }
     else{
         messageBox.setWindowTitle("信息");
         messageBox.setIcon(QMessageBox::Information);
         messageBox.setText("系统自检成功");
+        messageBox.exec();
     }
-    messageBox.exec();
 }
 
 QString DriveSeting::init_camera()
@@ -352,6 +365,7 @@ void DriveSeting::scan_serial()
 void DriveSeting::check_self()
 {
     this->init();
+    this->display_init();
 }
 
 void DriveSeting::accept_scan_serial()
@@ -440,8 +454,6 @@ void DriveSeting::on_pushButton_9_released()
     if (MV_OK != camera->openDevice(0))
         return;
 
-
-
 }
 
 void DriveSeting::on_pushButton_11_clicked()
@@ -462,4 +474,9 @@ void DriveSeting::on_pushButton_10_clicked()
     QByteArray by = HKCamera::get_camera_bin(setting);
     QJsonObject j =  QJsonDocument::fromJson(by).object();
     qDebug() << j;
+}
+
+void DriveSeting::on_spinBox_3_valueChanged(int arg1)
+{
+
 }

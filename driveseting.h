@@ -22,7 +22,9 @@ public:
     explicit DriveSeting(QWidget *parent = nullptr);
     ~DriveSeting();
 
-    void init();
+    bool init();
+
+    void display_init();
 
     QString init_camera();
 
@@ -41,6 +43,11 @@ public:
     unsigned short int CRC16(unsigned char* pchMsg, unsigned short int wDataLen);
 
     void check_self();
+
+    QSerialPort *Serial(){ return serial;}
+
+    HKCamera * Camera(){ return camera;}
+
 private slots:
     void accept_scan_serial();
 
@@ -60,6 +67,8 @@ private slots:
 
     void on_pushButton_10_clicked();
 
+    void on_spinBox_3_valueChanged(int arg1);
+
 signals:
     void tell_window_step_page(int page);
 
@@ -68,8 +77,8 @@ private:
     QSerialPort *serial;
     HKCamera *camera;
 
-    bool serial_check_self;
-    bool camera_check_self;
+    bool Serial_OK;
+    bool Camera_OK;
 };
 
 #endif // DRIVESETING_H

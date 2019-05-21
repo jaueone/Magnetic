@@ -20,6 +20,7 @@ MainPage::MainPage(QWidget *parent) :
     this->connect(this->ui->pushButton_2,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_3,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->screencheck,&ScreenCheck::tell_mainpage_step_page, this, &MainPage::accept_change_page);
+    this->connect(this->screencheck,&ScreenCheck::tell_window_start_check, this, &MainPage::accept_tell_window_start_check);
 }
 
 MainPage::~MainPage()
@@ -45,6 +46,11 @@ void MainPage::setMen(const Meninfo &info)
 
 }
 
+void MainPage::start_check()
+{
+    this->screencheck->start_check();
+}
+
 void MainPage::accept_button_clicked(const bool &checked)
 {
     if (checked!=true)
@@ -68,4 +74,9 @@ void MainPage::accept_tell_window_step_page(int page)
 void MainPage::accept_change_page(const int &page)
 {
     this->ui->stackedWidget->setCurrentIndex(page);
+}
+
+void MainPage::accept_tell_window_start_check()
+{
+    emit tell_window_start_check();
 }

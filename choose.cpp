@@ -9,7 +9,6 @@ Choose::Choose(QWidget *parent) :
     ui(new Ui::Choose)
 {
     ui->setupUi(this);
-    this->ui->pushButton->hide();
 }
 
 Choose::~Choose()
@@ -28,14 +27,13 @@ void Choose::setMen(const Meninfo &info)
         this->ui->pushButton_3->show();
     }
     else if (info.isengineer == "no") {
-        this->ui->pushButton_5->show();
         this->ui->pushButton_3->hide();
     }
 }
 
 void Choose::on_pushButton_2_released()
 {
-    emit tell_window_step_page(3);
+    emit tell_window_check_self();
 }
 
 void Choose::on_pushButton_released()
@@ -53,7 +51,4 @@ void Choose::on_pushButton_3_released()
     emit tell_window_step_page(2);
 }
 
-void Choose::on_pushButton_5_released()
-{
-    emit tell_window_check_self();
-}
+

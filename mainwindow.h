@@ -28,6 +28,8 @@ public slots:
 
 
     void check_self();
+    void accept_camera_start_check();
+    void accept_kill_preview_thread();
 
 private:
     Ui::MainWindow *ui;
@@ -36,6 +38,18 @@ private:
     Choose *choose;
     MainPage *mainpage;
     DriveSeting *drivesetting;
+    ScreenCheck *screen_check;
+
+    HKCamera *camera;
+    QSerialPort *serial;
+    QLabel *camera_label_;
+
+    PreviewThread *preview_thread;
+    CollectThread *collect_thread;
+
+signals:
+    void camera_start_preview();
+
 };
 
 #endif // MAINWINDOW_H
