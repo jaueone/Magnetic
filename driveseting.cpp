@@ -8,6 +8,7 @@
 #include <QSqlError>
 #include <QSqlRecord>
 
+
 const unsigned char chCRCHTalbe[] =
 {
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,// CRC 高位字节值表
@@ -122,7 +123,7 @@ void DriveSeting::init()
         messageBox.setText("串口自检失败   请联系管理员");
     }
     else if (!this->camera_check_self){
-        messageBox.setText("串口自检失败   请联系管理员");
+        messageBox.setText("相机自检失败   请联系管理员");
     }
     else{
         messageBox.setWindowTitle("信息");

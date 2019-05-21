@@ -5,9 +5,10 @@
 #include "CameraParams.h"
 #include "MvErrorDefine.h"
 
-#include <QThread>
+
 #include <Halcon.h>
 #include <HalconCpp.h>
+#include <QThread>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>

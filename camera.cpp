@@ -33,7 +33,7 @@ int HKCamera::enumDevices()
 
 int HKCamera::openDevice(const int &index)
 {
-    if (MV_CC_IsDeviceConnected(handle)){
+    if (this->isOpened()){
         qDebug() << "information opened";
         return 0;
     }
@@ -56,6 +56,10 @@ int HKCamera::openDevice(const int &index)
 
 int HKCamera::startCollect()
 {
+    if (!this->isOpened()){
+        qDebug() << "camera not opened";
+        return -1;
+    }
     /************************************************************************/
     /* 4.开启抓图     MV_CC_StartGrabbing                                   */
     /************************************************************************/
@@ -67,7 +71,8 @@ int HKCamera::startCollect()
         return -1;
     }
     //设置相机图像的像素格式
-    unsigned int enValue = PixelType_Gvsp_RGB8_Packed;
+    unsigned int enValue = PixelType_Gvsp_Undefined;
+    //unsigned int enValue = PixelType_Gvsp_RGB8_Packed;
     nRet = MV_CC_SetPixelFormat(handle, enValue);
     if (MV_OK != nRet)
     {
