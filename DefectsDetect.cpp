@@ -1,6 +1,6 @@
-
 #include "DefectsDetect.h"
-
+#include <QImage>
+#include <QDebug>
 
 DefectsDetect::DefectsDetect()
 {
@@ -12,11 +12,15 @@ DefectsDetect::~DefectsDetect()
 
 }
 
-void DefectsDetect::run(HObject &ho_Image)
+bool DefectsDetect::run(HObject &ho_Image, const int width, const int height, const Hlong &winid, int x, int y)
 {
-    GetImageSize(ho_Image, &hv_Width, &hv_Height);
+        GetImageSize(ho_Image, &hv_Width, &hv_Height);
         SetWindowAttr("background_color","black");
-        OpenWindow(0,0,1314,876,0,"visible","",&hv_WindowHandle);
+        qDebug() << 1;
+        if (!HDevWindowStack::IsOpen())
+            OpenWindow(x,y,width,height,winid,"","",&hv_WindowHandle);
+//        CloseWindow(HDevWindowStack::Pop());
+
         HDevWindowStack::Push(hv_WindowHandle);
         if (HDevWindowStack::IsOpen())
           SetDraw(HDevWindowStack::GetActive(),"margin");
@@ -25,7 +29,7 @@ void DefectsDetect::run(HObject &ho_Image)
         // dev_update_window(...); only in hdevelop
         if (HDevWindowStack::IsOpen())
           DispObj(ho_Image, HDevWindowStack::GetActive());
-
+         qDebug() << 2;
         hv_Row1 = 975;
         hv_Column1 = 1055;
         hv_Row2 = 3340;
@@ -36,7 +40,7 @@ void DefectsDetect::run(HObject &ho_Image)
         GenRectangle1(&ho_ROI_L, hv_Row1, hv_Column1, hv_Row2, 0.4*(hv_Column1+hv_Column2));
         GenRectangle1(&ho_ROI_R, hv_Row1, 0.6*(hv_Column1+hv_Column2), hv_Row2, hv_Column2);
         ReduceDomain(ho_Image, ho_ROI_0, &ho_ImageReduced);
-
+         qDebug() << 3;
         //fft_generic (Image, ImageFFT, 'to_freq', -1, 'sqrt', 'dc_center', 'complex')
         //gen_rectangle1 (Rectangle1, 0, Width/2-1, Height, Width/2+3)
         //paint_region (Rectangle1, ImageFFT, ImageResult, 0, 'fill')
@@ -55,7 +59,7 @@ void DefectsDetect::run(HObject &ho_Image)
         Rgb1ToGray(ho_ImageReduced, &ho_GrayImage);
         GaussFilter(ho_GrayImage, &ho_ImageGauss, 7);
 
-
+         qDebug() << 4;
         //roberts (ImageGauss, ImageRoberts, 'gradient_sum')
         //threshold (ImageRoberts, RegionsRoberts, 35, 65)
         //dilation_rectangle1 (RegionsRoberts, DRegionsRoberts, 7, 7)
@@ -66,7 +70,7 @@ void DefectsDetect::run(HObject &ho_Image)
         //reduce_domain (ImageGauss, ErosionFill, ImageReduced)
 
 
-        //***ÕÒÔ²µã
+        //***?????
         Roberts(ho_ImageGauss, &ho_ImageRoberts1, "gradient_sum");
         Intensity(ho_ROI_0, ho_ImageRoberts1, &hv_M, &hv_D);
         Threshold(ho_ImageRoberts1, &ho_RegionsRoberts1, 8, 75);
@@ -101,18 +105,17 @@ void DefectsDetect::run(HObject &ho_Image)
             if (0 != (hv_CircleNum>0))
             {
               hv_ReturnIsOK = 0;
+              return false;
             }
             else
             {
               hv_ReturnIsOK = 1;
+              return true;
             }
-
-
-
           }
         }
-
 }
+
 
 /************************************************************************
 @return 1: is OK
@@ -131,18 +134,10 @@ bool DefectsDetect::get_result()
     return _bResult;
 }
 
-Result DefectsDetect::getResult(HObject &ho_Image)
+void DefectsDetect::destoryWindow()
 {
-    run(ho_Image);
-    Result res;
-    if (hv_ReturnIsOK==1)
-    _bResult = 1;
-    else
-    _bResult = 0;
-
-    res.is_ok = _bResult;
-    res.image = &ho_SelectedContours11;
-    return res;
+    if (HDevWindowStack::IsOpen())
+    CloseWindow(HDevWindowStack::Pop());
 }
 
 

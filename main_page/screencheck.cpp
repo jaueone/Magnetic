@@ -188,11 +188,18 @@ void ScreenCheck::on_start_check_released()
     this->ui->image->show();
     HObject image = camera->getImage();
     DefectsDetect detect;
-    Result result = detect.getResult(image);
     HTuple hv_WindowID;
-    Hlong winID=(Hlong)this->winId();
-    OpenWindow(ui->image->x(), ui->image->y(), ui->image->width(),ui->image->height(),winID,"","",&hv_WindowID);
-    DispImage(*result.image,hv_WindowID);
+    Hlong winID=(Hlong)this->ui->image->winId();
+    bool res = detect.run(image,this->ui->image->width(),this->ui->image->height(),winID,0,0);
+    if (res){
+        this->ui->label_4->setText(tr("合格"));
+        this->ui->label_5->setStyleSheet("image: url(:/image/合格.png);");
+    }
+    else{
+        this->ui->label_4->setText(tr("no"));
+        this->ui->label_5->setStyleSheet("image: url(:/image/不合格.png);");
+    }
+    this->ui->stackedWidget->setCurrentIndex(1);
 }
 
 void ScreenCheck::on_lcd_out_clicked(bool checked)

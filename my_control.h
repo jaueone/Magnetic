@@ -70,6 +70,4 @@ protected:
     DB(const DB& other){ }
     ~DB(){}
 };
-#endif // MY_CONTROL_H
-
-
+#endif

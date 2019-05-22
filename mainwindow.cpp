@@ -101,28 +101,15 @@ void MainWindow::accept_get_picture()
         return;
 
     widget.setWidget(&label);
-    widget.resize(410,310);
-    label.resize(400,300);
+    widget.resize(610,510);
+    label.resize(600,510);
+
 
     HObject ho_Image;
-    HTuple hv_WindowID;
-    long widid = this->winId();
-    HTuple widid2 = widid;
     ReadImage(&ho_Image, HTuple(filename.toStdString().c_str())); // 此方法Halcon提供
-
-    Result result = detect.getResult(ho_Image);
-    Hlong winID =(Hlong)label.winId();
-    OpenWindow(label.x(), label.y(), label.width(),label.height(),winID,"","",&hv_WindowID);
-    DispImage(*result.image, hv_WindowID);
+    Hlong winID =(Hlong)widget.winId();
+    detect.run(ho_Image,label.width(),label.height(),winID,0,0);
     widget.show();
-//    QImage* img=new QImage;
-//    if(! ( img->load(filename) ) ) { //加载图像
-//        QMessageBox::information(this, tr("打开图像失败"), tr("打开图像失败!"));
-//        delete img;
-//        return;
-//    }
-
-
 }
 
 
@@ -150,6 +137,11 @@ void MainWindow::accept_camera_start_check()
         messageBox.setText("系统自检失败,\n请先返回选择页面完成系统自检!");
         messageBox.exec();
     }
+}
+
+void MainWindow::destroyHC()
+{
+
 }
 
 
