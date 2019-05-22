@@ -9,6 +9,7 @@ Choose::Choose(QWidget *parent) :
     ui(new Ui::Choose)
 {
     ui->setupUi(this);
+    this->ui->pushButton_5->hide();
 }
 
 Choose::~Choose()

@@ -134,12 +134,13 @@ void ScreenCheck::serial_send_start()
 {
      unsigned char send_buff[6];
      send_buff[0] = 0x55;
-     send_buff[1] = 0x08;
+     send_buff[1] = 0x01;
      send_buff[2] = 0x01;
      send_buff[3] = 0x00;
-     send_buff[4] = 0x91;
-     send_buff[5] = 0xBA;
+     send_buff[4] = 0x41;
+     send_buff[5] = 0xB8;
      serial->write((char *)send_buff,6);
+
 }
 
 void ScreenCheck::serial_send_end()

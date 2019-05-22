@@ -157,6 +157,8 @@ QString DriveSeting::init_camera()
 
 QString DriveSeting::init_serial()
 {
+    if (serial->isOpen())
+        serial->close();
     SerialSetting setting = get_serial_setting();
     serial->setPortName(setting.name);
     serial->setBaudRate(setting.baudRate);
@@ -164,7 +166,15 @@ QString DriveSeting::init_serial()
     serial->setParity(setting.parity);
     serial->setStopBits(setting.stopBits);
     serial->setFlowControl(setting.flowControl);
-    if (serial->open(QIODevice::ReadWrite) || serial->isOpen()){
+    if (serial->open(QIODevice::ReadWrite) && serial->isOpen()){
+        unsigned char send_buff[6];
+        send_buff[0] = 0x55;
+        send_buff[1] = 0x08;
+        send_buff[2] = 0x01;
+        send_buff[3] = 0x00;
+        send_buff[4] = 0x91;
+        send_buff[5] = 0xBA;
+        serial->write((char *)send_buff,6);
         return "opened";
     }
     return "opened fail";
