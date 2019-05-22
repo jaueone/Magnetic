@@ -51,4 +51,7 @@ void Choose::on_pushButton_3_released()
     emit tell_window_step_page(2);
 }
 
-
+void Choose::on_pushButton_5_released()
+{
+    emit tell_window_get_picture();
+}

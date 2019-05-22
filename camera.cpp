@@ -10,8 +10,8 @@ HKCamera::HKCamera() {
 
 HKCamera::~HKCamera()
 {
-    this->closeDevice();
-    MV_CC_DestroyHandle(handle);
+
+    this->destroyHandle();
     handle= NULL;
 }
 
@@ -50,7 +50,7 @@ int HKCamera::openDevice(const int &index)
         qDebug("error: OpenDevice fail [%x]", nRet);
         return -1;
     }
-    qDebug() << "information opened";
+    qDebug() << "information camera opened";
     return 0;
 }
 
@@ -79,6 +79,7 @@ int HKCamera::startCollect()
 //        qDebug("error: SetPixelFormat fail [%x]\n", nRet);
 //        return -1;
 //    }
+    this->is_start_collected = true;
     qDebug() << "start collect";
     return 0;
 }
@@ -96,7 +97,6 @@ int HKCamera::collectFrame(QLabel *label)
     memset(&stInfo, 0, sizeof(MV_FRAME_OUT_INFO));
 
     MV_NETTRANS_INFO stNetTransInfo = {0};
-
     //上层应用程序需要根据帧率，控制好调用该接口的频率
     //此次代码仅供参考，实际应用建议另建线程进行图像帧采集和处理
 
@@ -124,8 +124,9 @@ int HKCamera::collectFrame(QLabel *label)
                 data[i] = (data[i]);
 
         }*/
+        qDebug() << *data;
         GenImage1(&ho_Image, "byte", wid, hgt, (Hlong)(data));
-       // WriteImage(ho_Image, "bmp", 0, HTuple("E:/photo/") + 1);
+        //WriteImage(ho_Image, "bmp", 0, HTuple("E:/photo/") + 1);
         //Sleep(500);
         delete[]  data;
         /**********************************************************************************/
@@ -146,6 +147,7 @@ int HKCamera::stopCollect()
         qDebug("error: StopGrabbing fail [%x]\n", nRet);
         return -1;
     }
+    this->is_start_collected = false;
     return 0;
 }
 
@@ -155,13 +157,17 @@ int HKCamera::closeDevice()
     /* 7. 关闭设备  MV_CC_CloseDevice                                       */
     /************************************************************************/
     //关闭设备，释放资源
+
     nRet = MV_CC_CloseDevice(handle);
     if (MV_OK != nRet)
     {
         qDebug("error: CloseDevice fail [%x]\n", nRet);
         return -1;
     }
-
+    return 0;
+}
+int HKCamera::destroyHandle()
+{
     /************************************************************************/
     /* 8. 销毁句柄  MV_CC_DestroyHandle                                     */
     /************************************************************************/
@@ -175,10 +181,10 @@ int HKCamera::closeDevice()
     qDebug() << "stop collect";
     return 0;
 }
-
 HObject HKCamera::getImage()
 {
     return ho_Image;
+
 }
 
 CameraSetting HKCamera::get_camera_setting()
@@ -270,6 +276,12 @@ bool HKCamera::isOpened()
     }
     return false;
 }
+
+bool HKCamera::isCollecting()
+{
+    return this->is_start_collected;
+}
+
 
 int HKCamera::setParams(DType type, char *params, QVariant value)
 {

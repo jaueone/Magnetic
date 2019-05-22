@@ -36,19 +36,14 @@ private slots:
 
     void on_pushButton_8_released();
 
-
-    void on_start_check_released();
-
-
     void on_lcd_out_clicked(bool checked);
-
     void on_lcd_change_image_released();
+    void on_start_check_released();
 
 signals:
     void tell_window_step_page(int page);
-    void tell_mainpage_step_page(int page);
     void tell_window_start_check();
-    void tell_window_kill_preview_thread();
+
 private:
     Ui::ScreenCheck *ui;
     QMap<QString ,Label *> object_label_map{};

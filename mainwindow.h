@@ -25,11 +25,10 @@ public slots:
     void accept_men_login(const Meninfo &info);
     void accept_change_page(const int &page);
     void on_stackedpage_changed(const int &page);
-
+    void accept_get_picture();
 
     void check_self();
     void accept_camera_start_check();
-    void accept_kill_preview_thread();
 
 private:
     Ui::MainWindow *ui;
@@ -44,9 +43,9 @@ private:
     QSerialPort *serial;
     QLabel *camera_label_;
 
-    PreviewThread *preview_thread;
-    CollectThread *collect_thread;
-
+    QScrollArea widget;
+    QLabel label;
+    DefectsDetect detect;
 signals:
     void camera_start_preview();
 

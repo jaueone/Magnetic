@@ -78,7 +78,7 @@ ScreenCheck::ScreenCheck(QWidget *parent) :
     ui(new Ui::ScreenCheck)
 {
     ui->setupUi(this);
-
+    this->ui->image->hide();
 }
 
 ScreenCheck::~ScreenCheck()
@@ -102,7 +102,7 @@ void ScreenCheck::addlabel(const QString &name, const QString &content)
 void ScreenCheck::start_check()
 {
    this->ui->stackedWidget->setCurrentIndex(1);
-   this->ui->label_8->hide();
+   //this->ui->label_8->hide();
 }
 
 
@@ -113,6 +113,10 @@ void ScreenCheck::on_pushButton_4_released()
 
 void ScreenCheck::on_pushButton_8_released()
 {
+    if (HDevWindowStack::IsOpen())
+        CloseWindow(HDevWindowStack::Pop());
+    this->ui->preview->show();
+    this->ui->image->hide();
     this->ui->stackedWidget->setCurrentIndex(0);
 }
 
@@ -168,22 +172,27 @@ void ScreenCheck::serial_send_change_image()
 
 QLabel *ScreenCheck::camera_label()
 {
-    return this->ui->label_6;
+    return this->ui->preview;
 }
 
 
 void ScreenCheck::on_start_check_released()
 {
-    emit tell_window_kill_preview_thread();
-    camera->startCollect();
-    if (MV_OK != camera->collectFrame(this->ui->label_6))
+    if (!camera->isCollecting()){
+        if (MV_OK != camera->startCollect())
+            return;
+    }
+    if (MV_OK != camera->collectFrame(this->ui->preview))
         return;
-    if (MV_OK != camera->stopCollect())
-        return;
+    this->ui->preview->hide();
+    this->ui->image->show();
     HObject image = camera->getImage();
     DefectsDetect detect;
     Result result = detect.getResult(image);
-    qDebug() << "get image";
+    HTuple hv_WindowID;
+    Hlong winID=(Hlong)this->winId();
+    OpenWindow(ui->image->x(), ui->image->y(), ui->image->width(),ui->image->height(),winID,"","",&hv_WindowID);
+    DispImage(*result.image,hv_WindowID);
 }
 
 void ScreenCheck::on_lcd_out_clicked(bool checked)

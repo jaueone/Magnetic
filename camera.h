@@ -82,16 +82,21 @@ public:
     CameraSetting get_camera_setting();
     static QByteArray get_camera_bin(CameraSetting setting);
 
-    bool isOpened();
+
     int setParams(DType type, char * params, QVariant value);
+    bool isOpened();
+    bool isCollecting();
 private:
+    int destroyHandle();
+
+    bool is_start_collected = false;
     int nRet = -1;
     void *handle = NULL;
 
     MV_CC_DEVICE_INFO m_stDevInfo;
     MV_CC_DEVICE_INFO_LIST m_stDevList;
 
-    HObject   ho_Image;
+    HObject ho_Image;
 
     unsigned char*  m_pBufForSaveImage;         // 用于保存图像的缓存
     unsigned int    m_nBufSizeForSaveImage;

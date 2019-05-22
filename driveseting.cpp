@@ -458,9 +458,11 @@ void DriveSeting::on_pushButton_9_released()
 
 void DriveSeting::on_pushButton_11_clicked()
 {
-    if (MV_OK != camera->startCollect())
-        return;
-    if (MV_OK != camera->collectFrame(this->ui->label_18));
+    if (!camera->isCollecting()){
+        if (MV_OK != camera->startCollect())
+            return;
+    }
+    if (MV_OK != camera->collectFrame(this->ui->label_18))
         return;
     if (MV_OK != camera->stopCollect())
         return;

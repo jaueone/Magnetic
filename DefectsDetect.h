@@ -8,7 +8,7 @@ using namespace HalconCpp;
 
 struct Result
 {
-    HObject image;
+    HObject *image;
     bool is_ok;
 };
 

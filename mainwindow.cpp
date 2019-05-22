@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QCoreApplication>
+#include <QFileDialog>
 #include <QTime>
 
 
@@ -24,9 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
     camera = drivesetting->Camera();
     serial = drivesetting->Serial();
 
-    preview_thread = new PreviewThread(camera,camera_label_);
-    collect_thread = new CollectThread(camera,camera_label_);
-
     this->screen_check->setSerial(serial);
     this->screen_check->setCamera(camera);
     this->setCentralWidget(this->ui->stackedWidget);
@@ -44,8 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete preview_thread;
-    delete collect_thread;
+
     delete ui;
 }
 
@@ -53,21 +50,20 @@ void MainWindow::sigcon()
 {
     this->connect(this->login,&Login::tell_window_step_page,this,&MainWindow::accept_change_page);
     this->connect(this->choose,&Choose::tell_window_step_page,this,&MainWindow::accept_change_page);
-    this->connect(this->mainpage,&MainPage::tell_window_step_page, this,&MainWindow::accept_change_page);
+    this->connect(this->screen_check,&ScreenCheck::tell_window_step_page, this,&MainWindow::accept_change_page);
     this->connect(this->drivesetting,&DriveSeting::tell_window_step_page, this,&MainWindow::accept_change_page);
     this->connect(this->ui->stackedWidget,&QStackedWidget::currentChanged,this,&MainWindow::on_stackedpage_changed);
 
     this->connect(this->login,&Login::tell_window_men_login,this,&MainWindow::accept_men_login);
     this->connect(this->choose,&Choose::tell_window_check_self,this,&MainWindow::check_self);
-    this->connect(this->mainpage,&MainPage::tell_window_start_check, this,&MainWindow::accept_camera_start_check);
-    this->connect(this->screen_check,&ScreenCheck::tell_window_kill_preview_thread, this,&MainWindow::accept_kill_preview_thread);
-    //this->connect(this,&MainWindow::camera_start_preview, this->preview_thread,&QThread::start);
+    this->connect(this->choose,&Choose::tell_window_get_picture,this,&MainWindow::accept_get_picture);
+    this->connect(this->screen_check,&ScreenCheck::tell_window_start_check, this,&MainWindow::accept_camera_start_check);
+
 }
 
 void MainWindow::accept_men_login(const Meninfo &info)
 {
     this->choose->setMen(info);
-    this->mainpage->setMen(info);
 }
 
 void MainWindow::accept_change_page(const int &page)
@@ -96,14 +92,45 @@ void MainWindow::on_stackedpage_changed(const int &page)
     }
 }
 
+
+void MainWindow::accept_get_picture()
+{
+    QString filename;
+    filename=QFileDialog::getOpenFileName(this, tr("选择图像"), "", tr("Images (*.png *.bmp *.jpg *.tif *.GIF )"));
+    if(filename.isEmpty())
+        return;
+
+    widget.setWidget(&label);
+    widget.resize(410,310);
+    label.resize(400,300);
+
+    HObject ho_Image;
+    HTuple hv_WindowID;
+    long widid = this->winId();
+    HTuple widid2 = widid;
+    ReadImage(&ho_Image, HTuple(filename.toStdString().c_str())); // 此方法Halcon提供
+
+    Result result = detect.getResult(ho_Image);
+    Hlong winID =(Hlong)label.winId();
+    OpenWindow(label.x(), label.y(), label.width(),label.height(),winID,"","",&hv_WindowID);
+    DispImage(*result.image, hv_WindowID);
+    widget.show();
+//    QImage* img=new QImage;
+//    if(! ( img->load(filename) ) ) { //加载图像
+//        QMessageBox::information(this, tr("打开图像失败"), tr("打开图像失败!"));
+//        delete img;
+//        return;
+//    }
+
+
+}
+
+
 void MainWindow::check_self()
 {
-    QTime start = QTime::currentTime();
-
     if (this->drivesetting->init()){
-       QTime end =  QTime::currentTime();
-       qDebug() << "end";
-       this->preview_thread->run();
+       this->camera->startCollect();
+       this->camera->collectFrame(this->camera_label_);
        this->ui->stackedWidget->setCurrentIndex(3);
     }
     else
@@ -113,7 +140,7 @@ void MainWindow::check_self()
 void MainWindow::accept_camera_start_check()
 {
     if (this->drivesetting->init()){
-        this->mainpage->start_check();
+        this->screen_check->start_check();
     }
     else {
         QMessageBox messageBox;
@@ -125,10 +152,6 @@ void MainWindow::accept_camera_start_check()
     }
 }
 
-void MainWindow::accept_kill_preview_thread()
-{
-    this->preview_thread->quit();
-}
 
 
 

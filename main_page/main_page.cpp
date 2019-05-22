@@ -10,17 +10,13 @@ MainPage::MainPage(QWidget *parent) :
     ui->setupUi(this);
     screencheck = new ScreenCheck();
     QWidget *widget = new QWidget(this->ui->stackedWidget);
-    this->ui->pushButton_2->hide();
     this->ui->stackedWidget->removeWidget(this->ui->page);
     this->ui->stackedWidget->removeWidget(this->ui->page_2);
     this->ui->stackedWidget->addWidget(screencheck);
     this->ui->stackedWidget->addWidget(widget);
-    this->connect(this->screencheck, &ScreenCheck::tell_window_step_page,this,&MainPage::accept_tell_window_step_page);
     this->connect(this->ui->pushButton,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_2,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_3,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
-    this->connect(this->screencheck,&ScreenCheck::tell_mainpage_step_page, this, &MainPage::accept_change_page);
-    this->connect(this->screencheck,&ScreenCheck::tell_window_start_check, this, &MainPage::accept_tell_window_start_check);
 }
 
 MainPage::~MainPage()
@@ -41,15 +37,7 @@ void MainPage::set_current_page(const int &page)
     }
 }
 
-void MainPage::setMen(const Meninfo &info)
-{
 
-}
-
-void MainPage::start_check()
-{
-    this->screencheck->start_check();
-}
 
 void MainPage::accept_button_clicked(const bool &checked)
 {
@@ -66,17 +54,3 @@ void MainPage::accept_button_clicked(const bool &checked)
     }
 }
 
-void MainPage::accept_tell_window_step_page(int page)
-{
-    emit tell_window_step_page(page);
-}
-
-void MainPage::accept_change_page(const int &page)
-{
-    this->ui->stackedWidget->setCurrentIndex(page);
-}
-
-void MainPage::accept_tell_window_start_check()
-{
-    emit tell_window_start_check();
-}

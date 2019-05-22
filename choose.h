@@ -27,9 +27,12 @@ private slots:
 
     void on_pushButton_3_released();
 
+    void on_pushButton_5_released();
+
 signals:
     void tell_window_step_page(int page);
     void tell_window_check_self();
+    void tell_window_get_picture();
 private:
     Ui::Choose *ui;
 };
