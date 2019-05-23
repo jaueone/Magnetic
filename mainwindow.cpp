@@ -28,12 +28,15 @@ MainWindow::MainWindow(QWidget *parent) :
     this->screen_check->setSerial(serial);
     this->screen_check->setCamera(camera);
     this->setCentralWidget(this->ui->stackedWidget);
+
     this->ui->stackedWidget->removeWidget(this->ui->page);
     this->ui->stackedWidget->removeWidget(this->ui->page_2);
+
     this->ui->stackedWidget->addWidget(login);
     this->ui->stackedWidget->addWidget(choose);
     this->ui->stackedWidget->addWidget(drivesetting);
     this->ui->stackedWidget->addWidget(mainpage);
+
     this->time = new DateTime(this->ui->stackedWidget);
     this->time->setGeometry(920,0,200,50);
     this->sigcon();
@@ -92,7 +95,6 @@ void MainWindow::on_stackedpage_changed(const int &page)
     }
 }
 
-
 void MainWindow::accept_get_picture()
 {
     QString filename;
@@ -138,13 +140,3 @@ void MainWindow::accept_camera_start_check()
         messageBox.exec();
     }
 }
-
-void MainWindow::destroyHC()
-{
-
-}
-
-
-
-
-

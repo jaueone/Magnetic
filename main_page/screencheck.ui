@@ -206,7 +206,7 @@ border:1px solid rgb(0, 58, 176);</string>
 QPushButton::checked{background-color: rgb(255, 122, 78);}</string>
            </property>
            <property name="text">
-            <string>LCD输出</string>
+            <string>LCD显示</string>
            </property>
            <property name="checkable">
             <bool>true</bool>

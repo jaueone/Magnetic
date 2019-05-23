@@ -10,7 +10,7 @@
 #include <QHBoxLayout>
 #include <QDate>
 #include <QTime>
-
+#include <QDebug>
 
 class DateTime:public QFrame
 {
@@ -28,7 +28,7 @@ public:
     }
     void changedstyle(const QString &color){
         if (color == "white"){
-            this->datetime->setStyleSheet("QLabel{color:white;font-family:Microsoft YaHei; font-size:14px;}");
+            this->datetime->setStyleSheet("QLabel{color:white;}");
             return;
         }
         else if (color == "black") {

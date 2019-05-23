@@ -29,7 +29,7 @@ public slots:
 
     void check_self();
     void accept_camera_start_check();
-    void destroyHC();
+
 private:
     Ui::MainWindow *ui;
     DateTime *time;

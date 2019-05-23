@@ -823,6 +823,13 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="pushButton_12">
+      <property name="text">
+       <string>设置参数到相机</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <spacer name="horizontalSpacer_2">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>

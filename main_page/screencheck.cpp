@@ -2,6 +2,7 @@
 #include "ui_screencheck.h"
 #include "DefectsDetect.h"
 
+
 const unsigned char chCRCHTalbe[] =
 {
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,// CRC 高位字节值表
@@ -179,10 +180,9 @@ QLabel *ScreenCheck::camera_label()
 
 void ScreenCheck::on_start_check_released()
 {
-    if (!camera->isCollecting()){
-        if (MV_OK != camera->startCollect())
-            return;
-    }
+
+    if (MV_OK != camera->startCollect())
+        return;
     if (MV_OK != camera->collectFrame(this->ui->preview))
         return;
     this->ui->preview->hide();
@@ -197,8 +197,8 @@ void ScreenCheck::on_start_check_released()
         this->ui->label_5->setStyleSheet("image: url(:/image/合格.png);");
     }
     else{
-        this->ui->label_4->setText(tr("no"));
-        this->ui->label_5->setStyleSheet("image: url(:/image/不合格.png);");
+        this->ui->label_4->setText(tr("\344\270\215\345\220\210\346\240\274"));
+        this->ui->label_5->setStyleSheet("image: url(:/image/\344\270\215\345\220\210\346\240\274.png);");
     }
     this->ui->stackedWidget->setCurrentIndex(1);
 }

@@ -48,6 +48,7 @@ public:
 
     HKCamera * Camera(){ return camera;}
 
+
 private slots:
     void accept_scan_serial();
 
@@ -68,6 +69,8 @@ private slots:
     void on_pushButton_10_clicked();
 
     void on_spinBox_3_valueChanged(int arg1);
+
+    void on_pushButton_12_clicked();
 
 signals:
     void tell_window_step_page(int page);

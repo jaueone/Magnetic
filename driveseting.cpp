@@ -378,6 +378,7 @@ void DriveSeting::check_self()
     this->display_init();
 }
 
+
 void DriveSeting::accept_scan_serial()
 {
     this->scan_serial();
@@ -468,13 +469,10 @@ void DriveSeting::on_pushButton_9_released()
 
 void DriveSeting::on_pushButton_11_clicked()
 {
-    if (!camera->isCollecting()){
-        if (MV_OK != camera->startCollect())
-            return;
-    }
-    if (MV_OK != camera->collectFrame(this->ui->label_18))
+
+    if (MV_OK != camera->startCollect())
         return;
-    if (MV_OK != camera->stopCollect())
+    if (MV_OK != camera->collectFrame(this->ui->label_18))
         return;
 }
 
@@ -491,4 +489,29 @@ void DriveSeting::on_pushButton_10_clicked()
 void DriveSeting::on_spinBox_3_valueChanged(int arg1)
 {
 
+}
+
+void DriveSeting::on_pushButton_12_clicked()
+{
+    if (!camera->isOpened())
+        HKCamera::camera_message_warn();
+    else {
+        CameraSetting setting = this->get_camera_setting();
+
+        this->camera->setParams(DType::Int, "Width", setting.width);
+        this->camera->setParams(DType::Int, "Height", setting.height);
+        this->camera->setParams(DType::Int, "OffsetX", setting.offsetX);
+        this->camera->setParams(DType::Int, "OffsetY", setting.offsetY);
+        this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate);
+        this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable);
+        this->camera->setParams(DType::Float, "Gain", setting.gain);
+        this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto);
+        this->camera->setParams(DType::Float, "Gamma", setting.gamma);
+        this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable);
+        this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector);
+        this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime);
+        this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable);
+
+        HKCamera::camera_message_done();
+    }
 }

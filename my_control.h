@@ -55,6 +55,7 @@ public:
     static QSqlDatabase * getInterface(){
         if (QSqlDatabase::contains("qt_sql_default_connection"))
         {
+            __database__ = QSqlDatabase::database("qt_sql_default_connection");
             return &__database__;
         }
         else {
@@ -65,6 +66,7 @@ public:
             return &__database__;
         }
     }
+
 protected:
     DB() {}
     DB(const DB& other){ }

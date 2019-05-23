@@ -10,7 +10,8 @@ HKCamera::HKCamera() {
 
 HKCamera::~HKCamera()
 {
-
+    this->stopCollect();
+    this->closeDevice();
     this->destroyHandle();
     handle= NULL;
 }
@@ -34,7 +35,7 @@ int HKCamera::enumDevices()
 int HKCamera::openDevice(const int &index)
 {
     if (this->isOpened()){
-        qDebug() << "information opened";
+        qDebug() << "information camera opened";
         return 0;
     }
     memcpy(&m_stDevInfo, m_stDevList.pDeviceInfo[index], sizeof(MV_CC_DEVICE_INFO));
@@ -64,6 +65,10 @@ int HKCamera::startCollect()
     /* 4.开启抓图     MV_CC_StartGrabbing                                   */
     /************************************************************************/
     //开始采集图像
+    if (this->is_start_collected){
+        qDebug() << "start collect";
+        return 0;
+    }
     nRet = MV_CC_StartGrabbing(handle);
     if (MV_OK != nRet)
     {
@@ -124,7 +129,6 @@ int HKCamera::collectFrame(QLabel *label)
                 data[i] = (data[i]);
 
         }*/
-        qDebug() << *data;
         GenImage1(&ho_Image, "byte", wid, hgt, (Hlong)(data));
         //WriteImage(ho_Image, "bmp", 0, HTuple("E:/photo/") + 1);
         //Sleep(500);
@@ -141,6 +145,8 @@ int HKCamera::stopCollect()
     /* 6. 停止抓图  MV_CC_StopGrabbing                                      */
     /************************************************************************/
     //停止采集图像
+    if (!is_start_collected)
+        return 0;
     nRet = MV_CC_StopGrabbing(handle);
     if (MV_OK != nRet)
     {
@@ -157,7 +163,9 @@ int HKCamera::closeDevice()
     /* 7. 关闭设备  MV_CC_CloseDevice                                       */
     /************************************************************************/
     //关闭设备，释放资源
-
+    if (!this->isOpened()){
+        return 0;
+    }
     nRet = MV_CC_CloseDevice(handle);
     if (MV_OK != nRet)
     {
@@ -271,7 +279,6 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
 bool HKCamera::isOpened()
 {
     if (MV_CC_IsDeviceConnected(handle)){
-        qDebug() << "information opened";
         return true;
     }
     return false;
@@ -282,8 +289,30 @@ bool HKCamera::isCollecting()
     return this->is_start_collected;
 }
 
+void HKCamera::camera_message_done()
+{
+    QMessageBox messageBox;
+    messageBox.setWindowTitle("信息");
+    messageBox.setIcon(QMessageBox::Information);
+    QPushButton button("确定");
+    messageBox.setText("设置相机参数完成!");
+    messageBox.exec();
+}
 
-int HKCamera::setParams(DType type, char *params, QVariant value)
+void HKCamera::camera_message_warn()
+{
+
+      QMessageBox messageBox;
+      messageBox.setWindowTitle("警告");
+      messageBox.setIcon(QMessageBox::Warning);
+      QPushButton button("确定");
+      messageBox.setText("相机连接失败,\n请先打开相机!");
+      messageBox.exec();
+
+}
+
+
+int HKCamera::setParams(DType type,const char *params, QVariant value)
 {
     if (type == DType::Bool){
         if (MV_OK != MV_CC_SetBoolValue(handle, params,value.toBool()))
@@ -295,6 +324,10 @@ int HKCamera::setParams(DType type, char *params, QVariant value)
     }
     else if (type == DType::Float){
         if (MV_OK != MV_CC_SetFloatValue(handle, params, value.toFloat()))
+            return -1;
+    }
+    else if (type == DType::Enum){
+        if (MV_OK != MV_CC_SetEnumValue(handle, params, value.toUInt()))
             return -1;
     }
     else if (type == DType::String){

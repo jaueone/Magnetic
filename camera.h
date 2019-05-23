@@ -16,7 +16,8 @@
 #include <QJsonDocument>
 #include <QDebug>
 #include <QLabel>
-
+#include <QPushButton>
+#include <QMessageBox>
 
 
 using namespace HalconCpp;
@@ -25,6 +26,7 @@ enum DType{
     Bool = 0,
     Int,
     Float,
+    Enum,
     String,
 };
 
@@ -83,9 +85,11 @@ public:
     static QByteArray get_camera_bin(CameraSetting setting);
 
 
-    int setParams(DType type, char * params, QVariant value);
+    int setParams(DType type,const char *params, QVariant value);
     bool isOpened();
     bool isCollecting();
+    static void camera_message_warn();
+    static void camera_message_done();
 private:
     int destroyHandle();
 

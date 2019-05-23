@@ -16,7 +16,6 @@ bool DefectsDetect::run(HObject &ho_Image, const int width, const int height, co
 {
         GetImageSize(ho_Image, &hv_Width, &hv_Height);
         SetWindowAttr("background_color","black");
-        qDebug() << 1;
         if (!HDevWindowStack::IsOpen())
             OpenWindow(x,y,width,height,winid,"","",&hv_WindowHandle);
 //        CloseWindow(HDevWindowStack::Pop());
@@ -29,7 +28,6 @@ bool DefectsDetect::run(HObject &ho_Image, const int width, const int height, co
         // dev_update_window(...); only in hdevelop
         if (HDevWindowStack::IsOpen())
           DispObj(ho_Image, HDevWindowStack::GetActive());
-         qDebug() << 2;
         hv_Row1 = 975;
         hv_Column1 = 1055;
         hv_Row2 = 3340;
@@ -40,7 +38,6 @@ bool DefectsDetect::run(HObject &ho_Image, const int width, const int height, co
         GenRectangle1(&ho_ROI_L, hv_Row1, hv_Column1, hv_Row2, 0.4*(hv_Column1+hv_Column2));
         GenRectangle1(&ho_ROI_R, hv_Row1, 0.6*(hv_Column1+hv_Column2), hv_Row2, hv_Column2);
         ReduceDomain(ho_Image, ho_ROI_0, &ho_ImageReduced);
-         qDebug() << 3;
         //fft_generic (Image, ImageFFT, 'to_freq', -1, 'sqrt', 'dc_center', 'complex')
         //gen_rectangle1 (Rectangle1, 0, Width/2-1, Height, Width/2+3)
         //paint_region (Rectangle1, ImageFFT, ImageResult, 0, 'fill')
@@ -59,7 +56,6 @@ bool DefectsDetect::run(HObject &ho_Image, const int width, const int height, co
         Rgb1ToGray(ho_ImageReduced, &ho_GrayImage);
         GaussFilter(ho_GrayImage, &ho_ImageGauss, 7);
 
-         qDebug() << 4;
         //roberts (ImageGauss, ImageRoberts, 'gradient_sum')
         //threshold (ImageRoberts, RegionsRoberts, 35, 65)
         //dilation_rectangle1 (RegionsRoberts, DRegionsRoberts, 7, 7)
