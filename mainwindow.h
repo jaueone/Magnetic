@@ -38,6 +38,7 @@ private:
     MainPage *mainpage;
     DriveSeting *drivesetting;
     ScreenCheck *screen_check;
+    ScreenResult *screen_result;
 
     HKCamera *camera;
     QSerialPort *serial;

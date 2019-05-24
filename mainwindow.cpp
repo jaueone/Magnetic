@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mainpage = new MainPage();
 
     screen_check = mainpage->ScreenCheck_();
+    screen_result = mainpage->ScreenResult_();
     camera_label_ = screen_check->camera_label();
 
     camera = drivesetting->Camera();
@@ -67,6 +68,8 @@ void MainWindow::sigcon()
 void MainWindow::accept_men_login(const Meninfo &info)
 {
     this->choose->setMen(info);
+    this->screen_check->setMen(info);
+    this->screen_result->setMen(info);
 }
 
 void MainWindow::accept_change_page(const int &page)

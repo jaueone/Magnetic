@@ -3,6 +3,7 @@
 #include <QStringLiteral>
 #include <QValueAxis>
 #include <QFont>
+#include "my_control.h"
 
 ScreenResult::ScreenResult(QWidget *parent) :
     QWidget(parent),
@@ -13,19 +14,23 @@ ScreenResult::ScreenResult(QWidget *parent) :
     chart_pie = new QChart();
     chart_bar = new QChart();
     chart_pie_view = new QChartView(chart_pie, this);
-    chart_bar_view = new QChartView(chart_bar, this);
+//    chart_bar_view = new QChartView(chart_bar, this);
     series_pie = new QPieSeries();
     series_bar = new QBarSeries();
 
-
+    this->timer = new QTimer(this);
     this->ui->verticalLayout->addWidget(chart_pie_view);
     this->paint_pie();
-    this->paint_bar();
-
+    //this->paint_bar();
+    this->ui->label_16->hide();
+    timer->setInterval(600);
+    timer->start();
+    this->connect(this->timer,&QTimer::timeout,this, &ScreenResult::update_data);
 }
 
 ScreenResult::~ScreenResult()
 {
+    timer->stop();
     delete ui;
 }
 
@@ -38,8 +43,8 @@ void ScreenResult::paint_pie()
 {
     this->ui->label_17->setParent(chart_pie_view);
     this->ui->label_18->setParent(chart_pie_view);
-    this->ui->label_17->setGeometry(200,10,100,20);
-    this->ui->label_18->setGeometry(20,170,100,100);
+    this->ui->label_17->setGeometry(350,10,100,20);
+    this->ui->label_18->setGeometry(10,174,100,100);
     this->ui->label_17->show();
     this->ui->label_18->show();
     series_pie->setPieSize(1.0);
@@ -99,3 +104,60 @@ void ScreenResult::paint_bar()
     this->ui->verticalLayout_2->addWidget(chart_bar_view);
 }
 
+void ScreenResult::update_data()
+{
+    QMap<QString,int> map = this->select_result();  //\345\271\264  年   \346\234\210 月 \346\227\245 日
+    if (map.isEmpty())
+        return;
+    this->ui->label_8->setText(QDate::currentDate().toString("yyyy\345\271\264"));
+    this->ui->label_10->setText(QDate::currentDate().toString("MM\346\234\210dd\346\227\245"));
+    this->ui->label_12->setText(QTime::currentTime().toString("00:00-hh:mm"));
+    int all = map["all"];
+    int qualified = map["qualified"];
+    int unqualified = map["unqualified"];
+    this->ui->label_5->setText(QString("%1").arg(all));
+    this->ui->label_6->setText(QString("%1").arg(qualified));
+    this->ui->label_7->setText(QString("%1").arg(unqualified));     //\344\270\215\345\220\210\346\240\274\347\216\20710% 不合格率
+
+    double q = qualified/all;
+    double unq = 1 - q;
+    this->ui->label_18->setText("\345\220\210\346\240\274\347\216\207" + QString::number(q*100,'f',2) + "%");
+    this->ui->label_17->setText("\344\270\215\345\220\210\346\240\274\347\216\207"+ QString::number(unq*100,'f',2) + "%");
+    QPieSlice *slice_red = series_pie->slices().at(0);
+    QPieSlice *slice_green = series_pie->slices().at(1);
+    slice_red->setValue(unq*10);
+    slice_green->setValue(q*10);
+}
+
+QMap<QString, int> ScreenResult::select_result()
+{
+    QMap<QString,int> map;
+    QSqlDatabase *db = DB::getInterface();
+    if (!db->open()){
+        qDebug() << "Error: Failed to connect database." << db->lastError();
+        return map;
+     }
+    QSqlQuery query(*db);
+    QString start = QDate::currentDate().toString("yyyy-MM-dd ") + "00:00:00";
+    QString end = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    QString str = QString("select * from checked_result where time>=\"%1\" and time<= \"%2\"").arg(start).arg(end);
+    if (!query.exec(str)){
+          qDebug() << "Error: Failed to connect database." << db->lastError();
+          return map;
+    }
+    int all, unqualified,qualified;
+    all = 0;
+    qualified = 0;
+    unqualified = 0;
+    for (all;query.next();all++){
+        QSqlRecord rec = query.record();
+        if (rec.value("result").toString() == "true")
+            qualified +=1;
+        else if(rec.value("result").toString() == "false")
+            unqualified +=1;
+    }
+    map["all"] = all;
+    map["qualified"] = qualified;
+    map["unqualified"] = unqualified;
+    return map;
+}

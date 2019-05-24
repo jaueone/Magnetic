@@ -224,6 +224,9 @@
       <property name="text">
        <string>10：00-12:10</string>
       </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
      </widget>
     </item>
     <item>
@@ -327,10 +330,10 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>250</y>
-     <width>331</width>
-     <height>271</height>
+     <x>350</x>
+     <y>110</y>
+     <width>591</width>
+     <height>401</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -339,22 +342,11 @@
     </property>
    </layout>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget_2">
-   <property name="geometry">
-    <rect>
-     <x>540</x>
-     <y>100</y>
-     <width>521</width>
-     <height>381</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2"/>
-  </widget>
   <widget class="QLabel" name="label_17">
    <property name="geometry">
     <rect>
-     <x>340</x>
-     <y>250</y>
+     <x>970</x>
+     <y>190</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -372,8 +364,8 @@
   <widget class="QLabel" name="label_18">
    <property name="geometry">
     <rect>
-     <x>340</x>
-     <y>280</y>
+     <x>980</x>
+     <y>260</y>
      <width>81</width>
      <height>16</height>
     </rect>
@@ -388,19 +380,6 @@
     <string>合格率90%</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_19">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>110</y>
-     <width>21</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>90%</string>
-   </property>
-  </widget>
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
     <rect>
@@ -410,17 +389,28 @@
      <height>31</height>
     </rect>
    </property>
-   <widget class="QWidget" name="horizontalLayoutWidget_3">
+   <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
-      <width>501</width>
-      <height>31</height>
+      <y>20</y>
+      <width>521</width>
+      <height>16</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+    <layout class="QVBoxLayout" name="verticalLayout_2"/>
    </widget>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>10</y>
+     <width>501</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_3"/>
   </widget>
  </widget>
  <resources/>

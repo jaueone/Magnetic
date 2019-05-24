@@ -7,6 +7,10 @@
 #include <QPainterPath>
 #include <QPainter>
 #include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include <QThread>
 
 static QSqlDatabase __database__;
 
@@ -69,7 +73,8 @@ public:
 
 protected:
     DB() {}
-    DB(const DB& other){ }
+    DB(const DB& other){}
     ~DB(){}
 };
+
 #endif

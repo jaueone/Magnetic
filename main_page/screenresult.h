@@ -6,9 +6,12 @@
 #include <QtCharts/QPieSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QBarSeries>
-
 #include <QtCharts/QtCharts>
 #include <QtCharts/QChartView>
+#include <QTimer>
+#include <QTime>
+#include <QDate>
+
 #include "login.h"
 
 namespace Ui {
@@ -26,10 +29,15 @@ public:
     void setMen(const Meninfo &info);
     void paint_pie();
     void paint_bar();
+
+    QMap<QString,int> select_result();
 signals:
     void tell_window_step_page(int page);
 
 
+private slots:
+
+    void update_data();
 private:
     Ui::ScreenResult *ui;
     QChartView *chart_pie_view;
@@ -39,6 +47,7 @@ private:
     QPieSeries *series_pie;
     QBarSeries *series_bar;
 
+    QTimer *timer;
 };
 
 #endif // SCREENRESULT_H

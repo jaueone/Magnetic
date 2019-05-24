@@ -7,6 +7,7 @@
 #include <QMap>
 #include <QString>
 #include <QtSerialPort>
+#include"login.h"
 
 namespace Ui {
 class ScreenCheck;
@@ -22,12 +23,13 @@ public:
 
     void addlabel(const QString &name,const QString &content);
     void start_check();
+    void setMen(const Meninfo &info);
     void setSerial(QSerialPort* serial_);
     void setCamera(HKCamera *camera_);
     void serial_send_start();
     void serial_send_end();
     void serial_send_change_image();
-
+    void save_check_result(const QString &result,const QString &defect, const QString &time, const QString &num, const QString &name);
     QLabel * camera_label();
 private slots:
     void on_pushButton_released();
@@ -49,7 +51,7 @@ private:
     QMap<QString ,Label *> object_label_map{};
     QSerialPort *serial;
     HKCamera *camera;
-
+    Meninfo men_info;
     unsigned char id= 1;
 };
 

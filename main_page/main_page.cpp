@@ -9,10 +9,12 @@ MainPage::MainPage(QWidget *parent) :
 {
     ui->setupUi(this);
     screencheck = new ScreenCheck();
+    screenresult = new ScreenResult();
     QWidget *widget = new QWidget(this->ui->stackedWidget);
     this->ui->stackedWidget->removeWidget(this->ui->page);
     this->ui->stackedWidget->removeWidget(this->ui->page_2);
     this->ui->stackedWidget->addWidget(screencheck);
+    this->ui->stackedWidget->addWidget(screenresult);
     this->ui->stackedWidget->addWidget(widget);
     this->connect(this->ui->pushButton,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_2,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
@@ -50,7 +52,7 @@ void MainPage::accept_button_clicked(const bool &checked)
         this->ui->stackedWidget->setCurrentIndex(1);
     }
     else if (this->sender() == this->ui->pushButton_3) {
-        this->ui->stackedWidget->setCurrentIndex(1);
+        this->ui->stackedWidget->setCurrentIndex(2);
     }
 }
 

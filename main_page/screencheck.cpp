@@ -1,7 +1,9 @@
 #include "screencheck.h"
 #include "ui_screencheck.h"
 #include "DefectsDetect.h"
-
+#include "my_control.h"
+#include <QSqlError>
+#include <QDateTime>
 
 const unsigned char chCRCHTalbe[] =
 {
@@ -103,7 +105,12 @@ void ScreenCheck::addlabel(const QString &name, const QString &content)
 void ScreenCheck::start_check()
 {
    this->ui->stackedWidget->setCurrentIndex(1);
-   //this->ui->label_8->hide();
+    //this->ui->label_8->hide();
+}
+
+void ScreenCheck::setMen(const Meninfo &info)
+{
+    this->men_info = info;
 }
 
 
@@ -114,6 +121,8 @@ void ScreenCheck::on_pushButton_4_released()
 
 void ScreenCheck::on_pushButton_8_released()
 {
+    if (this->ui->stackedWidget->currentIndex() == 0)
+        return;
     if (HDevWindowStack::IsOpen())
         CloseWindow(HDevWindowStack::Pop());
     this->ui->preview->show();
@@ -172,6 +181,24 @@ void ScreenCheck::serial_send_change_image()
     id++;
 }
 
+void ScreenCheck::save_check_result(const QString &result,const QString &defect, const QString &time, const QString &num, const QString &name)
+{
+    QSqlDatabase *db = DB::getInterface();
+    if (!db->open()){
+        qDebug() << "Error: Failed to connect database." << db->lastError();
+        return;
+     }
+    QSqlQuery query(*db);
+    QString str = QString("INSERT INTO checked_result (result,defect,time,men_id,men_name) VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\" );")  \
+            .arg(result).arg(defect).arg(time).arg(num).arg(name);
+    if (!query.exec(str)){
+          qDebug() << "Error: Failed to connect database." << db->lastError();
+          return;
+    }
+    else
+        qDebug() << "insert successed";
+}
+
 QLabel *ScreenCheck::camera_label()
 {
     return this->ui->preview;
@@ -201,6 +228,19 @@ void ScreenCheck::on_start_check_released()
         this->ui->label_5->setStyleSheet("image: url(:/image/\344\270\215\345\220\210\346\240\274.png);");
     }
     this->ui->stackedWidget->setCurrentIndex(1);
+    QString result, defect, time, menid, men_name;
+    menid = men_info.number;
+    men_name = men_info.name;
+    time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    if (res){
+        result = "true";
+        defect = "none";
+    }
+    else{
+        result = "true";
+        defect = "none";
+    }
+    this->save_check_result(result,defect,time,menid,men_name);
 }
 
 void ScreenCheck::on_lcd_out_clicked(bool checked)

@@ -22,14 +22,14 @@ public:
 
     void set_current_page(const int &page);
     ScreenCheck *ScreenCheck_(){return this->screencheck;}
-
+    ScreenResult *ScreenResult_(){return this->screenresult;}
 public slots:
     void accept_button_clicked(const bool &checked);
 
 private:
     Ui::MainPage *ui;
     ScreenCheck *screencheck;
-
+    ScreenResult *screenresult;
 };
 
 #endif // MAIN_PAGE_H
