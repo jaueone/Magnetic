@@ -1,6 +1,8 @@
 #ifndef SCREENRESULT_H
 #define SCREENRESULT_H
 
+#include "login.h"
+#include "main_page/timeselect.h"
 #include <QWidget>
 #include <QtCharts/QPieSlice>
 #include <QtCharts/QPieSeries>
@@ -11,8 +13,8 @@
 #include <QTimer>
 #include <QTime>
 #include <QDate>
+#include <QStandardItemModel>
 
-#include "login.h"
 
 namespace Ui {
 class ScreenResult;
@@ -31,6 +33,9 @@ public:
     void paint_bar();
 
     QMap<QString,int> select_result();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event);
 signals:
     void tell_window_step_page(int page);
 
@@ -38,6 +43,20 @@ signals:
 private slots:
 
     void update_data();
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_3_clicked();
+
+    void accept_time_quantum(const QTime &start,const QTime &end);
+
+    void on_calendarWidget_clicked(const QDate &date);
+
+    void on_pushButton_4_clicked();
+
+    void on_listView_clicked(const QModelIndex &index);
+
 private:
     Ui::ScreenResult *ui;
     QChartView *chart_pie_view;
@@ -47,7 +66,15 @@ private:
     QPieSeries *series_pie;
     QBarSeries *series_bar;
 
+    QDate check_date;
+    QTime start_time;
+    QTime end_time;
+    QString check_name;
+
+    Meninfo men;
+    QStandardItemModel* men_model;
     QTimer *timer;
+    timeSelect *time_select_form_;
 };
 
 #endif // SCREENRESULT_H

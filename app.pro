@@ -46,7 +46,9 @@ SOURCES += \
     driveseting.cpp \
     camera.cpp \
     DefectsDetect.cpp \
-    serial.cpp
+    serial.cpp \
+    main_page/timeselect.cpp \
+    worker.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -60,7 +62,9 @@ HEADERS += \
     driveseting.h \
     camera.h \
     DefectsDetect.h \
-    serial.h
+    serial.h \
+    main_page/timeselect.h \
+    worker.h
 
 
 FORMS += \
@@ -70,7 +74,8 @@ FORMS += \
     main_page/screencheck.ui \
     main_page/screenresult.ui \
     main_page/main_page.ui \
-    driveseting.ui
+    driveseting.ui \
+    main_page/timeselect.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

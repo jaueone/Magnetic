@@ -1,13 +1,17 @@
 #include "screenresult.h"
 #include "ui_screenresult.h"
+#include "my_control.h"
 #include <QStringLiteral>
 #include <QValueAxis>
 #include <QFont>
-#include "my_control.h"
+
 
 ScreenResult::ScreenResult(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ScreenResult)
+    ui(new Ui::ScreenResult),
+    check_date(QDate::currentDate()),
+    start_time(0,0,0,0),
+    end_time(QTime::currentTime())
 {
     ui->setupUi(this);
 
@@ -18,25 +22,38 @@ ScreenResult::ScreenResult(QWidget *parent) :
     series_pie = new QPieSeries();
     series_bar = new QBarSeries();
 
+    time_select_form_ = new timeSelect;
+    this->men_model = new QStandardItemModel;
+    this->ui->listView->setModel(men_model);
     this->timer = new QTimer(this);
     this->ui->verticalLayout->addWidget(chart_pie_view);
     this->paint_pie();
-    //this->paint_bar();
+//    this->paint_bar();
+    this->ui->calendarWidget->hide();
     this->ui->label_16->hide();
-    timer->setInterval(600);
-    timer->start();
+    this->ui->label_8->setText(QDate::currentDate().toString("yyyy\345\271\264"));
+    this->ui->label_10->setText(QDate::currentDate().toString("MM\346\234\210dd\346\227\245"));
+    this->ui->label_12->setText(QTime::currentTime().toString("00:00-hh:mm"));
     this->connect(this->timer,&QTimer::timeout,this, &ScreenResult::update_data);
+    this->connect(this->time_select_form_,&timeSelect::tell_window_time_quantum,this,&ScreenResult::accept_time_quantum);
+    this->installEventFilter(this);
+    this->ui->listView->hide();
 }
 
 ScreenResult::~ScreenResult()
 {
     timer->stop();
+    delete time_select_form_;
     delete ui;
 }
 
 void ScreenResult::setMen(const Meninfo &info)
 {
+    this->men = info;
     this->ui->label_14->setText(info.name);
+    this->check_name = men.name;
+    this->timer->setInterval(600);
+    this->timer->start();
 }
 
 void ScreenResult::paint_pie()
@@ -79,7 +96,6 @@ void ScreenResult::paint_bar()
     series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd); // 设置数据系列标签的位置于数据柱内测上方
     series->setLabelsVisible(true); // 设置显示数据系列标签
 
-
     //QChart *chart = new QChart();
     chart_bar->addSeries(series);
     chart_bar->setBackgroundVisible(false);
@@ -109,17 +125,20 @@ void ScreenResult::update_data()
     QMap<QString,int> map = this->select_result();  //\345\271\264  年   \346\234\210 月 \346\227\245 日
     if (map.isEmpty())
         return;
-    this->ui->label_8->setText(QDate::currentDate().toString("yyyy\345\271\264"));
-    this->ui->label_10->setText(QDate::currentDate().toString("MM\346\234\210dd\346\227\245"));
-    this->ui->label_12->setText(QTime::currentTime().toString("00:00-hh:mm"));
     int all = map["all"];
+
     int qualified = map["qualified"];
     int unqualified = map["unqualified"];
     this->ui->label_5->setText(QString("%1").arg(all));
     this->ui->label_6->setText(QString("%1").arg(qualified));
     this->ui->label_7->setText(QString("%1").arg(unqualified));     //\344\270\215\345\220\210\346\240\274\347\216\20710% 不合格率
-
-    double q = qualified/all;
+    double q;
+    if (all !=0){
+        q = qualified/all;
+    }
+    else {
+        q = 1;
+    }
     double unq = 1 - q;
     this->ui->label_18->setText("\345\220\210\346\240\274\347\216\207" + QString::number(q*100,'f',2) + "%");
     this->ui->label_17->setText("\344\270\215\345\220\210\346\240\274\347\216\207"+ QString::number(unq*100,'f',2) + "%");
@@ -136,13 +155,14 @@ QMap<QString, int> ScreenResult::select_result()
     if (!db->open()){
         qDebug() << "Error: Failed to connect database." << db->lastError();
         return map;
-     }
+    }
     QSqlQuery query(*db);
-    QString start = QDate::currentDate().toString("yyyy-MM-dd ") + "00:00:00";
-    QString end = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-    QString str = QString("select * from checked_result where time>=\"%1\" and time<= \"%2\"").arg(start).arg(end);
+    QString start = this->check_date.toString("yyyy-MM-dd ") + start_time.toString("hh:mm:ss");
+    QString end = this->check_date.toString("yyyy-MM-dd ") + end_time.toString("hh:mm:ss");
+    QString str = QString("select * from checked_result where time>=\"%1\" and time<=\"%2\" and men_name= \"%3\"").arg(start).arg(end).arg(check_name);
     if (!query.exec(str)){
-          qDebug() << "Error: Failed to connect database." << db->lastError();
+          qDebug() << "Error: Failed to query database." << db->lastError();
+          db->close();
           return map;
     }
     int all, unqualified,qualified;
@@ -159,5 +179,93 @@ QMap<QString, int> ScreenResult::select_result()
     map["all"] = all;
     map["qualified"] = qualified;
     map["unqualified"] = unqualified;
+    db->close();
     return map;
+}
+
+bool ScreenResult::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == this){
+        if (event->type() == QEvent::MouseButtonPress){
+            this->ui->calendarWidget->hide();
+            this->ui->listView->hide();
+            return true;
+        }
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
+void ScreenResult::on_pushButton_clicked()
+{
+    if (this->ui->calendarWidget->isVisible()){
+        this->ui->calendarWidget->hide();
+    }
+    else
+    {
+    this->ui->calendarWidget->show();
+    this->ui->calendarWidget->setGeometry(20,53,300,197);
+    }
+}
+
+void ScreenResult::on_pushButton_2_clicked()
+{
+    this->on_pushButton_clicked();
+}
+
+
+void ScreenResult::on_pushButton_3_clicked()
+{
+    this->time_select_form_->show();
+}
+
+void ScreenResult::accept_time_quantum(const QTime &start, const QTime &end)
+{
+    this->start_time = start;
+    this->end_time = end;
+    this->ui->label_12->setText(QTime::currentTime().toString("%1-%2").arg(start_time.toString("hh:mm")).arg(end_time.toString("hh:mm")));
+}
+
+void ScreenResult::on_calendarWidget_clicked(const QDate &date)
+{
+    this->check_date = date;
+    this->ui->label_8->setText(date.toString("yyyy\345\271\264"));
+    this->ui->label_10->setText(date.toString("MM\346\234\210dd\346\227\245"));
+}
+
+void ScreenResult::on_pushButton_4_clicked()
+{
+    if(this->men.isengineer != "yes")
+        return;
+    QSqlDatabase *db = DB::getInterface();
+    if (!db->open()){
+        qDebug() << "Error: Failed to connect database." << db->lastError();
+        return;
+    }
+    QSqlQuery query(*db);
+    QString str = QString("select * from men");
+    if (!query.exec(str)){
+          qDebug() << "Error: Failed to query database." << db->lastError();
+          db->close();
+          return;
+    }
+    int i = 1;
+    men_model->clear();
+    while (query.next()) {
+        i += 1;
+        QSqlRecord rec = query.record();
+        QString name = rec.value("name").toString();
+        QStandardItem *item = new QStandardItem(name);
+        men_model->appendRow(item);
+    }
+    if (i >12) i = 12;
+    this->ui->listView->setGeometry(462, 50, 120,22*i);
+    this->ui->listView->show();
+}
+
+void ScreenResult::on_listView_clicked(const QModelIndex &index)
+{
+    QStandardItem * item = this->men_model->itemFromIndex(index);
+    this->check_name = item->text();
+    this->ui->label_14->setText(this->check_name);
+    this->ui->listView->hide();
 }
