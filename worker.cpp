@@ -90,7 +90,6 @@ void Worker::response_wrap_result(const QByteArray &data)
     if (this->step != 4)
         return;
     serial->write(Worker::dump_data(Command::WrapResult,data));
-    qDebug() << "send wrap";
 }
 
 void Worker::analysis_MCStatus(const QByteArray &data)
@@ -264,5 +263,15 @@ void Worker::accept_serial_setting(SerialSetting setting)
 
 void Worker::accept_set_motor_speed(const Status &status)
 {
+    if(this->is_Stoped_Work)
+        return;
+    if(!serial->isOpen())
+        return;
+    if (this->step != 0)
+        return;
+    QByteArray data;
+    char c = 0x00;
+    data.append(c);
+    serial->write(Worker::dump_data(Command::QueryStatus,data));
 
 }

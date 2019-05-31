@@ -409,11 +409,11 @@ void DriveSeting::accept_stm_status(const Status &status)
     this->ui->motor_2_speed->setValue(status.roll_motor_speed);
     this->ui->motor_3_speed->setValue(status.roller_motor_speed);
     this->ui->motor_4_speed->setValue(status.slidingtable_motor_speed);
-    if(this->ui->Estop_s->isChecked()) this->ui->Estop_s->setText("正常"); else  this->ui->Estop_s->setText("急停中");
-    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText("正常"); else  this->ui->motor_1->setText("故障");
-    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText("正常"); else  this->ui->motor_2->setText("故障");
-    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText("正常"); else  this->ui->motor_3->setText("故障");
-    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText("正常"); else  this->ui->motor_4->setText("故障");
+//    if(this->ui->Estop_s->isChecked()) this->ui->Estop_s->setText("正常"); else  this->ui->Estop_s->setText("急停中");
+//    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText("正常"); else  this->ui->motor_1->setText("故障");
+//    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText("正常"); else  this->ui->motor_2->setText("故障");
+//    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText("正常"); else  this->ui->motor_3->setText("故障");
+//    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText("正常"); else  this->ui->motor_4->setText("故障");
 
 }
 

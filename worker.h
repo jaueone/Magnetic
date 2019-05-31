@@ -134,8 +134,6 @@ signals:
     void tell_window_stm_status(Status);
     void tell_work_set_motor_speed(Status);
 
-private:
-    SerialSetting setting;
 };
 
 #endif // WORKER_H
