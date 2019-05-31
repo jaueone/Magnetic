@@ -27,9 +27,11 @@ enum Command:short
     SetRollerMotorSpeed = 0x0007,
     SetSlidingTableMotorSpeed = 0x0008,
 
+
     ImageCapture = 0x00FE,
     STM_WorkStatus = 0X00FD,
     WrapResult = 0X00FC,
+    RespondOK = 0x00FB,
 };
 
 struct Package
@@ -58,6 +60,7 @@ struct Status{
     bool rollerMotorSpeedStatus;
     bool slidingTableMotorSpeedStatus;
     bool isWorking;
+    bool isReseting;
     uint16_t transport_motor_speed;
     uint16_t roll_motor_speed;
     uint16_t roller_motor_speed;
@@ -83,6 +86,8 @@ public:
     void tell_stm_result();
     void response_wrap_result(const QByteArray &data);
 
+    void set_motor_speed(int motor);
+
     void analysis_MCStatus(const QByteArray &data);
 
     static QByteArray dump_data(const Command &command,const QByteArray &data);
@@ -91,6 +96,7 @@ public:
 signals:
     void tell_window_message(QString type, QString msg);
     void tell_window_stm_status(Status);
+    void tell_window_stm_respond_timeout();
 
 public slots:
     void accept_read_data();
@@ -98,6 +104,7 @@ public slots:
     void accept_serial_error(const QSerialPort::SerialPortError &error);
     void accept_serial_setting(SerialSetting setting);
     void accept_set_motor_speed(const Status &status);
+    void accept_command_to_stm(Command com);
 
 private:
     int step = 0;
@@ -109,31 +116,8 @@ private:
     QSerialPort *serial;
     Status status;
     SerialSetting setting;
+    Status status_speed;
 };
 
-class WorkerThread: public QThread
-{
-    Q_OBJECT
 
-public:
-    ~WorkerThread(){
-        this->quit();
-        this->wait();
-    }
-
-    void run(){
-        Worker worker;
-        this->connect(this, &WorkerThread::accept_setting, &worker,&Worker::accept_serial_setting);
-        this->connect(this, &WorkerThread::tell_window_stm_status, &worker,&Worker::tell_window_stm_status);
-        this->connect(this, &WorkerThread::tell_work_set_motor_speed, &worker,&Worker::accept_set_motor_speed);
-        this->exec();
-    }
-
-signals:
-    void accept_setting(SerialSetting setting);
-    void tell_window_stm_status(Status);
-    void tell_work_set_motor_speed(Status);
-
-};
-
-#endif // WORKER_H
+#endif

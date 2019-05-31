@@ -85,21 +85,32 @@ DriveSeting::DriveSeting(QWidget *parent) :
     ui->setupUi(this);
     serial = new QSerialPort(this);
     camera = new HKCamera();
-    worker_thread = new WorkerThread;
+    worker_thread = new QThread;
+    worker = new Worker;
+    worker->moveToThread(worker_thread);
     this->ui->pushButton_7->setText("打开串口");
     this->ui->baudRateBox->setCurrentIndex(1);
     this->ui->dataBitsBox->setCurrentIndex(3);
     qRegisterMetaType<SerialSetting>("SerialSetting");
     qRegisterMetaType<SerialSetting>("SerialSetting&");
-    this->connect(this->ui->serialPortInfoListBox,&ComboBox::tell_serial_scan, this, &DriveSeting::accept_scan_serial);
-    this->connect(this, &DriveSeting::tell_worker_setting, this->worker_thread, &WorkerThread::accept_setting);
-    this->connect(this, &DriveSeting::tell_worker_set_motor_speed, this->worker_thread, &WorkerThread::tell_work_set_motor_speed);
-    this->connect(this->worker_thread,&WorkerThread::tell_window_stm_status,this, &DriveSeting::accept_stm_status);
+    qRegisterMetaType<Status>("Status");
+    qRegisterMetaType<Status>("Status&");
+    qRegisterMetaType<Command>("Command");
+    qRegisterMetaType<Command>("Command&");
 
+    this->connect(this->ui->serialPortInfoListBox,&ComboBox::tell_serial_scan, this, &DriveSeting::accept_scan_serial);
+    this->connect(this, &DriveSeting::tell_worker_setting, this->worker, &Worker::accept_serial_setting,Qt::QueuedConnection);
+    this->connect(this, &DriveSeting::tell_worker_set_motor_speed, this->worker, &Worker::accept_set_motor_speed,Qt::QueuedConnection);
+    this->connect(this, &DriveSeting::tell_worker_stem_command, this->worker, &Worker::accept_command_to_stm,Qt::QueuedConnection);
+    this->connect(this->worker, &Worker::tell_window_stm_status,this, &DriveSeting::accept_stm_status,Qt::QueuedConnection);
+    this->connect(this->worker, &Worker::tell_window_stm_respond_timeout,this, &DriveSeting::accept_stm_respond_timeout,Qt::QueuedConnection);
 }
 
 DriveSeting::~DriveSeting()
 {
+    worker_thread->quit();
+    worker_thread->wait();
+    delete worker;
     delete worker_thread;
     delete ui;
     delete camera;
@@ -399,21 +410,37 @@ void DriveSeting::accept_scan_serial()
 
 void DriveSeting::accept_stm_status(const Status &status)
 {
+
     this->ui->Estop_s->setChecked(!status.E_Stop);
     this->ui->motor_1->setChecked(!status.transportMotorSpeedStatus);
     this->ui->motor_2->setChecked(!status.rollMontorSpeedStatus);
     this->ui->motor_3->setChecked(!status.rollerMotorSpeedStatus);
     this->ui->motor_4->setChecked(!status.slidingTableMotorSpeedStatus);
+    this->ui->isWorking->setChecked(status.isWorking);
 
     this->ui->motor_1_speed->setValue(status.transport_motor_speed);
     this->ui->motor_2_speed->setValue(status.roll_motor_speed);
     this->ui->motor_3_speed->setValue(status.roller_motor_speed);
     this->ui->motor_4_speed->setValue(status.slidingtable_motor_speed);
-//    if(this->ui->Estop_s->isChecked()) this->ui->Estop_s->setText("正常"); else  this->ui->Estop_s->setText("急停中");
-//    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText("正常"); else  this->ui->motor_1->setText("故障");
-//    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText("正常"); else  this->ui->motor_2->setText("故障");
-//    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText("正常"); else  this->ui->motor_3->setText("故障");
-//    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText("正常"); else  this->ui->motor_4->setText("故障");
+
+    if(this->ui->isWorking->isChecked()) this->ui->isWorking->setText("\345\267\245\344\275\234\344\270\255"); else  this->ui->isWorking->setText("\344\274\221\346\201\257\344\270\255");
+    if(this->ui->Estop_s->isChecked()) this->ui->Estop_s->setText("正常"); else  this->ui->Estop_s->setText("\346\200\245\345\201\234\344\270\255");
+    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText("正常"); else  this->ui->motor_1->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText("正常"); else  this->ui->motor_2->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText("正常"); else  this->ui->motor_3->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText("正常"); else  this->ui->motor_4->setText("\346\225\205\351\232\234");
+
+}
+
+void DriveSeting::accept_stm_respond_timeout()
+{
+    QMessageBox messageBox;
+    messageBox.setWindowTitle("警告");
+    messageBox.setIcon(QMessageBox::Critical);
+    messageBox.setText("下位机响应超时,已停止工作\n 需要查明故障修复后,重新启动");
+    QPushButton button("确定");
+    messageBox.addButton(&button, QMessageBox::YesRole);
+    messageBox.exec();
 
 }
 
@@ -576,4 +603,14 @@ void DriveSeting::on_pushButton_15_released()
     staus.roller_motor_speed = (uint16_t)this->ui->motor_3_speed->value();
     staus.slidingtable_motor_speed = (uint16_t)this->ui->motor_4_speed->value();
     emit tell_worker_set_motor_speed(staus);
+}
+
+void DriveSeting::on_pushButton_17_released()
+{
+    emit tell_worker_stem_command(Command::StopWork);
+}
+
+void DriveSeting::on_pushButton_18_released()
+{
+    emit tell_worker_stem_command(Command::Reset);
 }

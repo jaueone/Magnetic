@@ -34,106 +34,6 @@
    <property name="flat">
     <bool>false</bool>
    </property>
-   <widget class="QPushButton" name="pushButton_7">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>30</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton{color:black;background-color:rgb(255, 114, 114);border-radius:1px}
-QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
-    </property>
-    <property name="text">
-     <string>打开串口</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="checked">
-     <bool>false</bool>
-    </property>
-    <property name="autoExclusive">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_5">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>70</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>9</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-    </property>
-    <property name="text">
-     <string>开始测试</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_6">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>110</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>9</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-    </property>
-    <property name="text">
-     <string>切换图片</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_8">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>150</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-    </property>
-    <property name="text">
-     <string>结束测试</string>
-    </property>
-   </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
@@ -218,7 +118,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
      <rect>
       <x>170</x>
       <y>20</y>
-      <width>271</width>
+      <width>361</width>
       <height>201</height>
      </rect>
     </property>
@@ -226,34 +126,12 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
      <string>下位机状态</string>
     </property>
     <layout class="QGridLayout" name="gridLayout_4">
-     <item row="2" column="1">
-      <widget class="QPushButton" name="motor_2">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>微软雅黑</family>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">QPushButton{color:black;background-color:rgb(255, 114, 114);border-radius:1px}
-QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
-       </property>
-       <property name="text">
-        <string>故障</string>
+     <item row="1" column="3">
+      <widget class="QSpinBox" name="motor_1_speed">
+       <property name="maximum">
+        <number>300</number>
        </property>
       </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QSpinBox" name="motor_1_speed"/>
      </item>
      <item row="3" column="1">
       <widget class="QPushButton" name="motor_3">
@@ -278,6 +156,38 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
        </property>
        <property name="text">
         <string>故障</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QPushButton" name="motor_2">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:black;background-color:rgb(255, 114, 114);border-radius:1px}
+QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
+       </property>
+       <property name="text">
+        <string>故障</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -313,19 +223,31 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="3">
-      <widget class="QSpinBox" name="motor_4_speed"/>
-     </item>
      <item row="2" column="3">
-      <widget class="QSpinBox" name="motor_2_speed"/>
+      <widget class="QSpinBox" name="motor_2_speed">
+       <property name="maximum">
+        <number>300</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <widget class="QSpinBox" name="motor_4_speed">
+       <property name="maximum">
+        <number>300</number>
+       </property>
+      </widget>
      </item>
      <item row="3" column="3">
-      <widget class="QSpinBox" name="motor_3_speed"/>
+      <widget class="QSpinBox" name="motor_3_speed">
+       <property name="maximum">
+        <number>300</number>
+       </property>
+      </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_20">
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_24">
        <property name="text">
-        <string>急停状态</string>
+        <string>滑台电机</string>
        </property>
       </widget>
      </item>
@@ -367,10 +289,10 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_24">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_20">
        <property name="text">
-        <string>滑台电机</string>
+        <string>急停状态</string>
        </property>
       </widget>
      </item>
@@ -378,6 +300,50 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
       <widget class="QLabel" name="label_23">
        <property name="text">
         <string>滚筒电机</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="label_27">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>速度</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_25">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>速度</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -405,27 +371,8 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
        <property name="text">
         <string>故障</string>
        </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_25">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>速度</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -451,35 +398,6 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QLabel" name="label_27">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>速度</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_21">
-       <property name="text">
-        <string>传送电机</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_22">
        <property name="text">
@@ -487,30 +405,11 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
-      <widget class="QLabel" name="label_28">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>速度</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="3">
-      <widget class="QPushButton" name="pushButton_16">
+      <widget class="QPushButton" name="isWorking">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="minimumSize">
         <size>
          <width>60</width>
@@ -544,6 +443,35 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
        </property>
       </widget>
      </item>
+     <item row="4" column="2">
+      <widget class="QLabel" name="label_28">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>速度</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_21">
+       <property name="text">
+        <string>传送电机</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="2">
       <widget class="QLabel" name="label_29">
        <property name="text">
@@ -551,30 +479,108 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </widget>
-   <widget class="QPushButton" name="pushButton_15">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>190</y>
-      <width>81</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>微软雅黑</family>
-      <pointsize>9</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
+     <item row="4" column="4">
+      <widget class="QPushButton" name="pushButton_15">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
 QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-    </property>
-    <property name="text">
-     <string>设置电机速度</string>
-    </property>
+       </property>
+       <property name="text">
+        <string>设置电机速度</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QPushButton" name="pushButton_7">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:black;background-color:rgb(255, 114, 114);border-radius:1px}
+QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
+       </property>
+       <property name="text">
+        <string>打开串口</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="4">
+      <widget class="QPushButton" name="pushButton_18">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>复位</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QPushButton" name="pushButton_17">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>停机</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget">

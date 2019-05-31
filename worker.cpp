@@ -92,20 +92,50 @@ void Worker::response_wrap_result(const QByteArray &data)
     serial->write(Worker::dump_data(Command::WrapResult,data));
 }
 
-void Worker::analysis_MCStatus(const QByteArray &data)
+void Worker::set_motor_speed(int motor)
 {
+    if(this->is_Stoped_Work)
+        return;
+    if(!serial->isOpen())
+        return;
+    if (this->step != -1)
+        return;
+    QByteArray data;
+    QDataStream d(&data,QIODevice::ReadWrite);
+    if (motor == 1){
+        d << status_speed.transport_motor_speed;
+        serial->write(Worker::dump_data(Command::SetTransportMotorSpeed,data));
+    }
+    else if (motor == 2){
+        d << status_speed.roll_motor_speed;
+        serial->write(Worker::dump_data(Command::SetRollMontorSpeed,data));
+        }
+    else if (motor == 3){
+        d << status_speed.roller_motor_speed;
+        serial->write(Worker::dump_data(Command::SetRollerMotorSpeed,data));
+    }
+    else if (motor == 4){
+        d << status_speed.slidingtable_motor_speed;
+        serial->write(Worker::dump_data(Command::SetSlidingTableMotorSpeed,data));
+    }
+    timer->start(12000);
+}
+
+void Worker::analysis_MCStatus(const QByteArray &data)
+{   QByteArray ba(data);
+    QDataStream in(&ba,QIODevice::ReadOnly);
     status.status = (uint8_t)data.at(0);
     status.E_Stop = (status.status & 0x01) == 0x01 ? true : false;
     status.transportMotorSpeedStatus = (status.status & 0x02) == 0x02 ? true : false;
-    status.rollMontorSpeedStatus = (status.status & 0x03) == 0x03 ? true : false;
-    status.rollerMotorSpeedStatus = (status.status & 0x04) == 0x04 ? true : false;
-    status.slidingTableMotorSpeedStatus = (status.status & 0x05) == 0x05 ? true : false;
-    status.isWorking = (status.status & 0x06) == 0x06 ? true : false;
-
-    status.transport_motor_speed = data.mid(1,2).toUShort();
-    status.roll_motor_speed = data.mid(3,2).toUShort();
-    status.roller_motor_speed= data.mid(5,2).toUShort();
-    status.slidingtable_motor_speed = data.mid(7,2).toUShort();
+    status.rollMontorSpeedStatus = (status.status & 0x04) == 0x04 ? true : false;
+    status.rollerMotorSpeedStatus = (status.status & 0x08) == 0x08 ? true : false;
+    status.slidingTableMotorSpeedStatus = (status.status & 0x10) == 0x10 ? true : false;
+    status.isWorking = (status.status & 0x20) == 0x20 ? true : false;
+    status.isReseting = (status.status & 0x40) == 0x40 ? true : false;
+    in >> status.status >> status.transport_motor_speed >> status.roll_motor_speed >> status.roller_motor_speed >> status.slidingtable_motor_speed;
+    qDebug() << status.E_Stop << status.transportMotorSpeedStatus << status.rollMontorSpeedStatus << status.rollerMotorSpeedStatus << status.slidingTableMotorSpeedStatus << status.isWorking << status.isReseting
+             << status.transport_motor_speed << status.roll_motor_speed << status.roller_motor_speed << status.slidingtable_motor_speed;
+    this->is_Stoped_Work = status.isReseting;
     emit tell_window_stm_status(status);
 }
 
@@ -176,7 +206,6 @@ void Worker::accept_read_data()
         return;
     timer->stop();
     qDebug() << (uint8_t)resp.command << resp.data.toHex();
-
     switch (resp.command) {
 
         case ImageCapture:
@@ -200,6 +229,7 @@ void Worker::accept_read_data()
                 this->is_Stoped_Work = true;
                 return;
             }
+
             if (step == 0){
                 step = 1;
                 start_work();
@@ -213,16 +243,30 @@ void Worker::accept_read_data()
                 step  = 4;
                 qDebug() << "wait_wrap_result";
             }
+            else if (step == -1) {
+                set_motor_speed(4);
+                qDebug() << "set speed";
+            }
+            else if (step == -2) {
+                qDebug() << "stop stm";
+            }
+            else if (step == -3) {
+                qDebug() << "reset stm";
+            }
             break;
 
         case WrapResult:
-            if (step == 4){
-                  response_wrap_result(resp.data);
-                  this->step = 0;
-                  sleep(10);
-                  query_status();
-                  qDebug() << "next unit query_status";
-            }
+            if (step != 4)
+                return
+            response_wrap_result(resp.data);
+            this->step = 0;
+            sleep(10);
+            query_status();
+            qDebug() << "next unit query_status";
+            break;
+
+        case RespondOK:
+            qDebug() << "set speed ok";
             break;
     }
 }
@@ -231,6 +275,8 @@ void Worker::accept_timeout()
 {
     timer->stop();
     this->is_Stoped_Work = true;
+    emit tell_window_stm_respond_timeout();
+    qDebug() << "timeout";
 }
 
 
@@ -258,6 +304,7 @@ void Worker::accept_serial_setting(SerialSetting setting)
         return;
     }
     step = 0;
+    this->is_Stoped_Work = false;
     this->query_status();
 }
 
@@ -267,11 +314,29 @@ void Worker::accept_set_motor_speed(const Status &status)
         return;
     if(!serial->isOpen())
         return;
-    if (this->step != 0)
-        return;
     QByteArray data;
     char c = 0x00;
     data.append(c);
+    step = -1;
+    this->status_speed = status;
     serial->write(Worker::dump_data(Command::QueryStatus,data));
+    this->timer->start(1200);
+}
 
+void Worker::accept_command_to_stm(Command com)
+{
+    if(this->is_Stoped_Work)
+        return;
+    if(!serial->isOpen())
+        return;
+    if (com == Command::StopWork)
+        step = -2;
+    else if (com ==Command::Reset){
+        step = -3;
+    }
+    QByteArray data;
+    char c = 0x00;
+    data.append(c);
+    serial->write(Worker::dump_data(com,data));
+    timer->start(12000);
 }

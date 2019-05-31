@@ -55,6 +55,8 @@ private slots:
 
     void accept_stm_status(const Status &status);
 
+    void accept_stm_respond_timeout();
+
     void on_pushButton_released();
 
     void on_serialPortInfoListBox_currentIndexChanged(int index);
@@ -81,17 +83,23 @@ private slots:
 
     void on_pushButton_15_released();
 
+    void on_pushButton_17_released();
+
+    void on_pushButton_18_released();
+
 signals:
     void tell_window_step_page(int);
     void tell_worker_setting(SerialSetting);
     void tell_worker_set_motor_speed(Status);
+    void tell_worker_stem_command(Command com);
 
 private:
     Ui::DriveSeting *ui;
     QSerialPort *serial;
     HKCamera *camera;
 
-    WorkerThread *worker_thread;
+    QThread *worker_thread;
+    Worker *worker;
     bool Serial_OK;
     bool Camera_OK;
 };
