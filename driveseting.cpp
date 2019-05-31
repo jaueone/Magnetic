@@ -7,7 +7,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlRecord>
-
+#include <QSerialPort>
 
 const unsigned char chCRCHTalbe[] =
 {
@@ -85,15 +85,22 @@ DriveSeting::DriveSeting(QWidget *parent) :
     ui->setupUi(this);
     serial = new QSerialPort(this);
     camera = new HKCamera();
+    worker_thread = new WorkerThread;
     this->ui->pushButton_7->setText("打开串口");
     this->ui->baudRateBox->setCurrentIndex(1);
     this->ui->dataBitsBox->setCurrentIndex(3);
+    qRegisterMetaType<SerialSetting>("SerialSetting");
+    qRegisterMetaType<SerialSetting>("SerialSetting&");
     this->connect(this->ui->serialPortInfoListBox,&ComboBox::tell_serial_scan, this, &DriveSeting::accept_scan_serial);
+    this->connect(this, &DriveSeting::tell_worker_setting, this->worker_thread, &WorkerThread::accept_setting);
+    this->connect(this, &DriveSeting::tell_worker_set_motor_speed, this->worker_thread, &WorkerThread::tell_work_set_motor_speed);
+    this->connect(this->worker_thread,&WorkerThread::tell_window_stm_status,this, &DriveSeting::accept_stm_status);
 
 }
 
 DriveSeting::~DriveSeting()
 {
+    delete worker_thread;
     delete ui;
     delete camera;
 }
@@ -113,9 +120,16 @@ bool DriveSeting::init()
         this->Serial_OK = true;
 
     if (Camera_OK && Serial_OK)
+    {
+        this->ui->pushButton_7->setChecked(true);
+        this->ui->pushButton_7->setText("关闭串口");
         return true;
+    }
     else
+    {
+        serial->close();
         return false;
+    }
 
 }
 
@@ -312,7 +326,6 @@ void DriveSeting::load_setting()
     this->ui->flowControlBox->setCurrentText(ser_obj["flowControl"].toString());
 
     this->ui->serialPortInfoListBox->setCurrentText(ser_obj["name"].toString());
-
 }
 
 
@@ -384,6 +397,26 @@ void DriveSeting::accept_scan_serial()
     this->scan_serial();
 }
 
+void DriveSeting::accept_stm_status(const Status &status)
+{
+    this->ui->Estop_s->setChecked(!status.E_Stop);
+    this->ui->motor_1->setChecked(!status.transportMotorSpeedStatus);
+    this->ui->motor_2->setChecked(!status.rollMontorSpeedStatus);
+    this->ui->motor_3->setChecked(!status.rollerMotorSpeedStatus);
+    this->ui->motor_4->setChecked(!status.slidingTableMotorSpeedStatus);
+
+    this->ui->motor_1_speed->setValue(status.transport_motor_speed);
+    this->ui->motor_2_speed->setValue(status.roll_motor_speed);
+    this->ui->motor_3_speed->setValue(status.roller_motor_speed);
+    this->ui->motor_4_speed->setValue(status.slidingtable_motor_speed);
+    if(this->ui->Estop_s->isChecked()) this->ui->Estop_s->setText("正常"); else  this->ui->Estop_s->setText("急停中");
+    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText("正常"); else  this->ui->motor_1->setText("故障");
+    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText("正常"); else  this->ui->motor_2->setText("故障");
+    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText("正常"); else  this->ui->motor_3->setText("故障");
+    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText("正常"); else  this->ui->motor_4->setText("故障");
+
+}
+
 
 void DriveSeting::on_serialPortInfoListBox_currentIndexChanged(int index)
 {
@@ -417,7 +450,6 @@ void DriveSeting::on_pushButton_7_released()
         this->ui->pushButton_7->setChecked(false);
         this->ui->pushButton_7->setText("打开串口");
     }
-
     else {
         SerialSetting setting = get_serial_setting();
         serial->setPortName(setting.name);
@@ -514,4 +546,34 @@ void DriveSeting::on_pushButton_12_clicked()
 
         HKCamera::camera_message_done();
     }
+}
+
+void DriveSeting::on_pushButton_13_clicked()
+{
+    QByteArray data;
+    char c = 0x00;
+    data.append(c);
+    QByteArray datas = Worker::dump_data(Command::QueryStatus, data);
+    if (serial->isOpen())
+    {
+        serial->write(datas);
+    }
+}
+
+
+void DriveSeting::on_pushButton_14_clicked()
+{
+    this->worker_thread->start();
+    emit tell_worker_setting(this->get_serial_setting());
+
+}
+
+void DriveSeting::on_pushButton_15_released()
+{
+    Status staus;
+    staus.transport_motor_speed = (uint16_t)this->ui->motor_1_speed->value();
+    staus.roll_motor_speed = (uint16_t)this->ui->motor_2_speed->value();
+    staus.roller_motor_speed = (uint16_t)this->ui->motor_3_speed->value();
+    staus.slidingtable_motor_speed = (uint16_t)this->ui->motor_4_speed->value();
+    emit tell_worker_set_motor_speed(staus);
 }

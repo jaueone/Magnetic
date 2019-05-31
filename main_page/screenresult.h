@@ -14,7 +14,7 @@
 #include <QTime>
 #include <QDate>
 #include <QStandardItemModel>
-
+#include <QSerialPort>
 
 namespace Ui {
 class ScreenResult;
@@ -34,6 +34,7 @@ public:
 
     QMap<QString,int> select_result();
 
+    void setSerial(QSerialPort *serial){this->serial = serial;}
 protected:
     bool eventFilter(QObject *watched, QEvent *event);
 signals:
@@ -41,8 +42,8 @@ signals:
 
 
 private slots:
-
     void update_data();
+
     void on_pushButton_clicked();
 
     void on_pushButton_2_clicked();
@@ -75,6 +76,7 @@ private:
     QStandardItemModel* men_model;
     QTimer *timer;
     timeSelect *time_select_form_;
+    QSerialPort *serial;
 };
 
 #endif // SCREENRESULT_H

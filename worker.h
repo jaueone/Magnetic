@@ -6,88 +6,136 @@
 #include <QtSerialPort>
 #include <QString>
 #include <QTimer>
-//#include <memory.h>
-//#include <QDebug>
+#include <QDebug>
+#include <QList>
+#include "camera.h"
+#include "serial.h"
 
-//typedef unsigned char           uint8_t;
-//typedef unsigned short int      uint16_t;
-//typedef unsigned int            uint32_t;
+typedef unsigned char           uint8_t;
+typedef unsigned short int      uint16_t;
+typedef unsigned int            uint32_t;
 
-//enum Command:short
-//{
-//    QueryStatus = 0x0000,
-//    StartWork ,
-//    CheckResult,
-//    StopWork,
-//    Reset,
-//    SetTransportMotorSpeed,
-//    SetRollMontorSpeed,
-//    SetRollerMotorSpeed,
-//    SetSlidingTableMotorSpeed,
-//};
-//struct Package
-//{
-//    uint16_t head;                        //命令
-//    uint8_t packageNumber;                //帧序号
-//    uint8_t packageLength;                //长度
-//    uint8_t commandCount;                 //命令个数
-//    uint16_t command;                     //命令
-//    uint8_t length;                       //长度
-//    uint8_t *pBuffer;                     //数据
-//    uint16_t crc;
-//};
+enum Command:short
+{
+    QueryStatus = 0x0000,
+    StartWork = 0x0001,
+    CheckResult = 0x0002,
+    StopWork = 0x0003,
+    Reset = 0x0004,
+    SetTransportMotorSpeed = 0x0005,
+    SetRollMontorSpeed = 0x0006,
+    SetRollerMotorSpeed = 0x0007,
+    SetSlidingTableMotorSpeed = 0x0008,
 
-//QByteArray dumpData(const Command &command,unsigned char* data,const uint8_t &len){
+    ImageCapture = 0x00FE,
+    STM_WorkStatus = 0X00FD,
+    WrapResult = 0X00FC,
+};
 
-//    QByteArray ba;
-//    Package package;
-//    package.head = 0xFFDD;
-//    package.packageNumber = 0x00;
-//    package.packageLength = 10 + len;
-//    package.commandCount = 1;
-//    package.command = (uint16_t)command;
-//    package.length = len;
-//    package.pBuffer = data;
+struct Package
+{
+    uint16_t head;                        //命令
+    uint8_t packageNumber;                //帧序号
+    uint8_t packageLength;                //长度
+    uint8_t commandCount;                 //命令个数
+    uint16_t command;                     //命令
+    uint8_t length;                       //长度
+    uint8_t *pBuffer;                     //数据
+    uint16_t crc = 0;
+};
 
-//    memcpy(ba.data(),&package,sizeof(package));
-//    qDebug() << sizeof (package);
-//    return ba;
-//};
+struct Respond{
+    bool isGood = false;
+    Command command;
+    QByteArray data;
+};
 
-class Worker:public QThread
+struct Status{
+    uint8_t status;
+    bool E_Stop;
+    bool transportMotorSpeedStatus;
+    bool rollMontorSpeedStatus;
+    bool rollerMotorSpeedStatus;
+    bool slidingTableMotorSpeedStatus;
+    bool isWorking;
+    uint16_t transport_motor_speed;
+    uint16_t roll_motor_speed;
+    uint16_t roller_motor_speed;
+    uint16_t slidingtable_motor_speed;
+};
+
+class Worker:public QObject
 {
     Q_OBJECT
+
 public:
-    Worker(QSerialPort *serial){
-        this->serial = serial;
+    Worker(){
+        this->serial = new QSerialPort(this);
         this->timer = new QTimer(this);
-        this->connect(this->serial, &QSerialPort::readyRead,this, &Worker::accept_read_data);
-        this->connect(this->serial, &QSerialPort::errorOccurred,this, &Worker::accept_serial_error);
-        this->connect(this->timer, &QTimer::timeout, this,&Worker::accept_timeout);
+        this->init_setting_and_connect();
     }
+    ~Worker(){}
 
-    void run() override;
-
+    void init_setting_and_connect();
     void query_status();
     void start_work();
-    void wait_check_command();
+    void response_check_command();
     void tell_stm_result();
-    void wait_wrap_result();
+    void response_wrap_result(const QByteArray &data);
+
+    void analysis_MCStatus(const QByteArray &data);
+
+    static QByteArray dump_data(const Command &command,const QByteArray &data);
+    static Respond load_data(const QByteArray &data);
 
 signals:
     void tell_window_message(QString type, QString msg);
+    void tell_window_stm_status(Status);
 
 public slots:
     void accept_read_data();
-    void accept_serial_error(QSerialPort::SerialPortError error);
     void accept_timeout();
+    void accept_serial_error(const QSerialPort::SerialPortError &error);
+    void accept_serial_setting(SerialSetting setting);
+    void accept_set_motor_speed(const Status &status);
 
 private:
-    QSerialPort *serial;
-    QTimer *timer;
-    int work_step = 0;
-    bool stop_work = false;
+    int step = 0;
 
+    bool is_Stoped_Work = false;
+
+
+    QTimer *timer;
+    QSerialPort *serial;
+    Status status;
+    SerialSetting setting;
+};
+
+class WorkerThread: public QThread
+{
+    Q_OBJECT
+
+public:
+    ~WorkerThread(){
+        this->quit();
+        this->wait();
+    }
+
+    void run(){
+        Worker worker;
+        this->connect(this, &WorkerThread::accept_setting, &worker,&Worker::accept_serial_setting);
+        this->connect(this, &WorkerThread::tell_window_stm_status, &worker,&Worker::tell_window_stm_status);
+        this->connect(this, &WorkerThread::tell_work_set_motor_speed, &worker,&Worker::accept_set_motor_speed);
+        this->exec();
+    }
+
+signals:
+    void accept_setting(SerialSetting setting);
+    void tell_window_stm_status(Status);
+    void tell_work_set_motor_speed(Status);
+
+private:
+    SerialSetting setting;
 };
 
 #endif // WORKER_H

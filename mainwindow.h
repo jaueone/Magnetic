@@ -6,6 +6,7 @@
 #include "choose.h"
 #include "driveseting.h"
 #include "main_page/main_page.h"
+#include "worker.h"
 #include <QMainWindow>
 
 namespace Ui {
@@ -47,6 +48,8 @@ private:
     QScrollArea widget;
     QLabel label;
     DefectsDetect detect;
+
+    Worker *worker_thread;
 signals:
     void camera_start_preview();
 

@@ -4,7 +4,7 @@
 #include <QStringLiteral>
 #include <QValueAxis>
 #include <QFont>
-
+#include "worker.h"
 
 ScreenResult::ScreenResult(QWidget *parent) :
     QWidget(parent),
@@ -269,3 +269,4 @@ void ScreenResult::on_listView_clicked(const QModelIndex &index)
     this->ui->label_14->setText(this->check_name);
     this->ui->listView->hide();
 }
+

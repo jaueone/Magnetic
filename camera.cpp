@@ -1,8 +1,8 @@
 #include "camera.h"
 #include <QDebug>
 #include <QLabel>
+//#define MAX_BUF_SIZE    (6576*4384)
 
-#define MAX_BUF_SIZE    (4096*3700)
 
 HKCamera::HKCamera() {
 
@@ -94,19 +94,44 @@ int HKCamera::collectFrame(QLabel *label)
     /************************************************************************/
     /* 5.获取一帧并保存成图像  MV_CC_GetOneFrameTimeout  MV_CC_SaveImage    */
     /************************************************************************/
-    unsigned int    nTestFrameSize = 0;
-    unsigned char*  pFrameBuf = nullptr;
-    pFrameBuf = (unsigned char*)malloc(MAX_BUF_SIZE+2048);
+//    unsigned int    nTestFrameSize = 0;
+//    unsigned char*  pFrameBuf = nullptr;
+//    pFrameBuf = (unsigned char*)malloc(MAX_BUF_SIZE+2048);
 
-    MV_FRAME_OUT_INFO stInfo;
-    memset(&stInfo, 0, sizeof(MV_FRAME_OUT_INFO));
+//    MV_FRAME_OUT_INFO stInfo;
+//    memset(&stInfo, 0, sizeof(MV_FRAME_OUT_INFO));
 
-    MV_NETTRANS_INFO stNetTransInfo = {0};
+//    MV_NETTRANS_INFO stNetTransInfo = {0};
+    //获取一帧数据的大小
+        MVCC_INTVALUE stIntvalue = {0};
+        nRet = MV_CC_GetIntValue(handle, "PayloadSize", &stIntvalue);
+        if (nRet != MV_OK)
+        {
+            qDebug("Get PayloadSize failed! nRet [%x]\n", nRet);
+            return -1;
+        }
+        int nBufSize = stIntvalue.nCurValue; //一帧数据大小
+        qDebug() << " size of image:"<< nBufSize;
+       // unsigned int    nTestFrameSize = 0;
+        unsigned char*  pFrameBuf = NULL;
+        pFrameBuf = (unsigned char*)malloc(nBufSize);//显示数据
+        unsigned char*  data = NULL;
+        data = (unsigned char*)malloc(nBufSize);//转换到halcon数据使用
+        MV_FRAME_OUT_INFO stInfo;
+        memset(&stInfo, 0, sizeof(MV_FRAME_OUT_INFO));
+
     //上层应用程序需要根据帧率，控制好调用该接口的频率
     //此次代码仅供参考，实际应用建议另建线程进行图像帧采集和处理
 
         //pFrameBuf是相机采集到的一帧原始图像数据
-        nRet = MV_CC_GetOneFrame(handle, pFrameBuf, MAX_BUF_SIZE+2048, &stInfo);
+        nRet = MV_CC_GetOneFrame(handle, pFrameBuf, nBufSize, &stInfo);
+        MVCC_INTVALUE width,height;
+        MV_CC_GetIntValue(handle, "Width",&width);
+        MV_CC_GetIntValue(handle, "Height",&height);
+
+        int hgt = height.nCurValue;
+        int wid = width.nCurValue;
+        qDebug() << "hgt" << hgt << "wid" << wid;
         /*************************************显示图像**************************************/
         //获取窗口句柄
         HWND MainWndID = (HWND)label->winId();
@@ -120,19 +145,11 @@ int HKCamera::collectFrame(QLabel *label)
             return -1;
         }
         /**************************unsigned char* 图像转换为HObject************************/
-        int hgt = stInfo.nHeight;
-        int wid = stInfo.nWidth;
-        unsigned char *  data      = new unsigned char[wid * hgt];
-        memcpy(data, pFrameBuf, wid * hgt);
-        /*for (int i = 0; i <wid * hgt; i++)
-        {
-                data[i] = (data[i]);
-
-        }*/
+        memcpy(data, pFrameBuf, nBufSize);
         GenImage1(&ho_Image, "byte", wid, hgt, (Hlong)(data));
         //WriteImage(ho_Image, "bmp", 0, HTuple("E:/photo/") + 1);
         //Sleep(500);
-        delete[]  data;
+        free(data);
         /**********************************************************************************/
     free(pFrameBuf);
     qDebug() << "colledted";

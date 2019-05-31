@@ -82,6 +82,7 @@ ScreenCheck::ScreenCheck(QWidget *parent) :
 {
     ui->setupUi(this);
     this->ui->image->hide();
+
 }
 
 ScreenCheck::~ScreenCheck()
@@ -89,10 +90,6 @@ ScreenCheck::~ScreenCheck()
     delete ui;
 }
 
-void ScreenCheck::on_pushButton_released()
-{
-    emit tell_window_start_check();
-}
 
 
 void ScreenCheck::addlabel(const QString &name, const QString &content)
@@ -140,6 +137,7 @@ void ScreenCheck::setCamera(HKCamera *camera_)
     this->camera = camera_;
 }
 
+
 void ScreenCheck::serial_send_start()
 {
      unsigned char send_buff[6];
@@ -150,7 +148,6 @@ void ScreenCheck::serial_send_start()
      send_buff[4] = 0x41;
      send_buff[5] = 0xB8;
      serial->write((char *)send_buff,6);
-
 }
 
 void ScreenCheck::serial_send_end()

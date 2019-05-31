@@ -26,8 +26,11 @@ MainWindow::MainWindow(QWidget *parent) :
     camera = drivesetting->Camera();
     serial = drivesetting->Serial();
 
+   //this->worker_thread = new Worker(serial);
+   //this->screen_check->setWorkerThread(worker_thread);
     this->screen_check->setSerial(serial);
     this->screen_check->setCamera(camera);
+    this->screen_result->setSerial(serial);
     this->setCentralWidget(this->ui->stackedWidget);
 
     this->ui->stackedWidget->removeWidget(this->ui->page);
@@ -46,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-
+    delete worker_thread;
     delete ui;
 }
 

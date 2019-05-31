@@ -9,6 +9,7 @@
 #include "my_control.h"
 #include "camera.h"
 #include "serial.h"
+#include "worker.h"
 
 namespace Ui {
 class DriveSeting;
@@ -52,6 +53,8 @@ public:
 private slots:
     void accept_scan_serial();
 
+    void accept_stm_status(const Status &status);
+
     void on_pushButton_released();
 
     void on_serialPortInfoListBox_currentIndexChanged(int index);
@@ -72,14 +75,23 @@ private slots:
 
     void on_pushButton_12_clicked();
 
+    void on_pushButton_13_clicked();
+
+    void on_pushButton_14_clicked();
+
+    void on_pushButton_15_released();
+
 signals:
-    void tell_window_step_page(int page);
+    void tell_window_step_page(int);
+    void tell_worker_setting(SerialSetting);
+    void tell_worker_set_motor_speed(Status);
 
 private:
     Ui::DriveSeting *ui;
     QSerialPort *serial;
     HKCamera *camera;
 
+    WorkerThread *worker_thread;
     bool Serial_OK;
     bool Camera_OK;
 };

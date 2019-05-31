@@ -8,9 +8,10 @@
 #include <QSerialPortInfo>
 #include <QComboBox>
 #include <QDebug>
+#include <QMutex>
 
 static const char blankString[] = QT_TRANSLATE_NOOP("SettingsDialog", "None");
-
+static QSerialPort *__serial__ = new QSerialPort;
 struct SerialSetting {
     QString name;
     int baudRate;
@@ -29,46 +30,15 @@ struct SerialSetting {
 class Serial
 {
 public:
+    static QSerialPort *getInterface(){
+        return __serial__;
+    }
+    static bool open(const SerialSetting &setting, QIODevice::OpenMode model);
+    static void scan_serial(QComboBox * serialPortInfoListBox);
+    static QByteArray get_serial_bin(const SerialSetting &setting);
+
+private:
     Serial();
-    static void scan_serial(QComboBox * serialPortInfoListBox){
-        serialPortInfoListBox->clear();
-        QString description;
-        QString manufacturer;
-        QString serialNumber;
-        const auto infos = QSerialPortInfo::availablePorts();
-        for (const QSerialPortInfo &info : infos) {
-            QStringList list;
-            description = info.description();
-            manufacturer = info.manufacturer();
-            serialNumber = info.serialNumber();
-            list << info.portName()
-                 << (!description.isEmpty() ? description : blankString)
-                 << (!manufacturer.isEmpty() ? manufacturer : blankString)
-                 << (!serialNumber.isEmpty() ? serialNumber : blankString)
-                 << info.systemLocation()
-                 << (info.vendorIdentifier() ? QString::number(info.vendorIdentifier(), 16) : blankString)
-                 << (info.productIdentifier() ? QString::number(info.productIdentifier(), 16) : blankString);
 
-            serialPortInfoListBox->addItem(list.first(), list);
-            qDebug() << list;
-        }
-        serialPortInfoListBox->addItem("Custom");
-    }
-
-    static QByteArray get_serial_bin(const SerialSetting &setting){
-        QJsonObject serial
-        {
-            {"name",setting.name},
-            {"baudRate",setting.stringBaudRate},
-            {"dataBits",setting.stringDataBits},
-            {"parity",setting.stringParity},
-            {"stopBits",setting.stringStopBits},
-            {"flowControl",setting.stringFlowControl},
-        };
-        QJsonDocument serial_doc = QJsonDocument(serial);
-        QByteArray serial_data = serial_doc.toJson();
-        return serial_data;
-    }
 };
-
 #endif // SERIAL_H

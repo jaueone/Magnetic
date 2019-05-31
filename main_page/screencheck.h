@@ -3,11 +3,12 @@
 
 #include "my_control.h"
 #include "camera.h"
+#include "login.h"
+#include "worker.h"
 #include <QWidget>
 #include <QMap>
 #include <QString>
 #include <QtSerialPort>
-#include"login.h"
 
 namespace Ui {
 class ScreenCheck;
@@ -32,7 +33,6 @@ public:
     void save_check_result(const QString &result,const QString &defect, const QString &time, const QString &num, const QString &name);
     QLabel * camera_label();
 private slots:
-    void on_pushButton_released();
 
     void on_pushButton_4_released();
 
@@ -52,6 +52,7 @@ private:
     QSerialPort *serial;
     HKCamera *camera;
     Meninfo men_info;
+
     unsigned char id= 1;
 };
 
