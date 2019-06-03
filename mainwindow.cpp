@@ -9,6 +9,7 @@
 #include <QTime>
 
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -103,21 +104,21 @@ void MainWindow::on_stackedpage_changed(const int &page)
 
 void MainWindow::accept_get_picture()
 {
-    QString filename;
-    filename=QFileDialog::getOpenFileName(this, tr("选择图像"), "", tr("Images (*.png *.bmp *.jpg *.tif *.GIF )"));
-    if(filename.isEmpty())
-        return;
+//    QString filename;
+//    filename=QFileDialog::getOpenFileName(this, tr("选择图像"), "", tr("Images (*.png *.bmp *.jpg *.tif *.GIF )"));
+//    if(filename.isEmpty())
+//        return;
 
-    widget.setWidget(&label);
-    widget.resize(610,510);
-    label.resize(600,510);
+//    widget.setWidget(&label);
+//    widget.resize(610,510);
+//    label.resize(600,510);
 
 
-    HObject ho_Image;
-    ReadImage(&ho_Image, HTuple(filename.toStdString().c_str())); // 此方法Halcon提供
-    Hlong winID =(Hlong)widget.winId();
-    detect.run(ho_Image,label.width(),label.height(),winID,0,0);
-    widget.show();
+//    HObject ho_Image;
+//    ReadImage(&ho_Image, HTuple(filename.toStdString().c_str())); // 此方法Halcon提供
+//    Hlong winID =(Hlong)widget.winId();
+
+//    widget.show();
 }
 
 

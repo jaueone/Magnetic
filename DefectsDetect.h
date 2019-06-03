@@ -6,12 +6,6 @@
 #include <QImage>
 
 using namespace HalconCpp;
-struct Result
-{
-    HObject image;
-    bool is_ok;
-    QImage *qimage;
-};
 
 class DefectsDetect
 {
@@ -20,22 +14,23 @@ public:
 	~DefectsDetect();
 
 
-    bool run(HObject &ho_Image,const int width,const int height,const Hlong &winid,int x=0, int y=0);
+	void run(HObject &ho_Image);
 	bool get_result();
+	HObject *get_detectedImage(){return &ho_detectedImage;}
+	//int get_defectsType();
 
-    void destoryWindow();
 private:
 	bool _bResult;
 	//int _iType=0xF0;
 
 
-	
-    // Local iconic variables
+
+// Local iconic variables
   HObject  ho_Image, ho_ROI_0, ho_ImageReduced;
-  HObject  ho_ROI_L, ho_ROI_R, ho_ConnectedRegions1, ho_GrayImage;
-  HObject  ho_ImageGauss, ho_ImageRoberts1, ho_RegionsRoberts1;
-  HObject  ho_coRegionsRoberts1, ho_RegionsRoberts11, ho_Contours1;
-  HObject  ho_SelectedContours1, ho_SelectedContours11;
+  HObject  ho_ROI_L, ho_ROI_R, ho_GrayImage, ho_ImageGauss;
+  HObject  ho_ImageRoberts1, ho_RegionsRoberts1, ho_coRegionsRoberts1;
+  HObject  ho_RegionsRoberts11, ho_ConnectedRegions1, ho_Contours1;
+  HObject  ho_SelectedContours1, ho_SelectedContours11, ho_detectedImage;
 
   // Local control variables
   HTuple  hv_Width, hv_Height, hv_WindowHandle;

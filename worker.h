@@ -111,7 +111,6 @@ private:
 
     bool is_Stoped_Work = false;
 
-
     QTimer *timer;
     QSerialPort *serial;
     Status status;

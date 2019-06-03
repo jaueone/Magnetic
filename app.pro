@@ -50,6 +50,7 @@ SOURCES += \
     main_page/timeselect.cpp \
     worker.cpp
 
+
 HEADERS += \
         mainwindow.h \
     login.h \

@@ -81,12 +81,14 @@ ScreenCheck::ScreenCheck(QWidget *parent) :
     ui(new Ui::ScreenCheck)
 {
     ui->setupUi(this);
+    qimage = new QImage;
     this->ui->image->hide();
 
 }
 
 ScreenCheck::~ScreenCheck()
 {
+    delete qimage;
     delete ui;
 }
 
@@ -209,13 +211,14 @@ void ScreenCheck::on_start_check_released()
         return;
     if (MV_OK != camera->collectFrame(this->ui->preview))
         return;
-    this->ui->preview->hide();
-    this->ui->image->show();
     HObject image = camera->getImage();
     DefectsDetect detect;
-    HTuple hv_WindowID;
-    Hlong winID=(Hlong)this->ui->image->winId();
-    bool res = detect.run(image,this->ui->image->width(),this->ui->image->height(),winID,0,0);
+    detect.run(image);
+    HObject *himage= detect.get_detectedImage();
+    camera->HObjectToQImage(*himage,&qimage);
+    qDebug() << "fial";
+    this->ui->preview->setPixmap(QPixmap::fromImage(*qimage));
+    bool res = detect.get_result();
     if (res){
         this->ui->label_4->setText(tr("合格"));
         this->ui->label_5->setStyleSheet("image: url(:/image/合格.png);");
@@ -224,6 +227,7 @@ void ScreenCheck::on_start_check_released()
         this->ui->label_4->setText(tr("\344\270\215\345\220\210\346\240\274"));
         this->ui->label_5->setStyleSheet("image: url(:/image/\344\270\215\345\220\210\346\240\274.png);");
     }
+
     this->ui->stackedWidget->setCurrentIndex(1);
     QString result, defect, time, menid, men_name;
     menid = men_info.number;

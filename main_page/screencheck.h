@@ -53,6 +53,7 @@ private:
     HKCamera *camera;
     Meninfo men_info;
 
+    QImage *qimage;
     unsigned char id= 1;
 };
 

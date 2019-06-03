@@ -90,6 +90,74 @@ public:
     bool isCollecting();
     static void camera_message_warn();
     static void camera_message_done();
+    void __rgb3_to_interleaved (HObject ho_ImageRGB, HObject *ho_ImageInterleaved)
+    {
+      HObject  ho_ImageAffineTrans, ho_ImageRed, ho_ImageGreen;
+      HObject  ho_ImageBlue, ho_RegionGrid, ho_RegionMoved, ho_RegionClipped;
+
+
+      HTuple  hv_PointerRed, hv_PointerGreen, hv_PointerBlue;
+      HTuple  hv_Type, hv_Width, hv_Height, hv_HomMat2DIdentity;
+      HTuple  hv_HomMat2DScale;
+
+      GetImagePointer3(ho_ImageRGB, &hv_PointerRed, &hv_PointerGreen, &hv_PointerBlue,
+          &hv_Type, &hv_Width, &hv_Height);
+      GenImageConst(&(*ho_ImageInterleaved), "byte", hv_Width*3, hv_Height);
+      //
+      HomMat2dIdentity(&hv_HomMat2DIdentity);
+      HomMat2dScale(hv_HomMat2DIdentity, 1, 3, 0, 0, &hv_HomMat2DScale);
+      AffineTransImageSize(ho_ImageRGB, &ho_ImageAffineTrans, hv_HomMat2DScale, "constant",
+          hv_Width*3, hv_Height);
+      //
+      Decompose3(ho_ImageAffineTrans, &ho_ImageRed, &ho_ImageGreen, &ho_ImageBlue);
+      GenGridRegion(&ho_RegionGrid, 2*hv_Height, 3, "lines", hv_Width*3, hv_Height+1);
+      MoveRegion(ho_RegionGrid, &ho_RegionMoved, -1, 0);
+      ClipRegion(ho_RegionMoved, &ho_RegionClipped, 0, 0, hv_Height-1, (3*hv_Width)-1);
+
+      ReduceDomain(ho_ImageRed, ho_RegionClipped, &ho_ImageRed);
+      MoveRegion(ho_RegionGrid, &ho_RegionMoved, -1, 1);
+      ClipRegion(ho_RegionMoved, &ho_RegionClipped, 0, 0, hv_Height-1, (3*hv_Width)-1);
+      ReduceDomain(ho_ImageGreen, ho_RegionClipped, &ho_ImageGreen);
+      MoveRegion(ho_RegionGrid, &ho_RegionMoved, -1, 2);
+      ClipRegion(ho_RegionMoved, &ho_RegionClipped, 0, 0, hv_Height-1, (3*hv_Width)-1);
+      ReduceDomain(ho_ImageBlue, ho_RegionClipped, &ho_ImageBlue);
+      OverpaintGray((*ho_ImageInterleaved), ho_ImageRed);
+      OverpaintGray((*ho_ImageInterleaved), ho_ImageGreen);
+      OverpaintGray((*ho_ImageInterleaved), ho_ImageBlue);
+      return;
+    }
+    void HObjectToQImage(HObject himage,QImage **qimage)
+    {
+        HTuple hChannels;
+        HTuple   width,height;
+        width=height=0;
+        HTuple htype;
+        HTuple hpointer;
+
+        ConvertImageType(himage,&himage,"byte");//将图片转化成byte类型
+        CountChannels(himage,&hChannels);       //判断图像通道数
+
+        if(hChannels[0].I()==1)//单通道图
+        {
+            unsigned char *ptr;
+
+            GetImagePointer1(himage,&hpointer,&htype,&width,&height);
+
+            ptr=(unsigned char *)hpointer[0].L();
+            *(*qimage)=QImage(ptr,width,height,width,QImage::Format_Indexed8);//不知道是否已自动4字节对齐
+        }
+        else if(hChannels[0].I()==3)//三通道图
+        {
+            unsigned char *ptr3;
+            HObject ho_ImageInterleaved;
+            __rgb3_to_interleaved(himage, &ho_ImageInterleaved);
+
+            GetImagePointer1(ho_ImageInterleaved, &hpointer, &htype, &width, &height);
+
+            ptr3=(unsigned char *)hpointer[0].L();
+            *(*qimage)=QImage(ptr3,width/3,height,width,QImage::Format_RGB888);
+        }
+    }
 private:
     int destroyHandle();
 
@@ -106,48 +174,6 @@ private:
     unsigned int    m_nBufSizeForSaveImage;
 };
 
-
-class PreviewThread:public QThread
-{   Q_OBJECT
-public:
-    PreviewThread(HKCamera *camera, QLabel *label):
-    QThread(){
-        this->camera = camera;
-        this->label = label;
-    }
-    ~PreviewThread(){qDebug() << "preview end";}
-    void run(){
-        if (MV_OK != camera->startCollect())
-            return;
-        if (MV_OK != camera->collectFrame(label))
-            return;
-
-    }
-private:
-    HKCamera *camera;
-    QLabel *label;
-};
-
-class CollectThread:public QThread
-{   Q_OBJECT
-public:
-    CollectThread(HKCamera *camera, QLabel *label) :
-        QThread(){
-        this->camera = camera;
-        this->label = label;
-    }
-    void run(){
-        if (MV_OK != camera->startCollect())
-            return;
-        if (MV_OK != camera->collectFrame(label))
-            return;
-        if (MV_OK != camera->stopCollect())
-            return;
-    }
-private:
-    HKCamera *camera;
-    QLabel *label;
-};
 
 #endif // CAMERA_H
 
