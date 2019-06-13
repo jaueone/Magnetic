@@ -1,4 +1,4 @@
-#include "driveseting.h"
+﻿#include "driveseting.h"
 #include "ui_driveseting.h"
 #include <QMap>
 #include <QString>
@@ -85,33 +85,14 @@ DriveSeting::DriveSeting(QWidget *parent) :
     ui->setupUi(this);
     serial = new QSerialPort(this);
     camera = new HKCamera();
-    worker_thread = new QThread;
-    worker = new Worker;
-    worker->moveToThread(worker_thread);
-    this->ui->pushButton_7->setText("打开串口");
+    this->ui->pushButton_7->setText("\346\211\223\345\274\200\344\270\262\345\217\243");
     this->ui->baudRateBox->setCurrentIndex(1);
     this->ui->dataBitsBox->setCurrentIndex(3);
-    qRegisterMetaType<SerialSetting>("SerialSetting");
-    qRegisterMetaType<SerialSetting>("SerialSetting&");
-    qRegisterMetaType<Status>("Status");
-    qRegisterMetaType<Status>("Status&");
-    qRegisterMetaType<Command>("Command");
-    qRegisterMetaType<Command>("Command&");
-
-    this->connect(this->ui->serialPortInfoListBox,&ComboBox::tell_serial_scan, this, &DriveSeting::accept_scan_serial);
-    this->connect(this, &DriveSeting::tell_worker_setting, this->worker, &Worker::accept_serial_setting,Qt::QueuedConnection);
-    this->connect(this, &DriveSeting::tell_worker_set_motor_speed, this->worker, &Worker::accept_set_motor_speed,Qt::QueuedConnection);
-    this->connect(this, &DriveSeting::tell_worker_stem_command, this->worker, &Worker::accept_command_to_stm,Qt::QueuedConnection);
-    this->connect(this->worker, &Worker::tell_window_stm_status,this, &DriveSeting::accept_stm_status,Qt::QueuedConnection);
-    this->connect(this->worker, &Worker::tell_window_stm_respond_timeout,this, &DriveSeting::accept_stm_respond_timeout,Qt::QueuedConnection);
+    this->connect(this->ui->serialPortInfoListBox,&ComboBox::clicked, this, &DriveSeting::accept_scan_serial);
 }
 
 DriveSeting::~DriveSeting()
 {
-    worker_thread->quit();
-    worker_thread->wait();
-    delete worker;
-    delete worker_thread;
     delete ui;
     delete camera;
 }
@@ -132,8 +113,7 @@ bool DriveSeting::init()
 
     if (Camera_OK && Serial_OK)
     {
-        this->ui->pushButton_7->setChecked(true);
-        this->ui->pushButton_7->setText("关闭串口");
+        serial->close();
         return true;
     }
     else
@@ -141,6 +121,7 @@ bool DriveSeting::init()
         serial->close();
         return false;
     }
+
 
 }
 
@@ -192,14 +173,7 @@ QString DriveSeting::init_serial()
     serial->setStopBits(setting.stopBits);
     serial->setFlowControl(setting.flowControl);
     if (serial->open(QIODevice::ReadWrite) && serial->isOpen()){
-        unsigned char send_buff[6];
-        send_buff[0] = 0x55;
-        send_buff[1] = 0x08;
-        send_buff[2] = 0x01;
-        send_buff[3] = 0x00;
-        send_buff[4] = 0x91;
-        send_buff[5] = 0xBA;
-        serial->write((char *)send_buff,6);
+
         return "opened";
     }
     return "opened fail";
@@ -405,6 +379,7 @@ void DriveSeting::check_self()
 
 void DriveSeting::accept_scan_serial()
 {
+
     this->scan_serial();
 }
 
@@ -441,7 +416,26 @@ void DriveSeting::accept_stm_respond_timeout()
     QPushButton button("确定");
     messageBox.addButton(&button, QMessageBox::YesRole);
     messageBox.exec();
+}
 
+void DriveSeting::accept_serial_status(bool isopened)
+{
+    this->worker_serial_status = isopened;
+    if (isopened){
+        this->ui->pushButton_7->setChecked(true);
+        this->ui->pushButton_7->setText("关闭串口");
+    }
+    else {
+        this->ui->pushButton_7->setChecked(false);
+        this->ui->pushButton_7->setText("打开串口");
+        QMessageBox messageBox;
+        messageBox.setWindowTitle("警告");
+        messageBox.setIcon(QMessageBox::Warning);
+        messageBox.setText("串口打开失败 ");
+        QPushButton button("确定");
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
+    }
 }
 
 
@@ -469,45 +463,16 @@ void DriveSeting::on_pushButton_released()
 }
 
 
-void DriveSeting::on_pushButton_7_released()
-{
-
-    if (this->serial->isOpen()){
-        serial->close();
-        this->ui->pushButton_7->setChecked(false);
-        this->ui->pushButton_7->setText("打开串口");
-    }
-    else {
-        SerialSetting setting = get_serial_setting();
-        serial->setPortName(setting.name);
-        serial->setBaudRate(setting.baudRate);
-        serial->setDataBits(setting.dataBits);
-        serial->setParity(setting.parity);
-        serial->setStopBits(setting.stopBits);
-        serial->setFlowControl(setting.flowControl);
-        if (serial->open(QIODevice::ReadWrite) || serial->isOpen()){
-            this->ui->pushButton_7->setChecked(true);
-            this->ui->pushButton_7->setText("关闭串口");
-        }
-        else {
-            this->ui->pushButton_7->setChecked(false);
-            this->ui->pushButton_7->setText("打开串口");
-            QMessageBox messageBox;
-            messageBox.setWindowTitle("警告");
-            messageBox.setIcon(QMessageBox::Warning);
-            messageBox.setText("串口打开失败 ");
-            QPushButton button("确定");
-            messageBox.addButton(&button, QMessageBox::YesRole);
-            messageBox.exec();
-        }
-    }
-}
-
-
-
 void DriveSeting::on_pushButton_2_released()
 {
     this->save_setting(this->get_serial_setting(), this->get_camera_setting());
+    QMessageBox messageBox;
+    messageBox.setWindowTitle("信息");
+    messageBox.setIcon(QMessageBox::Information);
+    messageBox.setText("参数设置保存成功 ");
+    QPushButton button("确定");
+    messageBox.addButton(&button, QMessageBox::YesRole);
+    messageBox.exec();
 }
 
 
@@ -515,6 +480,18 @@ void DriveSeting::on_pushButton_4_released()
 {
     this->get_camera_setting();
     qDebug() << "apply";
+}
+
+void DriveSeting::on_pushButton_7_clicked(bool checked)
+{
+    if (checked){
+        emit tell_worker_open_serial(this->get_serial_setting());
+    }
+    else {
+        emit tell_worker_stop_work();
+        this->ui->pushButton_7->setChecked(false);
+        this->ui->pushButton_7->setText("打开串口");
+    }
 }
 
 void DriveSeting::on_pushButton_9_released()
@@ -545,10 +522,6 @@ void DriveSeting::on_pushButton_10_clicked()
     qDebug() << j;
 }
 
-void DriveSeting::on_spinBox_3_valueChanged(int arg1)
-{
-
-}
 
 void DriveSeting::on_pushButton_12_clicked()
 {
@@ -590,27 +563,40 @@ void DriveSeting::on_pushButton_13_clicked()
 
 void DriveSeting::on_pushButton_14_clicked()
 {
-    this->worker_thread->start();
-    emit tell_worker_setting(this->get_serial_setting());
 
 }
 
 void DriveSeting::on_pushButton_15_released()
 {
-    Status staus;
-    staus.transport_motor_speed = (uint16_t)this->ui->motor_1_speed->value();
-    staus.roll_motor_speed = (uint16_t)this->ui->motor_2_speed->value();
-    staus.roller_motor_speed = (uint16_t)this->ui->motor_3_speed->value();
-    staus.slidingtable_motor_speed = (uint16_t)this->ui->motor_4_speed->value();
-    emit tell_worker_set_motor_speed(staus);
+    uint16_t transport_motor_speed = (uint16_t)this->ui->motor_1_speed->value();
+    emit tell_worker_stm_command(Command::SetTransportMotorSpeed,transport_motor_speed);
 }
 
 void DriveSeting::on_pushButton_17_released()
 {
-    emit tell_worker_stem_command(Command::StopWork);
+    emit tell_worker_stm_command(Command::StopWork,0);
 }
 
 void DriveSeting::on_pushButton_18_released()
 {
-    emit tell_worker_stem_command(Command::Reset);
+    emit tell_worker_stm_command(Command::Reset,0);
 }
+
+void DriveSeting::on_pushButton_16_released()
+{
+    uint16_t roll_motor_speed = (uint16_t)this->ui->motor_1_speed->value();
+    emit tell_worker_stm_command(Command::SetRollMontorSpeed,roll_motor_speed);
+}
+
+void DriveSeting::on_pushButton_19_released()
+{
+    uint16_t roller_motor_speed = (uint16_t)this->ui->motor_1_speed->value();
+    emit tell_worker_stm_command(Command::SetRollerMotorSpeed,roller_motor_speed);
+}
+
+void DriveSeting::on_pushButton_20_released()
+{
+    uint16_t slidingtable_motor_speed = (uint16_t)this->ui->motor_1_speed->value();
+    emit tell_worker_stm_command(Command::SetSlidingTableMotorSpeed,slidingtable_motor_speed);
+}
+

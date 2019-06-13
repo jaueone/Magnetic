@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     camera = drivesetting->Camera();
     serial = drivesetting->Serial();
+    worker = this->screen_check->workerObj();
+
 
    //this->worker_thread = new Worker(serial);
    //this->screen_check->setWorkerThread(worker_thread);
@@ -45,12 +47,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->time = new DateTime(this->ui->stackedWidget);
     this->time->setGeometry(920,0,200,50);
     this->sigcon();
-
+    this->initdir();
 }
 
 MainWindow::~MainWindow()
 {
-    delete worker_thread;
     delete ui;
 }
 
@@ -66,7 +67,24 @@ void MainWindow::sigcon()
     this->connect(this->choose,&Choose::tell_window_check_self,this,&MainWindow::check_self);
     this->connect(this->choose,&Choose::tell_window_get_picture,this,&MainWindow::accept_get_picture);
     this->connect(this->screen_check,&ScreenCheck::tell_window_start_check, this,&MainWindow::accept_camera_start_check);
+    this->connect(this->screen_check,&ScreenCheck::tell_window_stm_status, this->drivesetting,&DriveSeting::accept_stm_status);
+    this->connect(this->screen_check,&ScreenCheck::ask_serial_setting, this->drivesetting,&DriveSeting::accept_return_serial_setting);
+    this->connect(this->drivesetting,&DriveSeting::tell_screencheck_setting,this->screen_check,&ScreenCheck::accept_serial_setting);
 
+    this->connect(this->drivesetting,&DriveSeting::tell_worker_stm_command,this->worker,&Worker::accept_command_to_stm,Qt::QueuedConnection);
+    this->connect(this->drivesetting,&DriveSeting::tell_worker_stop_work,this->worker,&Worker::accept_stop_work,Qt::QueuedConnection);
+    this->connect(this->drivesetting,&DriveSeting::tell_worker_open_serial,this->worker,&Worker::accept_open_serial,Qt::QueuedConnection);
+    this->connect(this->worker,&Worker::tell_window_serial_status,this->drivesetting,&DriveSeting::accept_serial_status,Qt::QueuedConnection);
+}
+
+void MainWindow::initdir()
+{
+    QDir hobject("./database/hobject/");
+    if(hobject.exists()){
+    }
+    else {
+        bool ok = hobject.mkdir("./database/hobject/");
+    }
 }
 
 void MainWindow::accept_men_login(const Meninfo &info)
@@ -118,9 +136,13 @@ void MainWindow::accept_get_picture()
 //    ReadImage(&ho_Image, HTuple(filename.toStdString().c_str())); // 此方法Halcon提供
 //    Hlong winID =(Hlong)widget.winId();
 
-//    widget.show();
+    //    widget.show();
 }
 
+void MainWindow::accept_stm_staus(const Status &status)
+{
+    this->drivesetting->accept_stm_status(status);
+}
 
 void MainWindow::check_self()
 {

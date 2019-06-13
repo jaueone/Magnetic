@@ -5,6 +5,10 @@
 #include "camera.h"
 #include "login.h"
 #include "worker.h"
+#include "pixitem.h"
+#include <QGraphicsItem>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QWidget>
 #include <QMap>
 #include <QString>
@@ -13,6 +17,19 @@
 namespace Ui {
 class ScreenCheck;
 }
+
+struct CurrentCheckResult
+{
+    bool isQualified;
+    bool wrapedOver;
+    QString isQualified_s;
+    QString wrapedOver_s;
+    QString scratch;
+    QString whitePoint;
+    QString blackPoint;
+};
+
+
 
 class ScreenCheck : public QWidget
 {
@@ -24,27 +41,46 @@ public:
 
     void addlabel(const QString &name,const QString &content);
     void start_check();
+    int getMaxID();
+    Worker* workerObj(){return this->worker;}
     void setMen(const Meninfo &info);
     void setSerial(QSerialPort* serial_);
     void setCamera(HKCamera *camera_);
     void serial_send_start();
     void serial_send_end();
     void serial_send_change_image();
-    void save_check_result(const QString &result,const QString &defect, const QString &time, const QString &num, const QString &name);
+    void save_check_result(int product_id);
     QLabel * camera_label();
-private slots:
+    void ImageCapture();
+    bool workerSerialIsOpen();
 
-    void on_pushButton_4_released();
+public slots:
+    void accept_stm_command(Command com,int data);
+    void accept_stm_respond_timeout();
 
-    void on_pushButton_8_released();
-
-    void on_lcd_out_clicked(bool checked);
-    void on_lcd_change_image_released();
-    void on_start_check_released();
+    void accept_stm_status(Status status);
+    void accept_serial_setting(SerialSetting serialsetting){this->serial_setting = serialsetting;}
+    void accept_worker_serial_status(bool isopened){this->worker_thread_serial_status = isopened;}
+    void accept_worker_step(int step);
 
 signals:
     void tell_window_step_page(int page);
     void tell_window_start_check();
+    void tell_window_stm_status(Status);
+    void tell_worker_setting(SerialSetting);
+    void tell_worker_stm_command(Command,int);
+    void ask_serial_setting();
+    void ask_worker_serial_status();
+    void tell_worker_stop_work();
+
+private slots:
+    void on_pushButton_4_released();
+
+    void on_start_check_released();
+
+    void on_pushButton_17_released();
+
+    void on_pushButton_18_released();
 
 private:
     Ui::ScreenCheck *ui;
@@ -53,7 +89,21 @@ private:
     HKCamera *camera;
     Meninfo men_info;
 
+    QThread *worker_thread;
+    Worker *worker;
     QImage *qimage;
+
+    CurrentCheckResult current_check_result;
+    SerialSetting serial_setting;
+
+
+    QPixmap *qpixmap;
+    QGraphicsView *graph_view_preview;
+    QGraphicsScene *graph_scene;
+    PixItem *pixitem;
+
+    QString filename;
+    bool worker_thread_serial_status;
     unsigned char id= 1;
 };
 

@@ -1,5 +1,7 @@
-#include "worker.h"
+﻿#include "worker.h"
 #include "serial.h"
+
+#define TimeOut 120000
 
 void sleep(unsigned int msec)
 {
@@ -16,7 +18,7 @@ void Worker::init_setting_and_connect()
     serial->setParity(setting.parity);
     serial->setStopBits(setting.stopBits);
     serial->setFlowControl(setting.flowControl);
-    this->connect(this->serial,&QSerialPort::readyRead, this,&Worker::accept_read_data);
+    this->connect(this->serial,&QSerialPort::readyRead,this,&Worker::accept_read_data);
     this->connect(this->timer,&QTimer::timeout,this,&Worker::accept_timeout);
     this->connect(this->serial,&QSerialPort::errorOccurred, this,&Worker::accept_serial_error);
 }
@@ -34,7 +36,7 @@ void Worker::query_status()
     data.append(c);
     serial->write(Worker::dump_data(Command::QueryStatus,data));
     qDebug() <<"send query"<< Worker::dump_data(Command::QueryStatus,data).toHex();
-    timer->start(12000);
+    timer->start(TimeOut);
 }
 
 void Worker::start_work()
@@ -49,7 +51,7 @@ void Worker::start_work()
     char c = 0x00;
     data.append(c);
     serial->write(Worker::dump_data(Command::StartWork,data));
-    timer->start(12000);
+    timer->start(TimeOut);
 }
 
 void Worker::response_check_command()
@@ -61,25 +63,18 @@ void Worker::response_check_command()
     if (this->step != 2)
         return;
     QByteArray data;
-    char c = 0x00;
+    char c;
+    if (this->quality < 9)
+        c = 0x01;
+    else
+        c = 0x00;
     data.append(c);
     serial->write(Worker::dump_data(Command::ImageCapture,data));
+    if (this->quality >= 9)
+        this->quality = 0;
+    this->quality += 1;
 }
 
-void Worker::tell_stm_result()
-{
-    if(this->is_Stoped_Work)
-        return;
-    if(!serial->isOpen())
-        return;
-    if (this->step != 3)
-        return;
-    QByteArray data;
-    char c = 0x01;
-    data.append(c);
-    serial->write(Worker::dump_data(Command::CheckResult,data));
-    timer->start(12000);
-}
 
 void Worker::response_wrap_result(const QByteArray &data)
 {
@@ -92,34 +87,6 @@ void Worker::response_wrap_result(const QByteArray &data)
     serial->write(Worker::dump_data(Command::WrapResult,data));
 }
 
-void Worker::set_motor_speed(int motor)
-{
-    if(this->is_Stoped_Work)
-        return;
-    if(!serial->isOpen())
-        return;
-    if (this->step != -1)
-        return;
-    QByteArray data;
-    QDataStream d(&data,QIODevice::ReadWrite);
-    if (motor == 1){
-        d << status_speed.transport_motor_speed;
-        serial->write(Worker::dump_data(Command::SetTransportMotorSpeed,data));
-    }
-    else if (motor == 2){
-        d << status_speed.roll_motor_speed;
-        serial->write(Worker::dump_data(Command::SetRollMontorSpeed,data));
-        }
-    else if (motor == 3){
-        d << status_speed.roller_motor_speed;
-        serial->write(Worker::dump_data(Command::SetRollerMotorSpeed,data));
-    }
-    else if (motor == 4){
-        d << status_speed.slidingtable_motor_speed;
-        serial->write(Worker::dump_data(Command::SetSlidingTableMotorSpeed,data));
-    }
-    timer->start(12000);
-}
 
 void Worker::analysis_MCStatus(const QByteArray &data)
 {   QByteArray ba(data);
@@ -175,6 +142,35 @@ Respond Worker::load_data(const QByteArray &data)
     return respond;
 }
 
+void Worker::set_motor_speed(Command com, uint16_t data)
+{
+    if(this->is_Stoped_Work)
+        return;
+    if(!serial->isOpen())
+        return;
+    if (this->step != -1)
+        return;
+    QByteArray da;
+    QDataStream d(&da,QIODevice::ReadWrite);
+    if (com == 1){
+        d << status_speed.transport_motor_speed;
+        serial->write(Worker::dump_data(Command::SetTransportMotorSpeed,da));
+    }
+    else if (com == 2){
+        d << data;
+        serial->write(Worker::dump_data(Command::SetRollMontorSpeed,da));
+        }
+    else if (com == 3){
+        d << data;
+        serial->write(Worker::dump_data(Command::SetRollerMotorSpeed,da));
+    }
+    else if (com == 4){
+        d << data;
+        serial->write(Worker::dump_data(Command::SetSlidingTableMotorSpeed,da));
+    }
+    timer->start(TimeOut);
+}
+
 QByteArray Worker::dump_data(const Command &command,const QByteArray &data)
 {
     QByteArray ba;
@@ -207,16 +203,14 @@ void Worker::accept_read_data()
     timer->stop();
     qDebug() << (uint8_t)resp.command << resp.data.toHex();
     switch (resp.command) {
-
         case ImageCapture:
             if (step != 2)
                 return;
             response_check_command();
-            qDebug() << "send_get_check_command";
+            emit tell_window_command(Command::ImageCapture,0);
             step = 3;
-            sleep(10);
-            tell_stm_result();
-            qDebug() << "tell_stm_result";
+            emit tell_window_work_step(step);
+            qDebug() << "send_get_check_command";
             break;
 
         case STM_WorkStatus:
@@ -229,37 +223,43 @@ void Worker::accept_read_data()
                 this->is_Stoped_Work = true;
                 return;
             }
-
             if (step == 0){
                 step = 1;
+                emit tell_window_work_step(step);
                 start_work();
                 qDebug() << "start_work";
             }
             else if(step == 1){
                 step = 2;
+                emit tell_window_work_step(step);
                 qDebug() << "wait_check_command";
             }
             else if (step == 3) {
                 step  = 4;
+                emit tell_window_work_step(step);
                 qDebug() << "wait_wrap_result";
             }
             else if (step == -1) {
-                set_motor_speed(4);
-                qDebug() << "set speed";
-            }
-            else if (step == -2) {
                 qDebug() << "stop stm";
             }
-            else if (step == -3) {
+            else if (step == -2) {
                 qDebug() << "reset stm";
+            }
+            else if (step == -3) {
+                qDebug() << "set speed";
             }
             break;
 
         case WrapResult:
             if (step != 4)
-                return
+                return;
             response_wrap_result(resp.data);
+            emit tell_window_command(Command::WrapResult,(int)resp.data[0]);
+            this->step = 5;
+            emit tell_window_work_step(step);
+            sleep(8000);
             this->step = 0;
+            emit tell_window_work_step(step);
             sleep(10);
             query_status();
             qDebug() << "next unit query_status";
@@ -269,6 +269,63 @@ void Worker::accept_read_data()
             qDebug() << "set speed ok";
             break;
     }
+}
+
+void Worker::accept_command_to_stm(Command com, int data)
+{
+    QByteArray da;
+    QDataStream stream(&da,QIODevice::WriteOnly);
+    if(this->is_Stoped_Work)
+        return;
+    if(!serial->isOpen())
+        return;
+    if (com == Command::StopWork){
+        stream << (uint8_t)data;
+        this->is_Stoped_Work = true;
+        step = -1;
+    }
+    else if (com ==Command::Reset){
+        stream << (uint8_t)data;
+        this->is_Stoped_Work = false;
+        step = -2;
+    }
+    else if(com ==Command::SetRollMontorSpeed ||com ==Command::SetRollerMotorSpeed ||com ==Command::SetTransportMotorSpeed ||com ==Command::SetSlidingTableMotorSpeed){
+        stream << (uint16_t)data;
+        step = -3;
+    }
+    else if (com == Command::CheckResult) {
+        if (step != 3)
+            return;
+        stream << (uint8_t)data;
+        qDebug() << "tell_stm_result";
+    }
+    serial->write(Worker::dump_data(com,da));
+    timer->start(TimeOut);
+
+}
+
+void Worker::accept_stop_work()
+{
+    this->is_Stoped_Work = true;
+    if (this->serial->isOpen())
+        this->serial->close();
+}
+
+void Worker::accept_open_serial(SerialSetting setting)
+{
+
+    if (serial->isOpen()){
+        serial->close();
+    }
+    this->setting = setting;
+    serial->setPortName(setting.name);
+    serial->setBaudRate(setting.baudRate);
+    serial->setDataBits(setting.dataBits);
+    serial->setParity(setting.parity);
+    serial->setStopBits(setting.stopBits);
+    serial->setFlowControl(setting.flowControl);
+    emit tell_window_serial_status(serial->open(QIODevice::ReadWrite));
+
 }
 
 void Worker::accept_timeout()
@@ -284,7 +341,10 @@ void Worker::accept_serial_error(const QSerialPort::SerialPortError &error)
 {
     if (error == QSerialPort::NoError)
         return;
+    if (serial->isOpen())
+        serial->close();
     timer->stop();
+    emit tell_window_serial_status(false);
     this->is_Stoped_Work = true;
     qDebug() << "serial errorOccurred" << error;
 }
@@ -304,39 +364,9 @@ void Worker::accept_serial_setting(SerialSetting setting)
         return;
     }
     step = 0;
+    emit tell_window_work_step(0);
     this->is_Stoped_Work = false;
     this->query_status();
 }
 
-void Worker::accept_set_motor_speed(const Status &status)
-{
-    if(this->is_Stoped_Work)
-        return;
-    if(!serial->isOpen())
-        return;
-    QByteArray data;
-    char c = 0x00;
-    data.append(c);
-    step = -1;
-    this->status_speed = status;
-    serial->write(Worker::dump_data(Command::QueryStatus,data));
-    this->timer->start(1200);
-}
 
-void Worker::accept_command_to_stm(Command com)
-{
-    if(this->is_Stoped_Work)
-        return;
-    if(!serial->isOpen())
-        return;
-    if (com == Command::StopWork)
-        step = -2;
-    else if (com ==Command::Reset){
-        step = -3;
-    }
-    QByteArray data;
-    char c = 0x00;
-    data.append(c);
-    serial->write(Worker::dump_data(com,data));
-    timer->start(12000);
-}

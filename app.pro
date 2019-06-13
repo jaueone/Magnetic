@@ -48,7 +48,8 @@ SOURCES += \
     DefectsDetect.cpp \
     serial.cpp \
     main_page/timeselect.cpp \
-    worker.cpp
+    worker.cpp \
+    pixitem.cpp
 
 
 HEADERS += \
@@ -65,7 +66,8 @@ HEADERS += \
     DefectsDetect.h \
     serial.h \
     main_page/timeselect.h \
-    worker.h
+    worker.h \
+    pixitem.h
 
 
 FORMS += \

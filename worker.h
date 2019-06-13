@@ -80,37 +80,44 @@ public:
     ~Worker(){}
 
     void init_setting_and_connect();
+
     void query_status();
     void start_work();
     void response_check_command();
-    void tell_stm_result();
     void response_wrap_result(const QByteArray &data);
 
-    void set_motor_speed(int motor);
+    void set_motor_speed(Command com,uint16_t data);
 
     void analysis_MCStatus(const QByteArray &data);
-
     static QByteArray dump_data(const Command &command,const QByteArray &data);
     static Respond load_data(const QByteArray &data);
+
 
 signals:
     void tell_window_message(QString type, QString msg);
     void tell_window_stm_status(Status);
     void tell_window_stm_respond_timeout();
+    void tell_window_command(Command,int);
+    void tell_window_serial_status(bool isopened);
+    void tell_window_work_step(int step);
+
 
 public slots:
     void accept_read_data();
     void accept_timeout();
     void accept_serial_error(const QSerialPort::SerialPortError &error);
     void accept_serial_setting(SerialSetting setting);
-    void accept_set_motor_speed(const Status &status);
-    void accept_command_to_stm(Command com);
+    void accept_command_to_stm(Command com,int data);
+    void accept_return_serial_status(){emit tell_window_serial_status(this->serial->isOpen());}
+    void accept_stop_work();
+    void accept_open_serial(SerialSetting setting);
 
 private:
     int step = 0;
 
     bool is_Stoped_Work = false;
 
+    int quality = 0;
     QTimer *timer;
     QSerialPort *serial;
     Status status;

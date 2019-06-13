@@ -47,10 +47,10 @@ public:
 }
     void mousePressEvent(QMouseEvent *e){
         QComboBox::mousePressEvent(e);
-        emit tell_serial_scan();
+        emit clicked();
     }
 signals:
-    void tell_serial_scan();
+    void clicked();
 };
 
 class DB

@@ -1,6 +1,5 @@
 #include "main_page.h"
 #include "ui_main_page.h"
-
 #include <QDebug>
 
 MainPage::MainPage(QWidget *parent) :

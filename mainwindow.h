@@ -21,15 +21,18 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void sigcon();
+    void initdir();
 
 public slots:
+    void on_stackedpage_changed(const int &page);
     void accept_men_login(const Meninfo &info);
     void accept_change_page(const int &page);
-    void on_stackedpage_changed(const int &page);
     void accept_get_picture();
+    void accept_stm_staus(const Status &status);
 
-    void check_self();
+
     void accept_camera_start_check();
+    void check_self();
 
 private:
     Ui::MainWindow *ui;
@@ -49,7 +52,7 @@ private:
     QLabel label;
     DefectsDetect detect;
 
-    Worker *worker_thread;
+    Worker *worker;
 signals:
     void camera_start_preview();
 
