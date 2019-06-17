@@ -24,7 +24,6 @@ public:
     void initdir();
 
 public slots:
-    void on_stackedpage_changed(const int &page);
     void accept_men_login(const Meninfo &info);
     void accept_change_page(const int &page);
     void accept_get_picture();
@@ -56,6 +55,8 @@ private:
 signals:
     void camera_start_preview();
 
+private slots:
+    void on_stackedWidget_currentChanged(int arg1);
 };
 
 #endif // MAINWINDOW_H

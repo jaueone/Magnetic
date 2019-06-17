@@ -1,5 +1,6 @@
 ﻿#include "driveseting.h"
 #include "ui_driveseting.h"
+#include "my_control.h"
 #include <QMap>
 #include <QString>
 #include <QDebug>
@@ -8,6 +9,8 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QSerialPort>
+
+
 
 const unsigned char chCRCHTalbe[] =
 {
@@ -85,10 +88,13 @@ DriveSeting::DriveSeting(QWidget *parent) :
     ui->setupUi(this);
     serial = new QSerialPort(this);
     camera = new HKCamera();
-    this->ui->pushButton_7->setText("\346\211\223\345\274\200\344\270\262\345\217\243");
+    this->ui->pushButton_7->setText(QString::fromLocal8Bit("打开串口"));
     this->ui->baudRateBox->setCurrentIndex(1);
     this->ui->dataBitsBox->setCurrentIndex(3);
     this->connect(this->ui->serialPortInfoListBox,&ComboBox::clicked, this, &DriveSeting::accept_scan_serial);
+
+    this->scan_serial();
+    this->load_setting();
 }
 
 DriveSeting::~DriveSeting()
@@ -121,33 +127,31 @@ bool DriveSeting::init()
         serial->close();
         return false;
     }
-
-
 }
 
 void DriveSeting::display_init()
 {
     QMessageBox messageBox;
-    messageBox.setWindowTitle("警告");
+    messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
     messageBox.setIcon(QMessageBox::Warning);
-    QPushButton button("确定");
+    QPushButton button(QString::fromLocal8Bit("确定"));
     messageBox.addButton(&button, QMessageBox::YesRole);
     if (!this->Camera_OK && !this->Serial_OK){
-        messageBox.setText("相机自检失败  \n串口自检失败   请联系管理员");
+        messageBox.setText(QString::fromLocal8Bit("相机自检失败  \n串口自检失败   请联系管理员"));
         messageBox.exec();
     }
     else if (!this->Serial_OK){
-        messageBox.setText("串口自检失败   请联系管理员");
+        messageBox.setText(QString::fromLocal8Bit("串口自检失败   请联系管理员"));
         messageBox.exec();
     }
     else if (!this->Camera_OK){
-        messageBox.setText("相机自检失败   请联系管理员");
+        messageBox.setText(QString::fromLocal8Bit("相机自检失败   请联系管理员"));
         messageBox.exec();
     }
     else{
         messageBox.setWindowTitle("信息");
         messageBox.setIcon(QMessageBox::Information);
-        messageBox.setText("系统自检成功");
+        messageBox.setText(QString::fromLocal8Bit("系统自检成功"));
         messageBox.exec();
     }
 }
@@ -229,11 +233,28 @@ CameraSetting DriveSeting::get_camera_setting()
     QMap<QString, int> map = {
         {"Off"  , 0},
         {"Once" , 1},
-        {"Continuous", 2},
+        {"Continuous", 2},  //GainAuto
         {"User", 1},
-        {"sRGB", 2},
+        {"sRGB", 2},    //GammaSelector
+        {"Line0", 0},
+        {"Line1", 1},
+        {"Line2", 2},
+        {"Line3", 3},
+        {"Counter0", 4},
+        {"Software", 7},
+        {"FrequencyConverter", 8},  //TriggerSource
+        {"FrameBurstStart", 6},
+        {"LineStart", 9},       //TriggerSelector
     };
-
+    QMap<QString, int> map_1{
+        {"Off", 0},
+        {"On", 1},      //TriggerMode
+        {"Line0", 0},
+        {"Line1", 1},
+        {"Line2", 2},
+        {"Line3", 3},
+        {"Line4", 4},   //LineSelector
+    };
     CameraSetting setting;
     setting.thresholdValue_whiteDetect = static_cast<unsigned int>(this->ui->spinBox->value());
     setting.thresholdValue_blackDetect = static_cast<unsigned int>(this->ui->spinBox_2->value());
@@ -252,7 +273,10 @@ CameraSetting DriveSeting::get_camera_setting()
     setting.gammaSelector = static_cast<GammaSelector>(map[this->ui->comboBox_2->currentText()]);
     setting.gammaEnable = this->ui->checkBox_2->isChecked();
     setting.nucEnable = this->ui->checkBox_3->isChecked();
-
+    setting.triggerSelector = static_cast<TriggerSelector>(map[this->ui->comboBox_3->currentText()]);
+    setting.triggerMode = static_cast<TriggerMode>(map_1[this->ui->comboBox_4->currentText()]);
+    setting.triggerSource = static_cast<TriggerSource>(map[this->ui->comboBox_5->currentText()]);
+    setting.lineSelector = static_cast<LineSelector>(map_1[this->ui->comboBox_6->currentText()]);
     return setting;
 }
 
@@ -303,6 +327,11 @@ void DriveSeting::load_setting()
     this->ui->comboBox_2->setCurrentText(cam_obj["gammaSelector"].toString());
     this->ui->checkBox_2->setChecked(cam_obj["gammaEnable"].toBool());
     this->ui->checkBox_3->setChecked(cam_obj["nucEnable"].toBool());
+
+    this->ui->comboBox_3->setCurrentText(cam_obj["triggerMode"].toString());
+    this->ui->comboBox_4->setCurrentText(cam_obj["triggerSelector"].toString());
+    this->ui->comboBox_5->setCurrentText(cam_obj["triggerSource"].toString());
+    this->ui->comboBox_6->setCurrentText(cam_obj["lineSelector"].toString());
 
     this->ui->baudRateBox->setCurrentText(ser_obj["baudRate"].toString());
     this->ui->dataBitsBox->setCurrentText(ser_obj["dataBits"].toString());
@@ -385,35 +414,19 @@ void DriveSeting::accept_scan_serial()
 
 void DriveSeting::accept_stm_status(const Status &status)
 {
-
-    this->ui->Estop_s->setChecked(!status.E_Stop);
-    this->ui->motor_1->setChecked(!status.transportMotorSpeedStatus);
-    this->ui->motor_2->setChecked(!status.rollMontorSpeedStatus);
-    this->ui->motor_3->setChecked(!status.rollerMotorSpeedStatus);
-    this->ui->motor_4->setChecked(!status.slidingTableMotorSpeedStatus);
-    this->ui->isWorking->setChecked(status.isWorking);
-
     this->ui->motor_1_speed->setValue(status.transport_motor_speed);
     this->ui->motor_2_speed->setValue(status.roll_motor_speed);
     this->ui->motor_3_speed->setValue(status.roller_motor_speed);
     this->ui->motor_4_speed->setValue(status.slidingtable_motor_speed);
-
-    if(this->ui->isWorking->isChecked()) this->ui->isWorking->setText("\345\267\245\344\275\234\344\270\255"); else  this->ui->isWorking->setText("\344\274\221\346\201\257\344\270\255");
-    if(this->ui->Estop_s->isChecked()) this->ui->Estop_s->setText("正常"); else  this->ui->Estop_s->setText("\346\200\245\345\201\234\344\270\255");
-    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText("正常"); else  this->ui->motor_1->setText("\346\225\205\351\232\234");
-    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText("正常"); else  this->ui->motor_2->setText("\346\225\205\351\232\234");
-    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText("正常"); else  this->ui->motor_3->setText("\346\225\205\351\232\234");
-    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText("正常"); else  this->ui->motor_4->setText("\346\225\205\351\232\234");
-
 }
 
 void DriveSeting::accept_stm_respond_timeout()
 {
     QMessageBox messageBox;
-    messageBox.setWindowTitle("警告");
+    messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
     messageBox.setIcon(QMessageBox::Critical);
-    messageBox.setText("下位机响应超时,已停止工作\n 需要查明故障修复后,重新启动");
-    QPushButton button("确定");
+    messageBox.setText(QString::fromLocal8Bit("下位机响应超时,已停止工作\n 需要查明故障修复后，"));
+    QPushButton button(QString::fromLocal8Bit("确定"));
     messageBox.addButton(&button, QMessageBox::YesRole);
     messageBox.exec();
 }
@@ -423,16 +436,23 @@ void DriveSeting::accept_serial_status(bool isopened)
     this->worker_serial_status = isopened;
     if (isopened){
         this->ui->pushButton_7->setChecked(true);
-        this->ui->pushButton_7->setText("关闭串口");
+        this->ui->pushButton_7->setText(QString::fromLocal8Bit("关闭串口"));
     }
     else {
         this->ui->pushButton_7->setChecked(false);
-        this->ui->pushButton_7->setText("打开串口");
+        this->ui->pushButton_7->setText(QString::fromLocal8Bit("打开串口"));
+    }
+}
+
+void DriveSeting::accept_stm_command(Command com, int data)
+{
+    if (com == Command::RespondOK && data == -3)
+    {
         QMessageBox messageBox;
-        messageBox.setWindowTitle("警告");
-        messageBox.setIcon(QMessageBox::Warning);
-        messageBox.setText("串口打开失败 ");
-        QPushButton button("确定");
+        messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
+        messageBox.setIcon(QMessageBox::Information);
+        messageBox.setText(QString::fromLocal8Bit("设置速度完成 "));
+        QPushButton button(QString::fromLocal8Bit("确定"));
         messageBox.addButton(&button, QMessageBox::YesRole);
         messageBox.exec();
     }
@@ -454,7 +474,6 @@ void DriveSeting::on_serialPortInfoListBox_currentIndexChanged(int index)
     this->ui->locationLabel->setText(tr("Location: %1").arg(list.count() > 4 ? list.at(4) : tr(blankString)));
     this->ui->vidLabel->setText(tr("Vendor Identifier: %1").arg(list.count() > 5 ? list.at(5) : tr(blankString)));
     this->ui->pidLabel->setText(tr("Product Identifier: %1").arg(list.count() > 6 ? list.at(6) : tr(blankString)));
-
 }
 
 void DriveSeting::on_pushButton_released()
@@ -467,10 +486,10 @@ void DriveSeting::on_pushButton_2_released()
 {
     this->save_setting(this->get_serial_setting(), this->get_camera_setting());
     QMessageBox messageBox;
-    messageBox.setWindowTitle("信息");
+    messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
     messageBox.setIcon(QMessageBox::Information);
-    messageBox.setText("参数设置保存成功 ");
-    QPushButton button("确定");
+    messageBox.setText(QString::fromLocal8Bit("参数设置保存成功 "));
+    QPushButton button(QString::fromLocal8Bit("确定"));
     messageBox.addButton(&button, QMessageBox::YesRole);
     messageBox.exec();
 }
@@ -486,11 +505,19 @@ void DriveSeting::on_pushButton_7_clicked(bool checked)
 {
     if (checked){
         emit tell_worker_open_serial(this->get_serial_setting());
+        Sleep::sleep(1);
+        if (!this->worker_serial_status){
+            QMessageBox messageBox;
+            messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+            messageBox.setIcon(QMessageBox::Warning);
+            messageBox.setText(QString::fromLocal8Bit("串口打开失败,请先检查串口 "));
+            QPushButton button(QString::fromLocal8Bit("确定"));
+            messageBox.addButton(&button, QMessageBox::YesRole);
+            messageBox.exec();
+        }
     }
     else {
         emit tell_worker_stop_work();
-        this->ui->pushButton_7->setChecked(false);
-        this->ui->pushButton_7->setText("打开串口");
     }
 }
 
@@ -529,7 +556,6 @@ void DriveSeting::on_pushButton_12_clicked()
         HKCamera::camera_message_warn();
     else {
         CameraSetting setting = this->get_camera_setting();
-
         this->camera->setParams(DType::Int, "Width", setting.width);
         this->camera->setParams(DType::Int, "Height", setting.height);
         this->camera->setParams(DType::Int, "OffsetX", setting.offsetX);
@@ -543,28 +569,14 @@ void DriveSeting::on_pushButton_12_clicked()
         this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector);
         this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime);
         this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable);
-
+        this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode);
+        this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector);
+        this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource);
+        this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector);
         HKCamera::camera_message_done();
     }
 }
 
-void DriveSeting::on_pushButton_13_clicked()
-{
-    QByteArray data;
-    char c = 0x00;
-    data.append(c);
-    QByteArray datas = Worker::dump_data(Command::QueryStatus, data);
-    if (serial->isOpen())
-    {
-        serial->write(datas);
-    }
-}
-
-
-void DriveSeting::on_pushButton_14_clicked()
-{
-
-}
 
 void DriveSeting::on_pushButton_15_released()
 {
@@ -572,15 +584,6 @@ void DriveSeting::on_pushButton_15_released()
     emit tell_worker_stm_command(Command::SetTransportMotorSpeed,transport_motor_speed);
 }
 
-void DriveSeting::on_pushButton_17_released()
-{
-    emit tell_worker_stm_command(Command::StopWork,0);
-}
-
-void DriveSeting::on_pushButton_18_released()
-{
-    emit tell_worker_stm_command(Command::Reset,0);
-}
 
 void DriveSeting::on_pushButton_16_released()
 {

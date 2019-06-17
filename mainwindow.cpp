@@ -34,6 +34,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->screen_check->setSerial(serial);
     this->screen_check->setCamera(camera);
     this->screen_result->setSerial(serial);
+
+    this->time = new DateTime(this->ui->stackedWidget);
+    this->time->setGeometry(920,0,200,50);
+
     this->setCentralWidget(this->ui->stackedWidget);
 
     this->ui->stackedWidget->removeWidget(this->ui->page);
@@ -44,8 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->stackedWidget->addWidget(drivesetting);
     this->ui->stackedWidget->addWidget(mainpage);
 
-    this->time = new DateTime(this->ui->stackedWidget);
-    this->time->setGeometry(920,0,200,50);
+
     this->sigcon();
     this->initdir();
 }
@@ -61,7 +64,6 @@ void MainWindow::sigcon()
     this->connect(this->choose,&Choose::tell_window_step_page,this,&MainWindow::accept_change_page);
     this->connect(this->screen_check,&ScreenCheck::tell_window_step_page, this,&MainWindow::accept_change_page);
     this->connect(this->drivesetting,&DriveSeting::tell_window_step_page, this,&MainWindow::accept_change_page);
-    this->connect(this->ui->stackedWidget,&QStackedWidget::currentChanged,this,&MainWindow::on_stackedpage_changed);
 
     this->connect(this->login,&Login::tell_window_men_login,this,&MainWindow::accept_men_login);
     this->connect(this->choose,&Choose::tell_window_check_self,this,&MainWindow::check_self);
@@ -75,6 +77,8 @@ void MainWindow::sigcon()
     this->connect(this->drivesetting,&DriveSeting::tell_worker_stop_work,this->worker,&Worker::accept_stop_work,Qt::QueuedConnection);
     this->connect(this->drivesetting,&DriveSeting::tell_worker_open_serial,this->worker,&Worker::accept_open_serial,Qt::QueuedConnection);
     this->connect(this->worker,&Worker::tell_window_serial_status,this->drivesetting,&DriveSeting::accept_serial_status,Qt::QueuedConnection);
+    this->connect(this->worker,&Worker::tell_window_command,this->drivesetting,&DriveSeting::accept_stm_command,Qt::QueuedConnection);
+//   this->connect(this->worker,&Worker::tell_window_stm_respond_timeout,this->drivesetting,&DriveSeting::accept_stm_respond_timeout,Qt::QueuedConnection);
 }
 
 void MainWindow::initdir()
@@ -110,15 +114,6 @@ void MainWindow::accept_change_page(const int &page)
     }
 }
 
-void MainWindow::on_stackedpage_changed(const int &page)
-{
-    if (page == 0){
-        this->time->changedstyle("white");
-    }
-    else {
-        this->time->changedstyle("black");
-    }
-}
 
 void MainWindow::accept_get_picture()
 {
@@ -167,5 +162,15 @@ void MainWindow::accept_camera_start_check()
         QPushButton button("确定");
         messageBox.setText("系统自检失败,\n请先返回选择页面完成系统自检!");
         messageBox.exec();
+    }
+}
+
+void MainWindow::on_stackedWidget_currentChanged(int arg1)
+{
+    if (arg1 == 0){
+        this->time->changedstyle("white");
+    }
+    else {
+        this->time->changedstyle("black");
     }
 }

@@ -12,7 +12,6 @@ timeSelect::timeSelect(QWidget *parent) :
 
 timeSelect::~timeSelect()
 {
-
     delete ui;
 }
 

@@ -11,8 +11,11 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QThread>
+#include <QTime>
+#include <QCoreApplication>
 
 static QSqlDatabase __database__;
+
 
 class Label : public QLabel
 {
@@ -76,5 +79,15 @@ protected:
     DB(const DB& other){}
     ~DB(){}
 };
-
+class Sleep
+{
+public:
+    Sleep() {}
+    static void sleep(unsigned int msec)
+    {
+        QTime dieTime = QTime::currentTime().addMSecs(msec);
+        while( QTime::currentTime() < dieTime )
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
+};
 #endif

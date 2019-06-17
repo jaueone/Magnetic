@@ -32,6 +32,7 @@ enum Command:short
     STM_WorkStatus = 0X00FD,
     WrapResult = 0X00FC,
     RespondOK = 0x00FB,
+    RespondNO = 0x00FF,
 };
 
 struct Package
@@ -91,7 +92,6 @@ public:
     void analysis_MCStatus(const QByteArray &data);
     static QByteArray dump_data(const Command &command,const QByteArray &data);
     static Respond load_data(const QByteArray &data);
-
 
 signals:
     void tell_window_message(QString type, QString msg);

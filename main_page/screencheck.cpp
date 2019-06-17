@@ -246,7 +246,6 @@ void ScreenCheck::save_check_result(int product_id)
         return;
      }
     QSqlQuery query(*db);
-
     QString str = QString("INSERT INTO checked_result (product_id,check_result,wrap_result,scratch,white_point,black_point,time,men_id,men_name) VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\", \"%6\", \"%7\", \"%8\", \"%9\" );")
             .arg(product_id)
             .arg(current_check_result.isQualified_s)
@@ -300,11 +299,11 @@ void ScreenCheck::ImageCapture()
         current_check_result.blackPoint = "false";
     }
     if (current_check_result.isQualified){
-        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/合格.png);");
+        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
         WriteImage(deal_image, "bmp", 0, HTuple("./database/hobject/good"));
     }
     else{
-        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/\344\270\215\345\220\210\346\240\274.png);");
+        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
         this->filename = QDate::currentDate().toString("yyyyMMdd_") + QString("%1").arg(this->getMaxID()+1);
         HTuple hv_name1 = filename.toStdString().c_str();
         WriteImage(deal_image, "bmp", 0, HTuple("./database/hobject/") + hv_name1);
@@ -325,18 +324,22 @@ void ScreenCheck::accept_stm_command(Command com, int data)
 {
     if (com == Command::ImageCapture)
     {
+        QTime time;
+        time.start();
+        this->ui->label_9->setText(QString("检测中..."));
         this->ImageCapture();
         emit tell_worker_stm_command(Command::CheckResult,this->current_check_result.isQualified);
+        this->ui->label_9->setText(QString("%1 ms").arg(time.elapsed()));
     }
     else if (com == Command::WrapResult)
     {
         this->current_check_result.wrapedOver = data;
         if (current_check_result.wrapedOver) this->current_check_result.wrapedOver_s = "good"; else this->current_check_result.wrapedOver_s = "bad";
         if (!data){
-            this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/\344\270\215\345\220\210\346\240\274.png);");
+            this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
         }
         else {
-            this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/合格.png);");
+            this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
         }
         this->save_check_result(this->getMaxID()+1);
     }
@@ -344,12 +347,13 @@ void ScreenCheck::accept_stm_command(Command com, int data)
 
 void ScreenCheck::accept_stm_respond_timeout()
 {
-    this->ui->label->setText("\344\270\213\344\275\215\346\234\272\345\223\215\345\272\224\350\266\205\346\227\266");
+
+    this->ui->label->setText(QString::fromLocal8Bit("下位机响应超时"));// "\344\270\213\344\275\215\346\234\272\345\223\215\345\272\224\350\266\205\346\227\266"
     QMessageBox messageBox;
-    messageBox.setWindowTitle("警告");
+    messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
     messageBox.setIcon(QMessageBox::Critical);
-    messageBox.setText("\344\270\213\344\275\215\346\234\272\345\223\215\345\272\224\350\266\205\346\227\266，\345\267\262\347\273\217\345\201\234\346\255\242\345\267\245\344\275\234，\350\257\267\346\237\245\346\230\216\345\216\237\345\233\240\345\271\266\346\216\222\351\231\244\346\225\205\351\232\234\345\220\216\351\207\215\346\226\260\345\220\257\345\212\250");
-    QPushButton button("确定");
+    messageBox.setText(QString::fromLocal8Bit("下位机响应超时, 已停止工作 \n请查明并排除故障后,重新操作"));//\344\270\213\344\275\215\346\234\272\345\223\215\345\272\224\350\266\205\346\227\266，\345\267\262\347\273\217\345\201\234\346\255\242\345\267\245\344\275\234，\350\257\267\346\237\245\346\230\216\345\216\237\345\233\240\345\271\266\346\216\222\351\231\244\346\225\205\351\232\234\345\220\216\351\207\215\346\226\260\345\220\257\345\212\250"
+    QPushButton button(QString::fromLocal8Bit("确定"));
     messageBox.addButton(&button, QMessageBox::YesRole);
     messageBox.exec();
 }
@@ -368,10 +372,10 @@ void ScreenCheck::accept_stm_status(Status status){
     this->ui->motor_4_speed->setValue(status.slidingtable_motor_speed);
 
     if(this->ui->Estop_s->isChecked()) this->ui->Estop_s->setText("\345\267\245\344\275\234\344\270\255"); else  this->ui->Estop_s->setText("\346\200\245\345\201\234\344\270\255");
-    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText("正常"); else  this->ui->motor_1->setText("\346\225\205\351\232\234");
-    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText("正常"); else  this->ui->motor_2->setText("\346\225\205\351\232\234");
-    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText("正常"); else  this->ui->motor_3->setText("\346\225\205\351\232\234");
-    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText("正常"); else  this->ui->motor_4->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_1->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_2->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_3->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_4->setText("\346\225\205\351\232\234");
 
     emit tell_window_stm_status(status);
 }
@@ -379,6 +383,8 @@ void ScreenCheck::accept_stm_status(Status status){
 void ScreenCheck::accept_worker_step(int step)
 {
     if (step == 0){
+        if (HDevWindowStack::IsOpen())
+          CloseWindow(HDevWindowStack::Pop());
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);");
         this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);");
         this->ui->pushButton_7->setChecked(true);
@@ -439,3 +445,5 @@ void ScreenCheck::on_pushButton_18_released()
 {
     emit tell_worker_stm_command(Command::Reset,0);
 }
+
+

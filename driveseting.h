@@ -57,6 +57,7 @@ public slots:
     void accept_stm_respond_timeout();
     void accept_return_serial_setting(){emit tell_screencheck_setting(this->get_serial_setting());}
     void accept_serial_status(bool isopened);
+    void accept_stm_command(Command com,int data);
 
 signals:
     void tell_window_step_page(int);
@@ -84,15 +85,7 @@ private slots:
 
     void on_pushButton_12_clicked();
 
-    void on_pushButton_13_clicked();
-
-    void on_pushButton_14_clicked();
-
     void on_pushButton_15_released();
-
-    void on_pushButton_17_released();
-
-    void on_pushButton_18_released();
 
     void on_pushButton_16_released();
 

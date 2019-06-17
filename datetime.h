@@ -28,7 +28,7 @@ public:
     }
     void changedstyle(const QString &color){
         if (color == "white"){
-            this->datetime->setStyleSheet("QLabel{color:white;}");
+            this->datetime->setStyleSheet("QLabel{color:rgb(255,255,255);font-family:Microsoft YaHei; font-size:14px;}");
             return;
         }
         else if (color == "black") {

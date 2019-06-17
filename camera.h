@@ -35,13 +35,43 @@ enum GainAuto{
     Once,
     Continuous
 };
+
 enum GammaSelector{
     User = 1,
     sRGB
 };
+
 enum ShadingSelector{
     FPNCCorrection = 0,
     PRNUCCorrection
+};
+
+enum TriggerSelector{
+    FrameBurstStart = 6,
+    LineStart = 9,
+};
+
+enum TriggerMode{
+    TriggerModeOff  = 0,
+    TriggerModeOn = 1,
+};
+
+enum TriggerSource{
+    TriggerSourceLine0 = 0,
+    TriggerSourceLine1 = 1,
+    TriggerSourceLine2 = 2,
+    TriggerSourceLine3 = 3,
+    Counter0 = 4,
+    Software = 7,
+    FrequencyConverter = 8,
+};
+
+enum LineSelector{
+    Line0 = 0,
+    Line1 = 1,
+    Line2 = 2,
+    Line3 = 3,
+    Line4 = 4,
 };
 struct CameraSetting{
     unsigned int thresholdValue_whiteDetect;
@@ -64,6 +94,11 @@ struct CameraSetting{
 
     float exposureTime;
     bool nucEnable;
+
+    TriggerSelector triggerSelector;
+    TriggerMode triggerMode;
+    TriggerSource triggerSource;
+    LineSelector lineSelector;
 };
 
 class HKCamera

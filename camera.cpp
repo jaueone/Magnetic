@@ -221,7 +221,7 @@ CameraSetting HKCamera::get_camera_setting()
     }
     MVCC_INTVALUE thresholdValue_whiteDetect, thresholdValue_blackDetect,width,height,offsetX,offsetY,acquisitionLineRate;
     MVCC_FLOATVALUE gain, gamma, exposureTime;
-    MVCC_ENUMVALUE gainAuto, gammaSelector;
+    MVCC_ENUMVALUE gainAuto, gammaSelector, triggerSelector, triggerMode, triggerSource, lineSelector;
 
     MV_CC_GetIntValue(handle, "Width",&width);
     MV_CC_GetIntValue(handle, "Height",&height);
@@ -239,6 +239,10 @@ CameraSetting HKCamera::get_camera_setting()
 
     MV_CC_GetEnumValue(handle, "GainAuto", &gainAuto);
     MV_CC_GetEnumValue(handle, "GammaSelector", &gammaSelector);
+    MV_CC_GetEnumValue(handle, "TriggerSelector", &triggerSelector);
+    MV_CC_GetEnumValue(handle, "TriggerMode", &triggerMode);
+    MV_CC_GetEnumValue(handle, "TriggerSource", &triggerSource);
+    MV_CC_GetEnumValue(handle, "LineSelector", &lineSelector);
 
     setting.thresholdValue_whiteDetect = thresholdValue_whiteDetect.nCurValue;
     setting.thresholdValue_blackDetect = thresholdValue_blackDetect.nCurValue;
@@ -254,6 +258,10 @@ CameraSetting HKCamera::get_camera_setting()
 
     setting.gainAuto = static_cast<GainAuto>(gainAuto.nCurValue);
     setting.gammaSelector = static_cast<GammaSelector>(gammaSelector.nCurValue);
+    setting.triggerSelector = static_cast<TriggerSelector>(triggerSelector.nCurValue);
+    setting.triggerMode = static_cast<TriggerMode>(triggerMode.nCurValue);
+    setting.triggerSource = static_cast<TriggerSource>(triggerSource.nCurValue);
+    setting.lineSelector = static_cast<LineSelector>(lineSelector.nCurValue);
     return setting;
 }
 
@@ -268,7 +276,30 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
         {1,"User"},
         {2,"sRGB"},
     };
-
+    QMap<int,QString> lineSelector_map {
+        {0,"Line0"},
+        {1,"Line1"},
+        {2,"Line2"},
+        {3,"Line3"},
+        {4,"Line4"},
+    };
+    QMap<int,QString> triggerSource_map {
+        {0,"Line0"},
+        {1,"Line1"},
+        {2,"Line2"},
+        {3,"Line3"},
+        {4,"Counter0"},
+        {7,"Software"},
+        {8,"FrequencyConverter"},
+    };
+    QMap<int,QString> triggerSelector_map {
+        {6,"FrameBurstStart"},
+        {9,"LineStart"},
+    };
+    QMap<int,QString> triggerMode_map {
+        {0,"Off"},
+        {1,"On"},
+    };
     QJsonObject camera
     {
         {"thresholdValue_whiteDetect",(int)setting.thresholdValue_whiteDetect},
@@ -286,6 +317,10 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
         {"gammaSelector",gamma_map[setting.gammaSelector]},
         {"exposureTime",(double)setting.exposureTime},
         {"nucEnable",setting.nucEnable},
+        {"triggerMode",triggerMode_map[setting.triggerMode]},
+        {"triggerSelector",triggerSelector_map[setting.triggerSelector]},
+        {"triggerSource",triggerSource_map[setting.triggerSource]},
+        {"lineSelector",lineSelector_map[setting.lineSelector]},
     };
 
     QJsonDocument camera_doc = QJsonDocument(camera);
@@ -333,23 +368,28 @@ int HKCamera::setParams(DType type,const char *params, QVariant value)
 {
     if (type == DType::Bool){
         if (MV_OK != MV_CC_SetBoolValue(handle, params,value.toBool()))
+            qDebug() << "fail";
             return -1;
     }
     else if (type == DType::Int){
         if (MV_OK != MV_CC_SetIntValue(handle, params, value.toUInt()))
+            qDebug() << "fail";
             return -1;
     }
     else if (type == DType::Float){
         if (MV_OK != MV_CC_SetFloatValue(handle, params, value.toFloat()))
+            qDebug() << "fail";
             return -1;
     }
     else if (type == DType::Enum){
         if (MV_OK != MV_CC_SetEnumValue(handle, params, value.toUInt()))
+            qDebug() << "fail";
             return -1;
     }
     else if (type == DType::String){
 
     }
+    qDebug() << "successed";
     return 0;
 }
 

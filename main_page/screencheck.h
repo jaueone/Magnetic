@@ -82,6 +82,8 @@ private slots:
 
     void on_pushButton_18_released();
 
+
+
 private:
     Ui::ScreenCheck *ui;
     QMap<QString ,Label *> object_label_map{};
@@ -105,6 +107,7 @@ private:
     QString filename;
     bool worker_thread_serial_status;
     unsigned char id= 1;
+
 };
 
 #endif // SCREENCHECK_H

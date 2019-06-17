@@ -246,7 +246,7 @@ void Worker::accept_read_data()
                 qDebug() << "reset stm";
             }
             else if (step == -3) {
-                qDebug() << "set speed";
+                emit tell_window_command(Command::RespondOK,step);
             }
             break;
 
@@ -257,7 +257,7 @@ void Worker::accept_read_data()
             emit tell_window_command(Command::WrapResult,(int)resp.data[0]);
             this->step = 5;
             emit tell_window_work_step(step);
-            sleep(8000);
+            sleep(1000);
             this->step = 0;
             emit tell_window_work_step(step);
             sleep(10);
@@ -273,12 +273,15 @@ void Worker::accept_read_data()
 
 void Worker::accept_command_to_stm(Command com, int data)
 {
+
     QByteArray da;
     QDataStream stream(&da,QIODevice::WriteOnly);
     if(this->is_Stoped_Work)
         return;
-    if(!serial->isOpen())
+    if(!serial->isOpen()){
+        emit tell_window_serial_status(false);
         return;
+    }
     if (com == Command::StopWork){
         stream << (uint8_t)data;
         this->is_Stoped_Work = true;
@@ -289,7 +292,7 @@ void Worker::accept_command_to_stm(Command com, int data)
         this->is_Stoped_Work = false;
         step = -2;
     }
-    else if(com ==Command::SetRollMontorSpeed ||com ==Command::SetRollerMotorSpeed ||com ==Command::SetTransportMotorSpeed ||com ==Command::SetSlidingTableMotorSpeed){
+    else if(com == Command::SetRollMontorSpeed ||com ==Command::SetRollerMotorSpeed ||com ==Command::SetTransportMotorSpeed ||com ==Command::SetSlidingTableMotorSpeed){
         stream << (uint16_t)data;
         step = -3;
     }
@@ -301,7 +304,6 @@ void Worker::accept_command_to_stm(Command com, int data)
     }
     serial->write(Worker::dump_data(com,da));
     timer->start(TimeOut);
-
 }
 
 void Worker::accept_stop_work()
@@ -313,7 +315,6 @@ void Worker::accept_stop_work()
 
 void Worker::accept_open_serial(SerialSetting setting)
 {
-
     if (serial->isOpen()){
         serial->close();
     }
@@ -325,7 +326,7 @@ void Worker::accept_open_serial(SerialSetting setting)
     serial->setStopBits(setting.stopBits);
     serial->setFlowControl(setting.flowControl);
     emit tell_window_serial_status(serial->open(QIODevice::ReadWrite));
-
+    this->is_Stoped_Work = false;
 }
 
 void Worker::accept_timeout()
@@ -361,6 +362,7 @@ void Worker::accept_serial_setting(SerialSetting setting)
     serial->setStopBits(setting.stopBits);
     serial->setFlowControl(setting.flowControl);
     if (!serial->open(QIODevice::ReadWrite)){
+        emit tell_window_serial_status(false);
         return;
     }
     step = 0;

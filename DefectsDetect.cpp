@@ -20,8 +20,9 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
   GetImageSize(ho_Image, &hv_Width, &hv_Height);
   SetWindowAttr("background_color","black");
   OpenWindow(x,y,width,height,winid,"visible","",&hv_mainWindowHandle);
-  HDevWindowStack::Push(hv_mainWindowHandle);
 
+
+  HDevWindowStack::Push(hv_mainWindowHandle);
   if (HDevWindowStack::IsOpen())
     SetDraw(HDevWindowStack::GetActive(),"margin");
   if (HDevWindowStack::IsOpen())
@@ -158,6 +159,7 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     DispObj(ho_Image, HDevWindowStack::GetActive());
   if (HDevWindowStack::IsOpen())
     DispObj(ho_RegionUnion, HDevWindowStack::GetActive());
+
   DumpWindowImage(&deal_image,hv_mainWindowHandle);
 }
 
