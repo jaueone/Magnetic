@@ -84,7 +84,6 @@ unsigned short int CRC16(unsigned char *pchMsg, unsigned short int wDataLen)
 }
 
 
-
 ScreenCheck::ScreenCheck(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ScreenCheck)
@@ -100,12 +99,15 @@ ScreenCheck::ScreenCheck(QWidget *parent) :
     qRegisterMetaType<Status>("Status&");
     qRegisterMetaType<Command>("Command");
     qRegisterMetaType<Command>("Command&");
-    this->connect(this, &ScreenCheck::tell_worker_setting, this->worker, &Worker::accept_serial_setting,Qt::QueuedConnection);
-    this->connect(this, &ScreenCheck::tell_worker_stm_command, this->worker, &Worker::accept_command_to_stm,Qt::QueuedConnection);
+    this->connect(this, &ScreenCheck::tell_worker_start_work, this->worker, &Worker::accept_start_worker,Qt::QueuedConnection);
     this->connect(this, &ScreenCheck::tell_worker_stop_work, this->worker, &Worker::accept_stop_work,Qt::QueuedConnection);
+    this->connect(this, &ScreenCheck::tell_worker_open_serial, this->worker, &Worker::accept_open_serial,Qt::QueuedConnection);
+    this->connect(this, &ScreenCheck::tell_worker_stm_command, this->worker, &Worker::accept_command_to_stm,Qt::QueuedConnection);
+
     this->connect(this->worker, &Worker::tell_window_command,this, &ScreenCheck::accept_stm_command,Qt::QueuedConnection);
     this->connect(this->worker, &Worker::tell_window_stm_status,this, &ScreenCheck::accept_stm_status,Qt::QueuedConnection);
     this->connect(this->worker, &Worker::tell_window_work_step,this, &ScreenCheck::accept_worker_step,Qt::QueuedConnection);
+    this->connect(this->worker, &Worker::tell_window_serial_status,this, &ScreenCheck::accept_worker_serial_status,Qt::QueuedConnection);
     this->connect(this->worker, &Worker::tell_window_stm_respond_timeout,this, &ScreenCheck::accept_stm_respond_timeout,Qt::QueuedConnection);
     this->worker_thread->start();
 
@@ -143,8 +145,8 @@ void ScreenCheck::addlabel(const QString &name, const QString &content)
 
 void ScreenCheck::start_check()
 {
-   this->ui->stackedWidget->setCurrentIndex(1);
-    //this->ui->label_8->hide();
+    emit ask_serial_setting();
+    emit tell_worker_open_serial(this->serial_setting);
 }
 
 int ScreenCheck::getMaxID()
@@ -281,7 +283,7 @@ void ScreenCheck::ImageCapture()
         return;
     HObject image = camera->getImage();
     HObject deal_image;
-    DefectsDetect detect;
+    DefectsDetect detect = ImageAlgorithm::getInterface();
     Hlong winid = (Hlong)this->ui->preview->winId();
     detect.run(image,deal_image,this->ui->preview->width(),this->ui->preview->height(),winid,this->ui->preview->x(),this->ui->preview->y());
     current_check_result.isQualified = detect.get_result();
@@ -322,14 +324,20 @@ bool ScreenCheck::workerSerialIsOpen()
 
 void ScreenCheck::accept_stm_command(Command com, int data)
 {
+    QMessageBox messageBox;
+    messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+    messageBox.setIcon(QMessageBox::Critical);
+    QPushButton button(QString::fromLocal8Bit("确定"));
+    messageBox.addButton(&button, QMessageBox::YesRole);
+
     if (com == Command::ImageCapture)
     {
         QTime time;
+        msleep(800);
         time.start();
-        this->ui->label_9->setText(QString("检测中..."));
         this->ImageCapture();
         emit tell_worker_stm_command(Command::CheckResult,this->current_check_result.isQualified);
-        this->ui->label_9->setText(QString("%1 ms").arg(time.elapsed()));
+        qDebug() << QString::fromLocal8Bit("检测时间") << time.elapsed();
     }
     else if (com == Command::WrapResult)
     {
@@ -343,12 +351,45 @@ void ScreenCheck::accept_stm_command(Command com, int data)
         }
         this->save_check_result(this->getMaxID()+1);
     }
+    else if (com == Command::Reset){
+        this->ui->label->setStyleSheet("color:black");
+        this->ui->label->setText(QString::fromLocal8Bit("复位完成后,重新点击开始检测"));
+    }
+    else if (com == Command::StopWork){
+        this->ui->label->setText(QString::fromLocal8Bit("下位机停止"));
+        messageBox.setText(QString::fromLocal8Bit("下位机停止"));
+        messageBox.exec();
+    }
+    else if (com == Command::ContinueWork){
+        this->ui->label->setStyleSheet("color:black");
+        this->ui->label->setText(QString::fromLocal8Bit("开始工作"));
+    }
+    else if (com == Command::SuspendWork){
+        this->ui->label->setText(QString::fromLocal8Bit("暂停中"));
+        messageBox.setText(QString::fromLocal8Bit("下位机暂停按钮按下，先把按钮置为开始状态"));
+        messageBox.exec();
+    }
+    else if (com == Command::EmergencyStop){
+        this->ui->label->setStyleSheet("color:red");
+        this->ui->label->setText(QString::fromLocal8Bit("下位机急停,先断电，断气检查机器"));
+        messageBox.setText(QString::fromLocal8Bit("下位机急停,先断电，断气检查机器"));
+        messageBox.exec();
+    }
+    else if (com == Command::PackingBagFault) {
+        this->ui->label->setText(QString::fromLocal8Bit("包装袋堵住"));
+        messageBox.setText(QString::fromLocal8Bit("包装袋堵住"));
+        messageBox.exec();
+    }
+    else if (com == Command::PackingBagLess) {
+        this->ui->label->setText(QString::fromLocal8Bit("缺少包装袋"));
+        messageBox.setText(QString::fromLocal8Bit("缺少包装袋"));
+        messageBox.exec();
+    }
 }
 
 void ScreenCheck::accept_stm_respond_timeout()
 {
-
-    this->ui->label->setText(QString::fromLocal8Bit("下位机响应超时"));// "\344\270\213\344\275\215\346\234\272\345\223\215\345\272\224\350\266\205\346\227\266"
+    this->ui->label->setText(QString::fromLocal8Bit("下位机响应超时"));
     QMessageBox messageBox;
     messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
     messageBox.setIcon(QMessageBox::Critical);
@@ -376,8 +417,18 @@ void ScreenCheck::accept_stm_status(Status status){
     if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_2->setText("\346\225\205\351\232\234");
     if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_3->setText("\346\225\205\351\232\234");
     if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_4->setText("\346\225\205\351\232\234");
-
     emit tell_window_stm_status(status);
+
+    QMessageBox messageBox;
+    messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+    messageBox.setIcon(QMessageBox::Critical);
+    QPushButton button(QString::fromLocal8Bit("确定"));
+    messageBox.addButton(&button, QMessageBox::YesRole);
+    if (status.rollMontorSpeedStatus ||status.rollerMotorSpeedStatus || status.transportMotorSpeedStatus || status.slidingTableMotorSpeedStatus){
+        this->ui->label->setText(QString::fromLocal8Bit("电机故障先断电，检查故障重新启动"));
+        messageBox.setText(QString::fromLocal8Bit("电机故障先断电，检查故障重新启动"));
+        messageBox.exec();
+    }
 }
 
 void ScreenCheck::accept_worker_step(int step)
@@ -385,6 +436,7 @@ void ScreenCheck::accept_worker_step(int step)
     if (step == 0){
         if (HDevWindowStack::IsOpen())
           CloseWindow(HDevWindowStack::Pop());
+        this->ui->label->setStyleSheet("color:black");
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);");
         this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);");
         this->ui->pushButton_7->setChecked(true);
@@ -393,27 +445,32 @@ void ScreenCheck::accept_worker_step(int step)
         this->ui->stackedWidget->setCurrentIndex(0);
     }
     else if (step == 1) {
+        this->ui->label->setStyleSheet("color:black");
         this->ui->pushButton_5->setChecked(true);
         this->ui->label->setText("\346\237\245\350\257\242\344\270\213\344\275\215\346\234\272\347\212\266\346\200\201");
         this->ui->label->adjustSize();
     }
     else if (step == 2) {
+        this->ui->label->setStyleSheet("color:black");
         this->ui->pushButton_2->setChecked(true);
         this->ui->label->setText("\345\274\200\345\247\213\345\267\245\344\275\234\345\271\266\347\255\211\345\276\205\345\233\276\345\203\217\351\207\207\351\233\206");
         this->ui->label->adjustSize();
     }
 
     else if (step == 3) {
+        this->ui->label->setStyleSheet("color:black");
         this->ui->pushButton->setChecked(true);
         this->ui->label->setText("\344\270\213\345\217\221\351\207\207\351\233\206\347\273\223\346\236\234");
         this->ui->label->adjustSize();
     }
     else if (step == 4) {
+        this->ui->label->setStyleSheet("color:black");
         this->ui->pushButton_3->setChecked(true);
         this->ui->label->setText("\344\270\213\345\217\221\345\256\214\346\210\220\345\271\266\347\255\211\345\276\205\345\214\205\350\243\205\347\273\223\346\236\234");
         this->ui->label->adjustSize();
     }
     else if (step == 5) {
+        this->ui->label->setStyleSheet("color:black");
         this->ui->pushButton_6->setChecked(true);
         this->ui->label->setText("\346\224\266\345\210\260\345\214\205\350\243\205\347\273\223\346\236\234");
         this->ui->label->adjustSize();
@@ -423,7 +480,38 @@ void ScreenCheck::accept_worker_step(int step)
 void ScreenCheck::on_start_check_released()
 {
     emit ask_serial_setting();
-    emit tell_worker_setting(this->serial_setting);
+    emit tell_worker_start_work(this->serial_setting);
+    msleep(5);
+    if (!this->worker_thread_serial_status && !camera->isOpened()){
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+        messageBox.setIcon(QMessageBox::Critical);
+        messageBox.setText(QString::fromLocal8Bit("系统自检失败，先检查相机和串口"));
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
+        return;
+    }
+    else if (!this->worker_thread_serial_status) {
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+        messageBox.setIcon(QMessageBox::Critical);
+        messageBox.setText(QString::fromLocal8Bit("系统自检失败，先检查串口"));
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
+        return;
+    }
+    else if (!this->camera->isOpened()) {
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+        messageBox.setIcon(QMessageBox::Critical);
+        messageBox.setText(QString::fromLocal8Bit("系统自检失败，先检查相机"));
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
+        return;
+    }
 }
 
 //delete qpixmap;
@@ -447,3 +535,7 @@ void ScreenCheck::on_pushButton_18_released()
 }
 
 
+void ScreenCheck::on_pushButton_8_released()
+{
+    this->ui->stackedWidget->setCurrentIndex(0);
+}

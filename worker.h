@@ -26,13 +26,18 @@ enum Command:short
     SetRollMontorSpeed = 0x0006,
     SetRollerMotorSpeed = 0x0007,
     SetSlidingTableMotorSpeed = 0x0008,
+    SuspendWork = 0x0009,
+    ContinueWork = 0x0010,
 
 
-    ImageCapture = 0x00FE,
-    STM_WorkStatus = 0X00FD,
-    WrapResult = 0X00FC,
-    RespondOK = 0x00FB,
     RespondNO = 0x00FF,
+    ImageCapture = 0x00FE,
+    STM_WorkStatus = 0x00FD,
+    WrapResult = 0x00FC,
+    RespondOK = 0x00FB,
+    EmergencyStop = 0x00FA,
+    PackingBagFault = 0x00F9,
+    PackingBagLess = 0x00F8,
 };
 
 struct Package
@@ -62,6 +67,7 @@ struct Status{
     bool slidingTableMotorSpeedStatus;
     bool isWorking;
     bool isReseting;
+    bool isStoped;
     uint16_t transport_motor_speed;
     uint16_t roll_motor_speed;
     uint16_t roller_motor_speed;
@@ -87,6 +93,11 @@ public:
     void response_check_command();
     void response_wrap_result(const QByteArray &data);
 
+    void response_continue_work();
+    void response_suspend_work();
+    void response_stop_work();
+    void response_reset_work();
+
     void set_motor_speed(Command com,uint16_t data);
 
     void analysis_MCStatus(const QByteArray &data);
@@ -106,16 +117,19 @@ public slots:
     void accept_read_data();
     void accept_timeout();
     void accept_serial_error(const QSerialPort::SerialPortError &error);
-    void accept_serial_setting(SerialSetting setting);
+
     void accept_command_to_stm(Command com,int data);
     void accept_return_serial_status(){emit tell_window_serial_status(this->serial->isOpen());}
-    void accept_stop_work();
+
     void accept_open_serial(SerialSetting setting);
+    void accept_start_worker(SerialSetting setting);
+    void accept_stop_work();
 
 private:
     int step = 0;
 
     bool is_Stoped_Work = false;
+    bool do_noting = false;
 
     int quality = 0;
     QTimer *timer;

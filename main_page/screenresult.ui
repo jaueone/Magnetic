@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1080</width>
+    <width>1024</width>
     <height>523</height>
    </rect>
   </property>
@@ -413,8 +413,8 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
   <widget class="QLabel" name="label_17">
    <property name="geometry">
     <rect>
-     <x>970</x>
-     <y>190</y>
+     <x>880</x>
+     <y>70</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -432,8 +432,8 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
   <widget class="QLabel" name="label_18">
    <property name="geometry">
     <rect>
-     <x>980</x>
-     <y>260</y>
+     <x>930</x>
+     <y>90</y>
      <width>81</width>
      <height>16</height>
     </rect>

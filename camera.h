@@ -6,6 +6,7 @@
 #include "MvErrorDefine.h"
 #include "DefectsDetect.h"
 
+#include <QImage>
 #include <QThread>
 #include <thread>
 #include <Halcon.h>
@@ -73,6 +74,7 @@ enum LineSelector{
     Line3 = 3,
     Line4 = 4,
 };
+
 struct CameraSetting{
     unsigned int thresholdValue_whiteDetect;
     unsigned int thresholdValue_blackDetect;
@@ -207,6 +209,7 @@ private:
 
     unsigned char*  m_pBufForSaveImage;         // 用于保存图像的缓存
     unsigned int    m_nBufSizeForSaveImage;
+    int i = 0;
 };
 
 

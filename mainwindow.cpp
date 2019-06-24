@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->screen_result->setSerial(serial);
 
     this->time = new DateTime(this->ui->stackedWidget);
-    this->time->setGeometry(920,0,200,50);
+    this->time->setGeometry(860,0,200,50);
 
     this->setCentralWidget(this->ui->stackedWidget);
 
@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sigcon();
     this->initdir();
+
 }
 
 MainWindow::~MainWindow()
@@ -73,11 +74,11 @@ void MainWindow::sigcon()
     this->connect(this->screen_check,&ScreenCheck::ask_serial_setting, this->drivesetting,&DriveSeting::accept_return_serial_setting);
     this->connect(this->drivesetting,&DriveSeting::tell_screencheck_setting,this->screen_check,&ScreenCheck::accept_serial_setting);
 
-    this->connect(this->drivesetting,&DriveSeting::tell_worker_stm_command,this->worker,&Worker::accept_command_to_stm,Qt::QueuedConnection);
-    this->connect(this->drivesetting,&DriveSeting::tell_worker_stop_work,this->worker,&Worker::accept_stop_work,Qt::QueuedConnection);
-    this->connect(this->drivesetting,&DriveSeting::tell_worker_open_serial,this->worker,&Worker::accept_open_serial,Qt::QueuedConnection);
-    this->connect(this->worker,&Worker::tell_window_serial_status,this->drivesetting,&DriveSeting::accept_serial_status,Qt::QueuedConnection);
-    this->connect(this->worker,&Worker::tell_window_command,this->drivesetting,&DriveSeting::accept_stm_command,Qt::QueuedConnection);
+//    this->connect(this->drivesetting,&DriveSeting::tell_worker_stm_command,this->worker,&Worker::accept_command_to_stm,Qt::QueuedConnection);
+//    this->connect(this->drivesetting,&DriveSeting::tell_worker_stop_work,this->worker,&Worker::accept_stop_work,Qt::QueuedConnection);
+//    this->connect(this->drivesetting,&DriveSeting::tell_worker_open_serial,this->worker,&Worker::accept_open_serial,Qt::QueuedConnection);
+//    this->connect(this->worker,&Worker::tell_window_serial_status,this->drivesetting,&DriveSeting::accept_serial_status,Qt::QueuedConnection);
+//    this->connect(this->worker,&Worker::tell_window_command,this->drivesetting,&DriveSeting::accept_stm_command,Qt::QueuedConnection);
 //   this->connect(this->worker,&Worker::tell_window_stm_respond_timeout,this->drivesetting,&DriveSeting::accept_stm_respond_timeout,Qt::QueuedConnection);
 }
 
@@ -145,6 +146,7 @@ void MainWindow::check_self()
        this->camera->startCollect();
        this->camera->collectFrame(this->camera_label_);
        this->ui->stackedWidget->setCurrentIndex(3);
+       this->screen_check->start_check();
     }
     else
         this->drivesetting->display_init();

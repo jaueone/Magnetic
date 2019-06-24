@@ -1,6 +1,7 @@
 ﻿#include "driveseting.h"
 #include "ui_driveseting.h"
 #include "my_control.h"
+#include "DefectsDetect.h"
 #include <QMap>
 #include <QString>
 #include <QDebug>
@@ -9,7 +10,6 @@
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QSerialPort>
-
 
 
 const unsigned char chCRCHTalbe[] =
@@ -307,7 +307,6 @@ void DriveSeting::load_setting()
 
     QJsonObject ser_obj = ser_doc.object();
     QJsonObject cam_obj = cam_doc.object();
-
     this->ui->spinBox->setValue(cam_obj["thresholdValue_whiteDetect"].toInt());
     this->ui->spinBox_2->setValue(cam_obj["thresholdValue_blackDetect"].toInt());
     this->ui->spinBox_3->setValue(cam_obj["width"].toInt());
@@ -328,8 +327,8 @@ void DriveSeting::load_setting()
     this->ui->checkBox_2->setChecked(cam_obj["gammaEnable"].toBool());
     this->ui->checkBox_3->setChecked(cam_obj["nucEnable"].toBool());
 
-    this->ui->comboBox_3->setCurrentText(cam_obj["triggerMode"].toString());
-    this->ui->comboBox_4->setCurrentText(cam_obj["triggerSelector"].toString());
+    this->ui->comboBox_3->setCurrentText(cam_obj["triggerSelector"].toString());
+    this->ui->comboBox_4->setCurrentText(cam_obj["triggerMode"].toString());
     this->ui->comboBox_5->setCurrentText(cam_obj["triggerSource"].toString());
     this->ui->comboBox_6->setCurrentText(cam_obj["lineSelector"].toString());
 
@@ -408,7 +407,6 @@ void DriveSeting::check_self()
 
 void DriveSeting::accept_scan_serial()
 {
-
     this->scan_serial();
 }
 
@@ -523,16 +521,30 @@ void DriveSeting::on_pushButton_7_clicked(bool checked)
 
 void DriveSeting::on_pushButton_9_released()
 {
-    if (MV_OK != camera->enumDevices())
+    if (MV_OK != camera->enumDevices()){
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+        messageBox.setIcon(QMessageBox::Warning);
+        messageBox.setText(QString::fromLocal8Bit("无法找到相机"));
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
         return;
-    if (MV_OK != camera->openDevice(0))
+    }
+    if (MV_OK != camera->openDevice(0)){
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+        messageBox.setIcon(QMessageBox::Warning);
+        messageBox.setText(QString::fromLocal8Bit("相机打开失败"));
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
         return;
-
+    }
 }
 
 void DriveSeting::on_pushButton_11_clicked()
 {
-
     if (MV_OK != camera->startCollect())
         return;
     if (MV_OK != camera->collectFrame(this->ui->label_18))
@@ -541,8 +553,29 @@ void DriveSeting::on_pushButton_11_clicked()
 
 void DriveSeting::on_pushButton_10_clicked()
 {
+    QSqlDatabase *database = DB::getInterface();
+    QJsonDocument cam_doc;
+    if (!database->open())
+    {
+       qDebug() << "Error: Failed to connect database." << database->lastError();
+       return;
+    }
+    else {
+        QSqlQuery query(*database);
+        QString temp = QString("SELECT camera_config FROM admin_config WHERE id = 1;");
+        if (!query.exec(temp))
+            return;
+        while (query.next()) {
+            QSqlRecord rec = query.record();
+            cam_doc = QJsonDocument::fromJson(rec.value("camera_config").toByteArray());
+        }
+        database->close();
+    }
+    QJsonObject cam_obj = cam_doc.object();
     CameraSetting setting = camera->get_camera_setting();
-    this->save_setting(this->get_serial_setting(), this->camera->get_camera_setting());
+    setting.thresholdValue_blackDetect = cam_obj["thresholdValue_blackDetect"].toInt();
+    setting.thresholdValue_whiteDetect = cam_obj["thresholdValue_whiteDetect"].toInt();
+    this->save_setting(this->get_serial_setting(), setting);
     this->load_setting();
     QByteArray by = HKCamera::get_camera_bin(setting);
     QJsonObject j =  QJsonDocument::fromJson(by).object();
@@ -556,23 +589,25 @@ void DriveSeting::on_pushButton_12_clicked()
         HKCamera::camera_message_warn();
     else {
         CameraSetting setting = this->get_camera_setting();
-        this->camera->setParams(DType::Int, "Width", setting.width);
-        this->camera->setParams(DType::Int, "Height", setting.height);
-        this->camera->setParams(DType::Int, "OffsetX", setting.offsetX);
-        this->camera->setParams(DType::Int, "OffsetY", setting.offsetY);
-        this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate);
-        this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable);
-        this->camera->setParams(DType::Float, "Gain", setting.gain);
-        this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto);
-        this->camera->setParams(DType::Float, "Gamma", setting.gamma);
-        this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable);
-        this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector);
-        this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime);
-        this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable);
-        this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode);
-        this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector);
-        this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource);
-        this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector);
+        DefectsDetect detect = ImageAlgorithm::getInterface();
+        detect.set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
+        qDebug() << this->camera->setParams(DType::Int, "Width", setting.width);
+        qDebug() << this->camera->setParams(DType::Int, "Height", setting.height);
+        qDebug() << this->camera->setParams(DType::Int, "OffsetX", setting.offsetX);
+        qDebug() << this->camera->setParams(DType::Int, "OffsetY", setting.offsetY);
+        qDebug() << this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate);
+        qDebug() << this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable);
+        qDebug() << this->camera->setParams(DType::Float, "Gain", setting.gain);
+        qDebug() << this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto);
+        qDebug() << this->camera->setParams(DType::Float, "Gamma", setting.gamma);
+        qDebug() << this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable);
+        qDebug() << this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector);
+        qDebug() << this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime);
+        qDebug() << this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable);
+        qDebug() << this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode);
+        qDebug() << this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector);
+        qDebug() << this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource);
+        qDebug() << this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector);
         HKCamera::camera_message_done();
     }
 }
@@ -583,7 +618,6 @@ void DriveSeting::on_pushButton_15_released()
     uint16_t transport_motor_speed = (uint16_t)this->ui->motor_1_speed->value();
     emit tell_worker_stm_command(Command::SetTransportMotorSpeed,transport_motor_speed);
 }
-
 
 void DriveSeting::on_pushButton_16_released()
 {

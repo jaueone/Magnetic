@@ -18,6 +18,8 @@ MainPage::MainPage(QWidget *parent) :
     this->connect(this->ui->pushButton,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_2,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_3,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
+    this->ui->pushButton_3->hide();
+
 }
 
 MainPage::~MainPage()

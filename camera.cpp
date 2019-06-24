@@ -52,6 +52,17 @@ int HKCamera::openDevice(const int &index)
         return -1;
     }
     qDebug() << "information camera opened";
+    MV_CC_SetIntValue(this->handle,"GevSCPD",7000);
+    MV_CC_SetIntValue(this->handle,"PreDivider",1);
+    MV_CC_SetIntValue(this->handle,"Multiplier",2);
+    MV_CC_SetBoolValue(this->handle,"GevPAUSEFrameReception",true);
+    MV_CC_SetEnumValue(this->handle,"TriggerSelector",9);
+    MV_CC_SetEnumValue(this->handle,"TriggerMode",1);
+    MV_CC_SetEnumValue(this->handle,"TriggerSource",8);
+    MV_CC_SetEnumValue(this->handle,"LineSelector",0);
+    MV_CC_SetIntValue(this->handle,"Width",3800);
+    MV_CC_SetIntValue(this->handle,"Height",3700);
+    MV_CC_SetIntValue(this->handle,"OffsetX",150);
     return 0;
 }
 
@@ -91,6 +102,7 @@ int HKCamera::startCollect()
 
 int HKCamera::collectFrame(QLabel *label)
 {
+
     /************************************************************************/
     /* 5.获取一帧并保存成图像  MV_CC_GetOneFrameTimeout  MV_CC_SaveImage    */
     /************************************************************************/
@@ -120,8 +132,8 @@ int HKCamera::collectFrame(QLabel *label)
         MV_FRAME_OUT_INFO stInfo;
         memset(&stInfo, 0, sizeof(MV_FRAME_OUT_INFO));
 
-    //上层应用程序需要根据帧率，控制好调用该接口的频率
-    //此次代码仅供参考，实际应用建议另建线程进行图像帧采集和处理
+        //上层应用程序需要根据帧率，控制好调用该接口的频率
+        //此次代码仅供参考，实际应用建议另建线程进行图像帧采集和处理
 
         //pFrameBuf是相机采集到的一帧原始图像数据
         nRet = MV_CC_GetOneFrame(handle, pFrameBuf, nBufSize, &stInfo);
@@ -145,14 +157,16 @@ int HKCamera::collectFrame(QLabel *label)
             return -1;
         }
         /**************************unsigned char* 图像转换为HObject************************/
-        memcpy(data, pFrameBuf, nBufSize);
+        memcpy(data, pFrameBuf, (size_t)nBufSize);
         GenImage1(&ho_Image, "byte", wid, hgt, (Hlong)(data));
-        //WriteImage(ho_Image, "bmp", 0, HTuple("E:/photo/") + 1);
+
+//        WriteImage(ho_Image, "bmp", -1, HTuple("D:/photo/") + i);
         //Sleep(500);
         free(data);
         /**********************************************************************************/
     free(pFrameBuf);
     qDebug() << "colledted";
+    i+= 1;
     return 0;
 }
 
@@ -219,7 +233,7 @@ CameraSetting HKCamera::get_camera_setting()
         qDebug() << "camera no connected, get params fail";
         return setting;
     }
-    MVCC_INTVALUE thresholdValue_whiteDetect, thresholdValue_blackDetect,width,height,offsetX,offsetY,acquisitionLineRate;
+    MVCC_INTVALUE width,height,offsetX,offsetY,acquisitionLineRate;
     MVCC_FLOATVALUE gain, gamma, exposureTime;
     MVCC_ENUMVALUE gainAuto, gammaSelector, triggerSelector, triggerMode, triggerSource, lineSelector;
 
@@ -244,8 +258,6 @@ CameraSetting HKCamera::get_camera_setting()
     MV_CC_GetEnumValue(handle, "TriggerSource", &triggerSource);
     MV_CC_GetEnumValue(handle, "LineSelector", &lineSelector);
 
-    setting.thresholdValue_whiteDetect = thresholdValue_whiteDetect.nCurValue;
-    setting.thresholdValue_blackDetect = thresholdValue_blackDetect.nCurValue;
     setting.width = width.nCurValue;
     setting.height = height.nCurValue;
     setting.offsetX = offsetX.nCurValue;
@@ -300,7 +312,7 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
         {0,"Off"},
         {1,"On"},
     };
-    QJsonObject camera
+    QJsonObject camera_obj
     {
         {"thresholdValue_whiteDetect",(int)setting.thresholdValue_whiteDetect},
         {"thresholdValue_blackDetect",(int)setting.thresholdValue_blackDetect},
@@ -323,8 +335,9 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
         {"lineSelector",lineSelector_map[setting.lineSelector]},
     };
 
-    QJsonDocument camera_doc = QJsonDocument(camera);
+    QJsonDocument camera_doc = QJsonDocument(camera_obj);
     QByteArray camera_data = camera_doc.toJson();
+//    qDebug() << "saved camera" <<  camera_obj;
     return camera_data;
 }
 
@@ -353,43 +366,31 @@ void HKCamera::camera_message_done()
 
 void HKCamera::camera_message_warn()
 {
-
       QMessageBox messageBox;
       messageBox.setWindowTitle("警告");
       messageBox.setIcon(QMessageBox::Warning);
       QPushButton button("确定");
       messageBox.setText("相机连接失败,\n请先打开相机!");
       messageBox.exec();
-
 }
 
 
 int HKCamera::setParams(DType type,const char *params, QVariant value)
 {
     if (type == DType::Bool){
-        if (MV_OK != MV_CC_SetBoolValue(handle, params,value.toBool()))
-            qDebug() << "fail";
-            return -1;
+        return  MV_CC_SetBoolValue(handle, params,value.toBool());
     }
     else if (type == DType::Int){
-        if (MV_OK != MV_CC_SetIntValue(handle, params, value.toUInt()))
-            qDebug() << "fail";
-            return -1;
+        return MV_CC_SetIntValue(handle, params,value.toUInt());
     }
     else if (type == DType::Float){
-        if (MV_OK != MV_CC_SetFloatValue(handle, params, value.toFloat()))
-            qDebug() << "fail";
-            return -1;
+        return MV_CC_SetFloatValue(handle, params,value.toFloat());
     }
     else if (type == DType::Enum){
-        if (MV_OK != MV_CC_SetEnumValue(handle, params, value.toUInt()))
-            qDebug() << "fail";
-            return -1;
+        return MV_CC_SetEnumValue(handle, params,value.toUInt());
     }
     else if (type == DType::String){
-
     }
-    qDebug() << "successed";
     return 0;
 }
 

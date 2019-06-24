@@ -60,18 +60,21 @@ public slots:
 
     void accept_stm_status(Status status);
     void accept_serial_setting(SerialSetting serialsetting){this->serial_setting = serialsetting;}
-    void accept_worker_serial_status(bool isopened){this->worker_thread_serial_status = isopened;}
+    void accept_worker_serial_status(bool isopened){this->worker_thread_serial_status = isopened; qDebug() << "ask and get serial:"<< worker_thread_serial_status;}
     void accept_worker_step(int step);
 
 signals:
     void tell_window_step_page(int page);
     void tell_window_start_check();
     void tell_window_stm_status(Status);
-    void tell_worker_setting(SerialSetting);
-    void tell_worker_stm_command(Command,int);
+
     void ask_serial_setting();
     void ask_worker_serial_status();
+
+    void tell_worker_open_serial(SerialSetting);
+    void tell_worker_start_work(SerialSetting);
     void tell_worker_stop_work();
+    void tell_worker_stm_command(Command,int);
 
 private slots:
     void on_pushButton_4_released();
@@ -83,6 +86,8 @@ private slots:
     void on_pushButton_18_released();
 
 
+
+    void on_pushButton_8_released();
 
 private:
     Ui::ScreenCheck *ui;
@@ -105,7 +110,7 @@ private:
     PixItem *pixitem;
 
     QString filename;
-    bool worker_thread_serial_status;
+    bool worker_thread_serial_status = false;
     unsigned char id= 1;
 
 };

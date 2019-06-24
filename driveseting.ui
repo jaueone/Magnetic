@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1078</width>
-    <height>1098</height>
+    <width>1024</width>
+    <height>1000</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <rect>
      <x>10</x>
      <y>0</y>
-     <width>1051</width>
+     <width>1011</width>
      <height>41</height>
     </rect>
    </property>
@@ -58,7 +58,7 @@
     <rect>
      <x>10</x>
      <y>220</y>
-     <width>541</width>
+     <width>481</width>
      <height>321</height>
     </rect>
    </property>
@@ -79,7 +79,7 @@
      <rect>
       <x>0</x>
       <y>10</y>
-      <width>541</width>
+      <width>481</width>
       <height>311</height>
      </rect>
     </property>
@@ -381,8 +381,8 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
       <rect>
        <x>260</x>
        <y>0</y>
-       <width>282</width>
-       <height>311</height>
+       <width>211</width>
+       <height>161</height>
       </rect>
      </property>
      <layout class="QFormLayout" name="formLayout_2">
@@ -392,142 +392,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
       <property name="topMargin">
        <number>10</number>
       </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Gain[GainSelector](dB)</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
-        <property name="maximumSize">
-         <size>
-          <width>130</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>999999999.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>GainAuto[GainSelector]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="comboBox">
-        <property name="maximumSize">
-         <size>
-          <width>130</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <item>
-         <property name="text">
-          <string>Off</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Once</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Continuous</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_13">
-        <property name="text">
-         <string>Gamma </string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
-        <property name="maximumSize">
-         <size>
-          <width>130</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>999999999.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>GammaSelector</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="comboBox_2">
-        <property name="maximumSize">
-         <size>
-          <width>130</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <item>
-         <property name="text">
-          <string>User</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>sRGB</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_15">
-        <property name="text">
-         <string>GammaEnable</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="checkBox_2">
-        <property name="maximumSize">
-         <size>
-          <width>130</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>enable</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_16">
-        <property name="text">
-         <string>NUCEnable</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
        <widget class="QCheckBox" name="checkBox_3">
         <property name="maximumSize">
          <size>
@@ -540,20 +405,16 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label_30">
-        <property name="text">
-         <string>TriggerSelector</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
+      <item row="1" column="1">
        <widget class="QComboBox" name="comboBox_3">
         <property name="maximumSize">
          <size>
-          <width>130</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="currentText">
+         <string>FrameBurstStart</string>
         </property>
         <item>
          <property name="text">
@@ -567,20 +428,16 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
         </item>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_20">
-        <property name="text">
-         <string>TriggerMode</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
+      <item row="2" column="1">
        <widget class="QComboBox" name="comboBox_4">
         <property name="maximumSize">
          <size>
-          <width>130</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="currentText">
+         <string>Off </string>
         </property>
         <item>
          <property name="text">
@@ -594,20 +451,16 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
         </item>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="label_25">
-        <property name="text">
-         <string>TriggerSource</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
+      <item row="3" column="1">
        <widget class="QComboBox" name="comboBox_5">
         <property name="maximumSize">
          <size>
-          <width>130</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="currentText">
+         <string>Line0</string>
         </property>
         <item>
          <property name="text">
@@ -646,18 +499,11 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
         </item>
        </widget>
       </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_26">
-        <property name="text">
-         <string>LineSelector</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1">
+      <item row="4" column="1">
        <widget class="QComboBox" name="comboBox_6">
         <property name="maximumSize">
          <size>
-          <width>130</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
         </property>
@@ -688,6 +534,41 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
         </item>
        </widget>
       </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_16">
+        <property name="text">
+         <string>NUCEnable</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_30">
+        <property name="text">
+         <string>TriggerSelector</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_20">
+        <property name="text">
+         <string>TriggerMode</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_25">
+        <property name="text">
+         <string>TriggerSource</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_26">
+        <property name="text">
+         <string>LineSelector</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </widget>
@@ -697,7 +578,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
     <rect>
      <x>10</x>
      <y>550</y>
-     <width>1051</width>
+     <width>991</width>
      <height>41</height>
     </rect>
    </property>
@@ -850,7 +731,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
   <widget class="QLabel" name="label_18">
    <property name="geometry">
     <rect>
-     <x>560</x>
+     <x>500</x>
      <y>49</y>
      <width>501</width>
      <height>490</height>
@@ -867,8 +748,8 @@ border:1px solid black;</string>
   <widget class="QGroupBox" name="selectBox">
    <property name="geometry">
     <rect>
-     <x>580</x>
-     <y>610</y>
+     <x>300</x>
+     <y>760</y>
      <width>211</width>
      <height>201</height>
     </rect>
@@ -883,38 +764,17 @@ border:1px solid black;</string>
     <string>选择端口</string>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="0">
-     <widget class="QLabel" name="descriptionLabel">
-      <property name="text">
-       <string>端口类型:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0">
-     <widget class="QLabel" name="vidLabel">
-      <property name="text">
-       <string>供应商编码:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="manufacturerLabel">
-      <property name="text">
-       <string>生产厂商的信息:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0">
-     <widget class="QLabel" name="pidLabel">
-      <property name="text">
-       <string>产品编码:</string>
-      </property>
-     </widget>
-    </item>
     <item row="4" column="0">
      <widget class="QLabel" name="locationLabel">
       <property name="text">
        <string>系统位置:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="descriptionLabel">
+      <property name="text">
+       <string>端口类型:</string>
       </property>
      </widget>
     </item>
@@ -925,13 +785,34 @@ border:1px solid black;</string>
       </property>
      </widget>
     </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="manufacturerLabel">
+      <property name="text">
+       <string>生产厂商的信息:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="vidLabel">
+      <property name="text">
+       <string>供应商编码:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="pidLabel">
+      <property name="text">
+       <string>产品编码:</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QGroupBox" name="parametersBox">
    <property name="geometry">
     <rect>
-     <x>810</x>
-     <y>610</y>
+     <x>510</x>
+     <y>770</y>
      <width>241</width>
      <height>201</height>
     </rect>
@@ -1067,9 +948,9 @@ border:1px solid black;</string>
   <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>40</y>
-     <width>391</width>
+     <x>20</x>
+     <y>770</y>
+     <width>271</width>
      <height>181</height>
     </rect>
    </property>
@@ -1246,9 +1127,9 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>410</x>
+     <x>10</x>
      <y>40</y>
-     <width>141</width>
+     <width>171</width>
      <height>181</height>
     </rect>
    </property>
@@ -1300,19 +1181,6 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
       </item>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_19">
-      <property name="maximumSize">
-       <size>
-        <width>50</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>端口号:</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="1">
      <widget class="ComboBox" name="serialPortInfoListBox"/>
     </item>
@@ -1329,39 +1197,198 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="pushButton_7">
-      <property name="minimumSize">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_19">
+      <property name="maximumSize">
        <size>
-        <width>0</width>
-        <height>25</height>
+        <width>50</width>
+        <height>16777215</height>
        </size>
       </property>
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton{color:black;background-color:rgb(255, 114, 114);border-radius:1px}
-QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
-      </property>
       <property name="text">
-       <string>打开串口</string>
-      </property>
-      <property name="checkable">
-       <bool>true</bool>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
-      </property>
-      <property name="autoExclusive">
-       <bool>true</bool>
+       <string>端口号:</string>
       </property>
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QWidget" name="formLayoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>790</y>
+     <width>271</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout_3">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_11">
+      <property name="text">
+       <string>Gain[GainSelector](dB)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <double>999999999.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_12">
+      <property name="text">
+       <string>GainAuto[GainSelector]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QComboBox" name="comboBox">
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <item>
+       <property name="text">
+        <string>Off</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Once</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Continuous</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_13">
+      <property name="text">
+       <string>Gamma </string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="minimum">
+       <double>0.100000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>999999999.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_14">
+      <property name="text">
+       <string>GammaSelector</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QComboBox" name="comboBox_2">
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <item>
+       <property name="text">
+        <string>User</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>sRGB</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_15">
+      <property name="text">
+       <string>GammaEnable</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QCheckBox" name="checkBox_2">
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>enable</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="pushButton_7">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>930</y>
+     <width>95</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>25</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{color:black;background-color:rgb(255, 114, 114);border-radius:1px}
+QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
+   </property>
+   <property name="text">
+    <string>打开串口</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="autoExclusive">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <customwidgets>

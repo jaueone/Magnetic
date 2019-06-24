@@ -6,12 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1078</width>
+    <width>1014</width>
     <height>598</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>1014</width>
+    <height>598</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1014</width>
+    <height>598</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>视觉检测终端</string>
+   <string>浙江众艺精科技有限公司</string>
   </property>
   <property name="windowIcon">
    <iconset resource="image.qrc">
