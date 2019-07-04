@@ -54,8 +54,9 @@ public:
     void ImageCapture();
     bool workerSerialIsOpen();
 
+    void analysis_FaultCode(QVariant data,QString &str);
 public slots:
-    void accept_stm_command(Command com,int data);
+    void accept_stm_command(Command com,QVariant data);
     void accept_stm_respond_timeout();
 
     void accept_stm_status(Status status);
@@ -84,8 +85,6 @@ private slots:
     void on_pushButton_17_released();
 
     void on_pushButton_18_released();
-
-
 
     void on_pushButton_8_released();
 

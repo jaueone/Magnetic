@@ -36,7 +36,7 @@ enum Command:short
     WrapResult = 0x00FC,
     RespondOK = 0x00FB,
     EmergencyStop = 0x00FA,
-    PackingBagFault = 0x00F9,
+    STMReportFault = 0x00F9,
     PackingBagLess = 0x00F8,
 };
 
@@ -59,7 +59,7 @@ struct Respond{
 };
 
 struct Status{
-    uint8_t status;
+
     bool E_Stop;
     bool transportMotorSpeedStatus;
     bool rollMontorSpeedStatus;
@@ -68,6 +68,17 @@ struct Status{
     bool isWorking;
     bool isReseting;
     bool isStoped;
+
+    bool grab_cylinder;
+    bool magnetic_roller_positioning_cylinder;
+    bool magnetic_roller_lifting_cylinder;
+    bool slider_lift_cylinder;
+    bool sucker_cylinder;
+    bool pressure_cylinder;
+    bool cutting_cylinder;
+    bool waste_cylinder;
+    bool packingbag_fault;
+
     uint16_t transport_motor_speed;
     uint16_t roll_motor_speed;
     uint16_t roller_motor_speed;
@@ -97,9 +108,9 @@ public:
     void response_suspend_work();
     void response_stop_work();
     void response_reset_work();
-
     void set_motor_speed(Command com,uint16_t data);
 
+    void analysis_FaultCode(const QByteArray &data);
     void analysis_MCStatus(const QByteArray &data);
     static QByteArray dump_data(const Command &command,const QByteArray &data);
     static Respond load_data(const QByteArray &data);
@@ -108,7 +119,7 @@ signals:
     void tell_window_message(QString type, QString msg);
     void tell_window_stm_status(Status);
     void tell_window_stm_respond_timeout();
-    void tell_window_command(Command,int);
+    void tell_window_command(Command,QVariant);
     void tell_window_serial_status(bool isopened);
     void tell_window_work_step(int step);
 

@@ -5,8 +5,6 @@
 #include <QSqlError>
 #include <QDateTime>
 
-
-
 void msleep(unsigned int msec)
 {
     QTime dieTime = QTime::currentTime().addMSecs(msec);
@@ -322,7 +320,83 @@ bool ScreenCheck::workerSerialIsOpen()
     return this->worker_thread_serial_status;
 }
 
-void ScreenCheck::accept_stm_command(Command com, int data)
+void ScreenCheck::analysis_FaultCode(QVariant data, QString &str)
+{
+    qDebug() << data.toByteArray();
+    uint8_t stm_cylinder = (uint8_t)data.toByteArray().at(1);
+    uint8_t stm_status = (uint8_t)data.toByteArray().at(0);
+    Status status;
+    qDebug() << stm_cylinder << stm_status;
+    status.transportMotorSpeedStatus = (stm_status & 0x01) == 0x01 ? true : false;
+    status.rollMontorSpeedStatus = (stm_status & 0x02) == 0x02 ? true : false;
+    status.rollerMotorSpeedStatus = (stm_status & 0x04) == 0x04 ? true : false;
+    status.slidingTableMotorSpeedStatus = (stm_status & 0x08) == 0x08 ? true : false;
+    status.packingbag_fault = (stm_status & 0x10) == 0x10 ? true : false;
+
+    status.grab_cylinder = (stm_cylinder & 0x01) == 0x01 ? true : false;
+    status.magnetic_roller_positioning_cylinder = (stm_cylinder & 0x02) == 0x02 ? true : false;
+    status.magnetic_roller_lifting_cylinder = (stm_cylinder & 0x04) == 0x04 ? true : false;
+    status.slider_lift_cylinder = (stm_cylinder & 0x08) == 0x08 ? true : false;
+    status.sucker_cylinder = (stm_cylinder & 0x10) == 0x10 ? true : false;
+    status.pressure_cylinder = (stm_cylinder & 0x20) == 0x20 ? true : false;
+    status.cutting_cylinder = (stm_cylinder & 0x40) == 0x40 ? true : false;
+    status.waste_cylinder = (stm_cylinder & 0x80) == 0x80 ? true : false;
+    if (status.packingbag_fault)
+        str.append(QString::fromLocal8Bit("包装袋故障（堵住） \n"));
+    if (status.transportMotorSpeedStatus)
+        str.append(QString::fromLocal8Bit("传动电机故障, 先断电排查\n"));
+    if (status.rollMontorSpeedStatus)
+        str.append(QString::fromLocal8Bit("滚动电机故障, 先断电排查\n"));
+    if (status.rollerMotorSpeedStatus)
+        str.append(QString::fromLocal8Bit("滚筒电机故障, 先断电排查\n"));
+    if (status.slidingTableMotorSpeedStatus)
+        str.append(QString::fromLocal8Bit("滑台电机故障, 先断电排查\n"));
+    if (status.grab_cylinder)
+        str.append(QString::fromLocal8Bit("抓取气缸故障, 先检查气压是否正常\n"));
+    if (status.magnetic_roller_positioning_cylinder)
+        str.append(QString::fromLocal8Bit("磁辊定位气缸故障, 先检查气压是否正常\n"));
+    if (status.magnetic_roller_lifting_cylinder)
+        str.append(QString::fromLocal8Bit("磁辊抬升气缸故障, 先检查气压是否正常\n"));
+    if (status.slider_lift_cylinder)
+        str.append(QString::fromLocal8Bit("滑台抬升气缸故障, 先检查气压是否正常\n"));
+    if (status.sucker_cylinder)
+        str.append(QString::fromLocal8Bit("吸盘气缸故障, 先检查气压是否正常\n"));
+    if (status.pressure_cylinder)
+        str.append(QString::fromLocal8Bit("压料气缸故障, 先检查气压是否正常\n"));
+    if (status.cutting_cylinder)
+        str.append(QString::fromLocal8Bit("切料气缸故障, 先检查气压是否正常\n"));
+    if (status.waste_cylinder)
+        str.append(QString::fromLocal8Bit("废料气缸故障, 先检查气压是否正常\n"));
+
+    this->ui->motor_1->setChecked(!status.transportMotorSpeedStatus);
+    this->ui->motor_2->setChecked(!status.rollMontorSpeedStatus);
+    this->ui->motor_3->setChecked(!status.rollerMotorSpeedStatus);
+    this->ui->motor_4->setChecked(!status.slidingTableMotorSpeedStatus);
+
+    this->ui->cylinder_1->setChecked(!status.grab_cylinder);
+    this->ui->cylinder_2->setChecked(!status.magnetic_roller_positioning_cylinder);
+    this->ui->cylinder_3->setChecked(!status.magnetic_roller_lifting_cylinder);
+    this->ui->cylinder_4->setChecked(!status.slider_lift_cylinder);
+    this->ui->cylinder_5->setChecked(!status.sucker_cylinder);
+    this->ui->cylinder_6->setChecked(!status.pressure_cylinder);
+    this->ui->cylinder_7->setChecked(!status.cutting_cylinder);
+    this->ui->cylinder_8->setChecked(!status.waste_cylinder);
+
+    if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_1->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_2->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_3->setText("\346\225\205\351\232\234");
+    if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_4->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_1->isChecked()) this->ui->cylinder_1->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_1->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_2->isChecked()) this->ui->cylinder_2->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_2->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_3->isChecked()) this->ui->cylinder_3->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_3->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_4->isChecked()) this->ui->cylinder_4->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_4->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_5->isChecked()) this->ui->cylinder_5->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_5->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_6->isChecked()) this->ui->cylinder_6->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_6->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_7->isChecked()) this->ui->cylinder_7->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_7->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_8->isChecked()) this->ui->cylinder_8->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_8->setText("\346\225\205\351\232\234");
+}
+
+void ScreenCheck::accept_stm_command(Command com, QVariant data)
 {
     QMessageBox messageBox;
     messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
@@ -341,9 +415,9 @@ void ScreenCheck::accept_stm_command(Command com, int data)
     }
     else if (com == Command::WrapResult)
     {
-        this->current_check_result.wrapedOver = data;
+        this->current_check_result.wrapedOver = data.toInt();
         if (current_check_result.wrapedOver) this->current_check_result.wrapedOver_s = "good"; else this->current_check_result.wrapedOver_s = "bad";
-        if (!data){
+        if (!data.toInt()){
             this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
         }
         else {
@@ -375,9 +449,13 @@ void ScreenCheck::accept_stm_command(Command com, int data)
         messageBox.setText(QString::fromLocal8Bit("下位机急停,先断电，断气检查机器"));
         messageBox.exec();
     }
-    else if (com == Command::PackingBagFault) {
-        this->ui->label->setText(QString::fromLocal8Bit("包装袋堵住"));
-        messageBox.setText(QString::fromLocal8Bit("包装袋堵住"));
+    else if (com == Command::STMReportFault) {
+        QString str1;
+        qDebug() << data.toByteArray().toHex();
+        this->analysis_FaultCode(data,str1);
+        if (str1.isEmpty()){qDebug() << "get none fault return"; return;}
+        this->ui->label->setText(QString::fromLocal8Bit("下位机上报故障，已经停止工作，先排除故障后重新开始"));
+        messageBox.setText(str1);
         messageBox.exec();
     }
     else if (com == Command::PackingBagLess) {
@@ -407,28 +485,33 @@ void ScreenCheck::accept_stm_status(Status status){
     this->ui->motor_3->setChecked(!status.rollerMotorSpeedStatus);
     this->ui->motor_4->setChecked(!status.slidingTableMotorSpeedStatus);
 
-    this->ui->motor_1_speed->setValue(status.transport_motor_speed);
-    this->ui->motor_2_speed->setValue(status.roll_motor_speed);
-    this->ui->motor_3_speed->setValue(status.roller_motor_speed);
-    this->ui->motor_4_speed->setValue(status.slidingtable_motor_speed);
+    this->ui->cylinder_1->setChecked(!status.grab_cylinder);
+    this->ui->cylinder_2->setChecked(!status.magnetic_roller_positioning_cylinder);
+    this->ui->cylinder_3->setChecked(!status.magnetic_roller_lifting_cylinder);
+    this->ui->cylinder_4->setChecked(!status.slider_lift_cylinder);
+    this->ui->cylinder_5->setChecked(!status.sucker_cylinder);
+    this->ui->cylinder_6->setChecked(!status.pressure_cylinder);
+    this->ui->cylinder_7->setChecked(!status.cutting_cylinder);
+    this->ui->cylinder_8->setChecked(!status.waste_cylinder);
 
     if(this->ui->Estop_s->isChecked()) this->ui->Estop_s->setText("\345\267\245\344\275\234\344\270\255"); else  this->ui->Estop_s->setText("\346\200\245\345\201\234\344\270\255");
     if(this->ui->motor_1->isChecked()) this->ui->motor_1->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_1->setText("\346\225\205\351\232\234");
     if(this->ui->motor_2->isChecked()) this->ui->motor_2->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_2->setText("\346\225\205\351\232\234");
     if(this->ui->motor_3->isChecked()) this->ui->motor_3->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_3->setText("\346\225\205\351\232\234");
     if(this->ui->motor_4->isChecked()) this->ui->motor_4->setText(QString::fromLocal8Bit("正常")); else  this->ui->motor_4->setText("\346\225\205\351\232\234");
-    emit tell_window_stm_status(status);
+    if(this->ui->cylinder_1->isChecked()) this->ui->cylinder_1->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_1->setText("\346\200\245\345\201\234\344\270\255");
+    if(this->ui->cylinder_2->isChecked()) this->ui->cylinder_2->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_2->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_3->isChecked()) this->ui->cylinder_3->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_3->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_4->isChecked()) this->ui->cylinder_4->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_4->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_5->isChecked()) this->ui->cylinder_5->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_5->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_6->isChecked()) this->ui->cylinder_6->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_6->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_7->isChecked()) this->ui->cylinder_7->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_7->setText("\346\225\205\351\232\234");
+    if(this->ui->cylinder_8->isChecked()) this->ui->cylinder_8->setText(QString::fromLocal8Bit("正常")); else  this->ui->cylinder_8->setText("\346\225\205\351\232\234");
 
-    QMessageBox messageBox;
-    messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
-    messageBox.setIcon(QMessageBox::Critical);
-    QPushButton button(QString::fromLocal8Bit("确定"));
-    messageBox.addButton(&button, QMessageBox::YesRole);
-    if (status.rollMontorSpeedStatus ||status.rollerMotorSpeedStatus || status.transportMotorSpeedStatus || status.slidingTableMotorSpeedStatus){
-        this->ui->label->setText(QString::fromLocal8Bit("电机故障先断电，检查故障重新启动"));
-        messageBox.setText(QString::fromLocal8Bit("电机故障先断电，检查故障重新启动"));
-        messageBox.exec();
-    }
+    this->ui->motor_1_speed->setValue(status.transport_motor_speed);
+    this->ui->motor_2_speed->setValue(status.roll_motor_speed);
+    this->ui->motor_3_speed->setValue(status.roller_motor_speed);
+    this->ui->motor_4_speed->setValue(status.slidingtable_motor_speed);
 }
 
 void ScreenCheck::accept_worker_step(int step)

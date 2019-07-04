@@ -128,28 +128,6 @@ void Worker::response_reset_work()
     serial->write(Worker::dump_data(Command::Reset,data));
 }
 
-
-void Worker::analysis_MCStatus(const QByteArray &data)
-{   QByteArray ba(data);
-    QDataStream in(&ba,QIODevice::ReadOnly);
-    status.status = (uint8_t)data.at(0);
-    status.E_Stop = (status.status & 0x01) == 0x01 ? true : false;
-    status.transportMotorSpeedStatus = (status.status & 0x02) == 0x02 ? true : false;
-    status.rollMontorSpeedStatus = (status.status & 0x04) == 0x04 ? true : false;
-    status.rollerMotorSpeedStatus = (status.status & 0x08) == 0x08 ? true : false;
-    status.slidingTableMotorSpeedStatus = (status.status & 0x10) == 0x10 ? true : false;
-    status.isWorking = (status.status & 0x20) == 0x20 ? true : false;
-    status.isReseting = (status.status & 0x40) == 0x40 ? true : false;
-    status.isStoped = (status.status & 0x80) == 0x80 ? true : false;
-    in >> status.status >> status.transport_motor_speed >> status.roll_motor_speed >> status.roller_motor_speed >> status.slidingtable_motor_speed;
-    qDebug() << status.E_Stop << status.transportMotorSpeedStatus << status.rollMontorSpeedStatus << status.rollerMotorSpeedStatus << status.slidingTableMotorSpeedStatus << status.isWorking << status.isReseting
-             << status.isStoped <<status.transport_motor_speed << status.roll_motor_speed << status.roller_motor_speed << status.slidingtable_motor_speed;
-    if (status.E_Stop){
-        this->is_Stoped_Work = true;
-    }
-    emit tell_window_stm_status(status);
-}
-
 Respond Worker::load_data(const QByteArray &data)
 {
     Respond respond;
@@ -215,6 +193,73 @@ void Worker::set_motor_speed(Command com, uint16_t data)
     timer->start();
 }
 
+void Worker::analysis_MCStatus(const QByteArray &data)
+{
+    QByteArray ba(data);
+    QDataStream in(&ba,QIODevice::ReadOnly);
+    uint8_t stm_cylinder;
+    uint8_t stm_status;
+    stm_status = (uint8_t)data.at(0);
+    stm_cylinder = (uint8_t)data.at(9);
+
+    status.E_Stop = (stm_status & 0x01) == 0x01 ? true : false;
+    status.transportMotorSpeedStatus = (stm_status & 0x02) == 0x02 ? true : false;
+    status.rollMontorSpeedStatus = (stm_status & 0x04) == 0x04 ? true : false;
+    status.rollerMotorSpeedStatus = (stm_status & 0x08) == 0x08 ? true : false;
+    status.slidingTableMotorSpeedStatus = (stm_status & 0x10) == 0x10 ? true : false;
+    status.isWorking = (stm_status & 0x20) == 0x20 ? true : false;
+    status.isReseting = (stm_status & 0x40) == 0x40 ? true : false;
+    status.isStoped = (stm_status & 0x80) == 0x80 ? true : false;
+
+    status.grab_cylinder = (stm_cylinder & 0x01) == 0x01 ? true : false;
+    status.magnetic_roller_positioning_cylinder = (stm_cylinder & 0x02) == 0x02 ? true : false;
+    status.magnetic_roller_lifting_cylinder = (stm_cylinder & 0x04) == 0x04 ? true : false;
+    status.slider_lift_cylinder = (stm_cylinder & 0x08) == 0x08 ? true : false;
+    status.sucker_cylinder = (stm_cylinder & 0x10) == 0x10 ? true : false;
+    status.pressure_cylinder = (stm_cylinder & 0x20) == 0x20 ? true : false;
+    status.cutting_cylinder = (stm_cylinder & 0x40) == 0x40 ? true : false;
+    status.waste_cylinder = (stm_cylinder & 0x80) == 0x80 ? true : false;
+
+    in >> stm_status >> status.transport_motor_speed >> status.roll_motor_speed >> status.roller_motor_speed >> status.slidingtable_motor_speed >> stm_cylinder;
+
+
+    qDebug() << status.E_Stop << status.transportMotorSpeedStatus << status.rollMontorSpeedStatus << status.rollerMotorSpeedStatus
+             << status.slidingTableMotorSpeedStatus << status.isWorking << status.isReseting << status.isStoped
+             << status.transport_motor_speed << status.roll_motor_speed << status.roller_motor_speed << status.slidingtable_motor_speed
+             << status.grab_cylinder << status.magnetic_roller_positioning_cylinder << status.magnetic_roller_lifting_cylinder << status.slider_lift_cylinder
+             << status.sucker_cylinder << status.pressure_cylinder << status.cutting_cylinder << status.waste_cylinder;
+    if (status.E_Stop){
+        timer->stop();
+        this->is_Stoped_Work = true;
+    }
+    emit tell_window_stm_status(status);
+}
+void Worker::analysis_FaultCode(const QByteArray &data)
+{
+    QByteArray by(data);
+    uint8_t stm_status = (uint8_t)by.at(0);
+    uint8_t stm_cylinder = (uint8_t)by.at(1);
+    qDebug() << stm_cylinder << stm_status << by.toHex();
+    status.transportMotorSpeedStatus = (stm_status & 0x01) == 0x01 ? true : false;
+    status.rollMontorSpeedStatus = (stm_status & 0x02) == 0x02 ? true : false;
+    status.rollerMotorSpeedStatus = (stm_status & 0x04) == 0x04 ? true : false;
+    status.slidingTableMotorSpeedStatus = (stm_status & 0x08) == 0x08 ? true : false;
+    status.packingbag_fault = (stm_status & 0x10) == 0x10 ? true : false;
+
+    status.grab_cylinder = (stm_cylinder & 0x01) == 0x01 ? true : false;
+    status.magnetic_roller_positioning_cylinder = (stm_cylinder & 0x02) == 0x02 ? true : false;
+    status.magnetic_roller_lifting_cylinder = (stm_cylinder & 0x04) == 0x04 ? true : false;
+    status.slider_lift_cylinder = (stm_cylinder & 0x08) == 0x08 ? true : false;
+    status.sucker_cylinder = (stm_cylinder & 0x10) == 0x10 ? true : false;
+    status.pressure_cylinder = (stm_cylinder & 0x20) == 0x20 ? true : false;
+    status.cutting_cylinder = (stm_cylinder & 0x40) == 0x40 ? true : false;
+    status.waste_cylinder = (stm_cylinder & 0x80) == 0x80 ? true : false;
+    qDebug() << status.transportMotorSpeedStatus << status.rollMontorSpeedStatus << status.rollerMotorSpeedStatus << status.slidingTableMotorSpeedStatus
+             << status.grab_cylinder << status.magnetic_roller_positioning_cylinder << status.magnetic_roller_lifting_cylinder << status.slider_lift_cylinder
+             << status.sucker_cylinder << status.pressure_cylinder << status.cutting_cylinder << status.waste_cylinder;
+    emit tell_window_stm_status(status);
+}
+
 QByteArray Worker::dump_data(const Command &command,const QByteArray &data)
 {
     QByteArray ba;
@@ -268,7 +313,9 @@ void Worker::accept_read_data()
                 this->is_Stoped_Work = true;
                 return;
             }
-            if (status.rollMontorSpeedStatus ||status.rollerMotorSpeedStatus || status.transportMotorSpeedStatus || status.slidingTableMotorSpeedStatus){
+            if (status.rollMontorSpeedStatus ||status.rollerMotorSpeedStatus || status.transportMotorSpeedStatus || status.slidingTableMotorSpeedStatus
+                    || status.grab_cylinder || status.magnetic_roller_positioning_cylinder || status.magnetic_roller_lifting_cylinder || status.slider_lift_cylinder
+                    || status.sucker_cylinder || status.pressure_cylinder || status.cutting_cylinder || status.waste_cylinder){
                 this->is_Stoped_Work = true;
                 return;
             }
@@ -380,16 +427,18 @@ void Worker::accept_read_data()
             qDebug() << "EmergencyStop";
             break;
 
-        case PackingBagFault:
-            this->is_Stoped_Work = true;
-            emit tell_window_command(Command::PackingBagFault,0);
-            qDebug() << "PackingBagFault";
-            break;
-
         case PackingBagLess:
             this->is_Stoped_Work = true;
             emit tell_window_command(Command::PackingBagLess,0);
             qDebug() << "PackingBagLess";
+            break;
+
+        case STMReportFault:
+            timer->stop();
+            this->is_Stoped_Work = true;
+            this->analysis_FaultCode(resp.data);
+            emit tell_window_command(Command::STMReportFault,resp.data);
+            qDebug() << "STMReportFault";
             break;
     }
 }

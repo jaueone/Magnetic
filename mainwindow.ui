@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>浙江众艺精科技有限公司</string>
+   <string>视觉检测终端</string>
   </property>
   <property name="windowIcon">
    <iconset resource="image.qrc">
