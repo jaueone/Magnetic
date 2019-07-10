@@ -14,8 +14,7 @@
 #include <QTime>
 #include <QCoreApplication>
 
-static QSqlDatabase __database__;
-
+static QSqlDatabase database;
 
 class Label : public QLabel
 {
@@ -46,7 +45,6 @@ class ComboBox: public QComboBox
     Q_OBJECT
 public:
     ComboBox(QWidget *parent = nullptr):QComboBox(parent) {
-
 }
     void mousePressEvent(QMouseEvent *e){
         QComboBox::mousePressEvent(e);
@@ -62,15 +60,15 @@ public:
     static QSqlDatabase * getInterface(){
         if (QSqlDatabase::contains("qt_sql_default_connection"))
         {
-            __database__ = QSqlDatabase::database("qt_sql_default_connection");
-            return &__database__;
+            database = QSqlDatabase::database("qt_sql_default_connection");
+            return &database;
         }
         else {
-            __database__ = QSqlDatabase::addDatabase("QSQLITE");
-            __database__.setDatabaseName("./database/MyDataBase.db");
-            __database__.setUserName("XingYeZhiXia");
-            __database__.setPassword("123456");
-            return &__database__;
+            database = QSqlDatabase::addDatabase("QSQLITE");
+            database.setDatabaseName("./database/MyDataBase.db");
+            database.setUserName("XingYeZhiXia");
+            database.setPassword("123456");
+            return &database;
         }
     }
 
@@ -79,6 +77,7 @@ protected:
     DB(const DB& other){}
     ~DB(){}
 };
+
 class Sleep
 {
 public:

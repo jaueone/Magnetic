@@ -29,7 +29,6 @@ enum Command:short
     SuspendWork = 0x0009,
     ContinueWork = 0x0010,
 
-
     RespondNO = 0x00FF,
     ImageCapture = 0x00FE,
     STM_WorkStatus = 0x00FD,

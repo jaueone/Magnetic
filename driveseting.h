@@ -93,6 +93,13 @@ private slots:
 
     void on_pushButton_20_released();
 
+    void on_pushButton_13_released();
+
+    void on_pushButton_14_released();
+
+    void on_pushButton_17_released();
+
+    void on_pushButton_18_released();
 
 
 private:

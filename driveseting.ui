@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>1000</height>
+    <height>1006</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,6 +40,37 @@
     </item>
     <item>
      <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>411</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_27">
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer_3">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -333,7 +364,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>70</width>
+          <width>73</width>
           <height>16777215</height>
          </size>
         </property>
@@ -584,70 +615,6 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
-     <widget class="QPushButton" name="pushButton_9">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-      </property>
-      <property name="text">
-       <string>打开相机</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton_10">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-      </property>
-      <property name="text">
-       <string>获取参数</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton_11">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-      </property>
-      <property name="text">
-       <string>获取一帧</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton_12">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:90;height:25;}
-QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
-      </property>
-      <property name="text">
-       <string>设置参数到相机</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <spacer name="horizontalSpacer_2">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -749,8 +716,8 @@ border:1px solid black;</string>
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>760</y>
-     <width>211</width>
+     <y>840</y>
+     <width>191</width>
      <height>201</height>
     </rect>
    </property>
@@ -812,7 +779,7 @@ border:1px solid black;</string>
    <property name="geometry">
     <rect>
      <x>510</x>
-     <y>770</y>
+     <y>850</y>
      <width>241</width>
      <height>201</height>
     </rect>
@@ -949,7 +916,7 @@ border:1px solid black;</string>
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>770</y>
+     <y>840</y>
      <width>271</width>
      <height>181</height>
     </rect>
@@ -1215,9 +1182,9 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
   <widget class="QWidget" name="formLayoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>760</x>
+     <x>770</x>
      <y>790</y>
-     <width>271</width>
+     <width>234</width>
      <height>131</height>
     </rect>
    </property>
@@ -1389,6 +1356,164 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
    <property name="autoExclusive">
     <bool>true</bool>
    </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>40</y>
+     <width>301</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+    </font>
+   </property>
+   <property name="title">
+    <string>摄像头操作</string>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>30</y>
+      <width>201</width>
+      <height>151</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_5">
+     <item row="2" column="1">
+      <widget class="QPushButton" name="pushButton_14">
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>停止抓图</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="pushButton_17">
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>关闭相机</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pushButton_9">
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>打开相机</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="pushButton_10">
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>获取参数</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="pushButton_12">
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:90;height:25;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>设置参数</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="pushButton_18">
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>开始抓图</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QPushButton" name="pushButton_13">
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>保存图片</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="pushButton_11">
+       <property name="font">
+        <font>
+         <family>微软雅黑</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px;width:70;height:25;}
+QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+       </property>
+       <property name="text">
+        <string>获取一帧</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

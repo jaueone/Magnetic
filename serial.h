@@ -11,7 +11,7 @@
 #include <QMutex>
 
 static const char blankString[] = QT_TRANSLATE_NOOP("SettingsDialog", "None");
-static QSerialPort *__serial__ = new QSerialPort;
+static QSerialPort *serial = new QSerialPort;
 struct SerialSetting {
     QString name;
     int baudRate;
@@ -31,7 +31,7 @@ class Serial
 {
 public:
     static QSerialPort *getInterface(){
-        return __serial__;
+        return serial;
     }
     static bool open(const SerialSetting &setting, QIODevice::OpenMode model);
     static void scan_serial(QComboBox * serialPortInfoListBox);

@@ -307,6 +307,8 @@ void DriveSeting::load_setting()
 
     QJsonObject ser_obj = ser_doc.object();
     QJsonObject cam_obj = cam_doc.object();
+    DefectsDetect *detect = ImageAlgorithm::getInterface();
+    detect->set_threshold_param(cam_obj["thresholdValue_blackDetect"].toInt(),cam_obj["thresholdValue_whiteDetect"].toInt());
     this->ui->spinBox->setValue(cam_obj["thresholdValue_whiteDetect"].toInt());
     this->ui->spinBox_2->setValue(cam_obj["thresholdValue_blackDetect"].toInt());
     this->ui->spinBox_3->setValue(cam_obj["width"].toInt());
@@ -482,7 +484,11 @@ void DriveSeting::on_pushButton_released()
 
 void DriveSeting::on_pushButton_2_released()
 {
-    this->save_setting(this->get_serial_setting(), this->get_camera_setting());
+    CameraSetting setting = this->get_camera_setting();
+    this->save_setting(this->get_serial_setting(), setting);
+    DefectsDetect *detect = ImageAlgorithm::getInterface();
+    detect->set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
+
     QMessageBox messageBox;
     messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
     messageBox.setIcon(QMessageBox::Information);
@@ -541,14 +547,14 @@ void DriveSeting::on_pushButton_9_released()
         messageBox.exec();
         return;
     }
+    this->ui->label_27->setText(QString::fromLocal8Bit("打开相机完成"));
 }
 
 void DriveSeting::on_pushButton_11_clicked()
 {
-    if (MV_OK != camera->startCollect())
-        return;
     if (MV_OK != camera->collectFrame(this->ui->label_18))
         return;
+    this->ui->label_27->setText(QString::fromLocal8Bit("抓取一帧图片完成"));
 }
 
 void DriveSeting::on_pushButton_10_clicked()
@@ -573,6 +579,7 @@ void DriveSeting::on_pushButton_10_clicked()
     }
     QJsonObject cam_obj = cam_doc.object();
     CameraSetting setting = camera->get_camera_setting();
+    qDebug() << cam_obj["thresholdValue_blackDetect"].toInt() << cam_obj["thresholdValue_whiteDetect"].toInt();
     setting.thresholdValue_blackDetect = cam_obj["thresholdValue_blackDetect"].toInt();
     setting.thresholdValue_whiteDetect = cam_obj["thresholdValue_whiteDetect"].toInt();
     this->save_setting(this->get_serial_setting(), setting);
@@ -589,25 +596,27 @@ void DriveSeting::on_pushButton_12_clicked()
         HKCamera::camera_message_warn();
     else {
         CameraSetting setting = this->get_camera_setting();
-        DefectsDetect detect = ImageAlgorithm::getInterface();
-        detect.set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
-        qDebug() << this->camera->setParams(DType::Int, "Width", setting.width);
-        qDebug() << this->camera->setParams(DType::Int, "Height", setting.height);
-        qDebug() << this->camera->setParams(DType::Int, "OffsetX", setting.offsetX);
-        qDebug() << this->camera->setParams(DType::Int, "OffsetY", setting.offsetY);
-        qDebug() << this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate);
-        qDebug() << this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable);
-        qDebug() << this->camera->setParams(DType::Float, "Gain", setting.gain);
-        qDebug() << this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto);
-        qDebug() << this->camera->setParams(DType::Float, "Gamma", setting.gamma);
-        qDebug() << this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable);
-        qDebug() << this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector);
-        qDebug() << this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime);
-        qDebug() << this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable);
-        qDebug() << this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode);
-        qDebug() << this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector);
-        qDebug() << this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource);
-        qDebug() << this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector);
+        DefectsDetect *detect = ImageAlgorithm::getInterface();
+        detect->set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
+
+        qDebug("%x",this->camera->setParams(DType::Int, "Width", setting.width));
+        qDebug("%x",this->camera->setParams(DType::Int, "Height", setting.height));
+        qDebug("%x",this->camera->setParams(DType::Int, "OffsetX", setting.offsetX));
+        qDebug("%x",this->camera->setParams(DType::Int, "OffsetY", setting.offsetY));
+        qDebug("%x",this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate));
+        qDebug("%x",this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable));
+        qDebug("%x",this->camera->setParams(DType::Float, "Gain", setting.gain));
+        qDebug("%x",this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto));
+        qDebug("%x",this->camera->setParams(DType::Float, "Gamma", setting.gamma));
+        qDebug("%x",this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable));
+        qDebug("%x",this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector));
+        qDebug("%x",this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime));
+        qDebug("%x",this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable));
+        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode));
+        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector));
+        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource));
+        qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
+        this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
         HKCamera::camera_message_done();
     }
 }
@@ -635,5 +644,54 @@ void DriveSeting::on_pushButton_20_released()
 {
     uint16_t slidingtable_motor_speed = (uint16_t)this->ui->motor_1_speed->value();
     emit tell_worker_stm_command(Command::SetSlidingTableMotorSpeed,slidingtable_motor_speed);
+}
+
+void DriveSeting::on_pushButton_13_released()
+{
+    QString save_name;
+    if (MV_OK != camera->startCollect())
+        return;
+    if (MV_OK != camera->collectFrame(this->ui->label_18))
+        return;
+    HObject image = camera->getImage();
+    save_name= QDateTime::currentDateTime().toString("yyyyMMddhhmmss");
+    HTuple hv_name1 = save_name.toStdString().c_str();
+    WriteImage(image, "bmp", 0, HTuple("./photo/") + hv_name1);
+}
+
+void DriveSeting::on_pushButton_14_released()
+{
+    if (!camera->isOpened())
+        return;
+    if (MV_OK != camera->openDevice(0))
+        return;
+    if (MV_OK != camera->startCollect())
+        return;
+    if (MV_OK != camera->stopCollect())
+        return;
+    this->ui->label_27->setText(QString::fromLocal8Bit("停止抓图"));
+}
+
+void DriveSeting::on_pushButton_17_released()
+{
+    if (!camera->isOpened())
+        return;
+    if (MV_OK != camera->startCollect())
+        return;
+    if (MV_OK != camera->stopCollect())
+        return;
+    if (MV_OK != camera->closeDevice())
+        return;
+    this->ui->label_18->clear();
+    this->ui->label_27->setText(QString::fromLocal8Bit("关闭相机"));
+}
+
+void DriveSeting::on_pushButton_18_released()
+{
+    if (!camera->isOpened())
+        return;
+    if (MV_OK != camera->startCollect())
+        return;
+    this->ui->label_27->setText(QString::fromLocal8Bit("开始抓图"));
 }
 

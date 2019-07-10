@@ -85,11 +85,40 @@ void MainWindow::sigcon()
 void MainWindow::initdir()
 {
     QDir hobject("./database/hobject/");
-    if(hobject.exists()){
+    QDir photo("./photo");
+    QDir picture("./picture");
+    QDir database("./database");
+    QDir hobject_path = QDir(hobject.absolutePath());
+    QDir photo_path = QDir(photo.absolutePath());
+    QDir picture_path = QDir(picture.absolutePath());
+    QDir database_path = QDir(database.absolutePath());
+    if(!hobject_path.exists()){
+        if (!hobject_path.mkdir("."))   qDebug() << "make dir hobject failed";
     }
-    else {
-        bool ok = hobject.mkdir("./database/hobject/");
+    if(!photo_path.exists()){
+        if (!photo_path.mkdir("."))   qDebug() << "make dir photo failed";
     }
+    if(!picture_path.exists()){
+        if (!picture_path.mkdir("."))   qDebug() << "make dir picture failed";
+    }
+    if(!database_path.exists()){
+        if (!database_path.mkdir("."))   qDebug() << "make dir database failed";
+    }
+}
+
+void MainWindow::CheckDB()
+{
+    QSqlDatabase *db = DB::getInterface();
+    if (!db->open())
+        return;
+    QSqlQuery query(*db);
+    QDateTime start = QDateTime::fromTime_t(QDateTime::currentDateTime().toTime_t() - 604800);
+    QString temps = QString("DELETE FROM checked_result WHERE time < \"%1\";").arg(start.toString("yyyy-MM-dd hh:mm:ss"));
+    if (!query.exec(temps)){
+        qDebug() << "clear data failed";
+        return;
+    }
+    db->close();
 }
 
 void MainWindow::accept_men_login(const Meninfo &info)

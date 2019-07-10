@@ -366,7 +366,6 @@ void Worker::accept_read_data()
             emit tell_window_command(Command::WrapResult,(int)resp.data[0]);
             this->step = 5;
             emit tell_window_work_step(step);
-            sleep(1000);
             this->step = 0;
             emit tell_window_work_step(step);
             sleep(10);

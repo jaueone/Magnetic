@@ -2,19 +2,15 @@
 
 bool Serial::open(const SerialSetting &setting, QIODevice::OpenMode model)
 {
-    if (__serial__->isOpen())
-        __serial__->close();
-    __serial__->setPortName(setting.name);
-    __serial__->setBaudRate(setting.baudRate);
-    __serial__->setDataBits(setting.dataBits);
-    __serial__->setParity(setting.parity);
-    __serial__->setStopBits(setting.stopBits);
-    __serial__->setFlowControl(setting.flowControl);
-    if (__serial__->open(model) && __serial__->isOpen()){
-        return true;
-    }
-    else
-        return false;
+    if (serial->isOpen())
+        serial->close();
+    serial->setPortName(setting.name);
+    serial->setBaudRate(setting.baudRate);
+    serial->setDataBits(setting.dataBits);
+    serial->setParity(setting.parity);
+    serial->setStopBits(setting.stopBits);
+    serial->setFlowControl(setting.flowControl);
+    return serial->open(model);
 }
 
 void Serial::scan_serial(QComboBox *serialPortInfoListBox)

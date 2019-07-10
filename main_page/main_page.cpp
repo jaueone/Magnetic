@@ -19,7 +19,6 @@ MainPage::MainPage(QWidget *parent) :
     this->connect(this->ui->pushButton_2,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->connect(this->ui->pushButton_3,&QPushButton::toggled, this,&MainPage::accept_button_clicked);
     this->ui->pushButton_3->hide();
-
 }
 
 MainPage::~MainPage()
@@ -40,8 +39,6 @@ void MainPage::set_current_page(const int &page)
     }
 }
 
-
-
 void MainPage::accept_button_clicked(const bool &checked)
 {
     if (checked!=true)
@@ -56,4 +53,3 @@ void MainPage::accept_button_clicked(const bool &checked)
         this->ui->stackedWidget->setCurrentIndex(2);
     }
 }
-

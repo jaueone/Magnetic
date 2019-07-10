@@ -12,7 +12,6 @@ HKCamera::~HKCamera()
 {
     this->stopCollect();
     this->closeDevice();
-    this->destroyHandle();
     handle= NULL;
 }
 
@@ -52,17 +51,17 @@ int HKCamera::openDevice(const int &index)
         return -1;
     }
     qDebug() << "information camera opened";
-    MV_CC_SetIntValue(this->handle,"GevSCPD",7000);
-    MV_CC_SetIntValue(this->handle,"PreDivider",1);
-    MV_CC_SetIntValue(this->handle,"Multiplier",2);
-    MV_CC_SetBoolValue(this->handle,"GevPAUSEFrameReception",true);
-    MV_CC_SetEnumValue(this->handle,"TriggerSelector",9);
-    MV_CC_SetEnumValue(this->handle,"TriggerMode",1);
-    MV_CC_SetEnumValue(this->handle,"TriggerSource",8);
-    MV_CC_SetEnumValue(this->handle,"LineSelector",0);
-    MV_CC_SetIntValue(this->handle,"Width",3800);
-    MV_CC_SetIntValue(this->handle,"Height",3700);
-    MV_CC_SetIntValue(this->handle,"OffsetX",150);
+//    MV_CC_SetIntValue(this->handle,"GevSCPD",7000);
+//    MV_CC_SetIntValue(this->handle,"PreDivider",1);
+//    MV_CC_SetIntValue(this->handle,"Multiplier",2);
+//    MV_CC_SetBoolValue(this->handle,"GevPAUSEFrameReception",true);
+//    MV_CC_SetEnumValue(this->handle,"TriggerSelector",9);
+//    MV_CC_SetEnumValue(this->handle,"TriggerMode",1);
+//    MV_CC_SetEnumValue(this->handle,"TriggerSource",8);
+//    MV_CC_SetEnumValue(this->handle,"LineSelector",0);
+//    MV_CC_SetIntValue(this->handle,"Width",3800);
+//    MV_CC_SetIntValue(this->handle,"Height",3700);
+//    MV_CC_SetIntValue(this->handle,"OffsetX",150);
     return 0;
 }
 
@@ -185,6 +184,7 @@ int HKCamera::stopCollect()
         return -1;
     }
     this->is_start_collected = false;
+    qDebug() << "stop collect";
     return 0;
 }
 
@@ -203,6 +203,10 @@ int HKCamera::closeDevice()
         qDebug("error: CloseDevice fail [%x]\n", nRet);
         return -1;
     }
+    if (MV_OK != this->destroyHandle()) {
+        qDebug() << "destroy handle failed";
+        return -1;
+    }
     return 0;
 }
 int HKCamera::destroyHandle()
@@ -217,7 +221,7 @@ int HKCamera::destroyHandle()
         qDebug("error: DestroyHandle fail [%x]\n", nRet);
         return -1;
     }
-    qDebug() << "stop collect";
+    qDebug() << "destroy Handle";
     return 0;
 }
 HObject HKCamera::getImage()
@@ -364,14 +368,84 @@ void HKCamera::camera_message_done()
     messageBox.exec();
 }
 
+void HKCamera::rgb3_to_interleaved(HObject ho_ImageRGB, HObject *ho_ImageInterleaved)
+{
+    HObject  ho_ImageAffineTrans, ho_ImageRed, ho_ImageGreen;
+    HObject  ho_ImageBlue, ho_RegionGrid, ho_RegionMoved, ho_RegionClipped;
+
+
+    HTuple  hv_PointerRed, hv_PointerGreen, hv_PointerBlue;
+    HTuple  hv_Type, hv_Width, hv_Height, hv_HomMat2DIdentity;
+    HTuple  hv_HomMat2DScale;
+
+    GetImagePointer3(ho_ImageRGB, &hv_PointerRed, &hv_PointerGreen, &hv_PointerBlue,
+                     &hv_Type, &hv_Width, &hv_Height);
+    GenImageConst(&(*ho_ImageInterleaved), "byte", hv_Width*3, hv_Height);
+    //
+    HomMat2dIdentity(&hv_HomMat2DIdentity);
+    HomMat2dScale(hv_HomMat2DIdentity, 1, 3, 0, 0, &hv_HomMat2DScale);
+    AffineTransImageSize(ho_ImageRGB, &ho_ImageAffineTrans, hv_HomMat2DScale, "constant",
+                         hv_Width*3, hv_Height);
+    //
+    Decompose3(ho_ImageAffineTrans, &ho_ImageRed, &ho_ImageGreen, &ho_ImageBlue);
+    GenGridRegion(&ho_RegionGrid, 2*hv_Height, 3, "lines", hv_Width*3, hv_Height+1);
+    MoveRegion(ho_RegionGrid, &ho_RegionMoved, -1, 0);
+    ClipRegion(ho_RegionMoved, &ho_RegionClipped, 0, 0, hv_Height-1, (3*hv_Width)-1);
+
+    ReduceDomain(ho_ImageRed, ho_RegionClipped, &ho_ImageRed);
+    MoveRegion(ho_RegionGrid, &ho_RegionMoved, -1, 1);
+    ClipRegion(ho_RegionMoved, &ho_RegionClipped, 0, 0, hv_Height-1, (3*hv_Width)-1);
+    ReduceDomain(ho_ImageGreen, ho_RegionClipped, &ho_ImageGreen);
+    MoveRegion(ho_RegionGrid, &ho_RegionMoved, -1, 2);
+    ClipRegion(ho_RegionMoved, &ho_RegionClipped, 0, 0, hv_Height-1, (3*hv_Width)-1);
+    ReduceDomain(ho_ImageBlue, ho_RegionClipped, &ho_ImageBlue);
+    OverpaintGray((*ho_ImageInterleaved), ho_ImageRed);
+    OverpaintGray((*ho_ImageInterleaved), ho_ImageGreen);
+    OverpaintGray((*ho_ImageInterleaved), ho_ImageBlue);
+    return;
+}
+
+void HKCamera::HObjectToQImage(HObject himage, QImage **qimage)
+{
+    HTuple hChannels;
+    HTuple   width,height;
+    width=height=0;
+    HTuple htype;
+    HTuple hpointer;
+
+    ConvertImageType(himage,&himage,"byte");//将图片转化成byte类型
+    CountChannels(himage,&hChannels);       //判断图像通道数
+
+    if(hChannels[0].I()==1)//单通道图
+    {
+        unsigned char *ptr;
+
+        GetImagePointer1(himage,&hpointer,&htype,&width,&height);
+
+        ptr=(unsigned char *)hpointer[0].L();
+        *(*qimage)=QImage(ptr,width,height,width,QImage::Format_Indexed8);//不知道是否已自动4字节对齐
+    }
+    else if(hChannels[0].I()==3)//三通道图
+    {
+        unsigned char *ptr3;
+        HObject ho_ImageInterleaved;
+        rgb3_to_interleaved(himage, &ho_ImageInterleaved);
+
+        GetImagePointer1(ho_ImageInterleaved, &hpointer, &htype, &width, &height);
+
+        ptr3=(unsigned char *)hpointer[0].L();
+        *(*qimage)=QImage(ptr3,width/3,height,width,QImage::Format_RGB888);
+    }
+}
+
 void HKCamera::camera_message_warn()
 {
-      QMessageBox messageBox;
-      messageBox.setWindowTitle("警告");
-      messageBox.setIcon(QMessageBox::Warning);
-      QPushButton button("确定");
-      messageBox.setText("相机连接失败,\n请先打开相机!");
-      messageBox.exec();
+    QMessageBox messageBox;
+    messageBox.setWindowTitle("警告");
+    messageBox.setIcon(QMessageBox::Warning);
+    QPushButton button("确定");
+    messageBox.setText("相机连接失败,\n请先打开相机!");
+    messageBox.exec();
 }
 
 

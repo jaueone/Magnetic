@@ -23,6 +23,8 @@ public:
     void sigcon();
     void initdir();
 
+    void CheckDB();
+
 public slots:
     void accept_men_login(const Meninfo &info);
     void accept_change_page(const int &page);

@@ -13,8 +13,9 @@ public:
 	DefectsDetect();
 	~DefectsDetect();
 
-
     void set_threshold_param(int ThresholdBlack=34,int ThresholdWhite=50);
+    int threshold_param();
+
     void run(HObject &ho_Image,HObject &deal_image, const int width, const int height, const Hlong &winid, int x, int y);
 	bool get_result();
     int get_defectsType();
@@ -47,7 +48,7 @@ static DefectsDetect __defects__;
 class ImageAlgorithm
 {
 public:
-    static DefectsDetect getInterface();
+    static DefectsDetect *getInterface();
 private:
     ImageAlgorithm();
     ImageAlgorithm(const ImageAlgorithm& other);

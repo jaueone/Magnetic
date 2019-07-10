@@ -281,12 +281,12 @@ void ScreenCheck::ImageCapture()
         return;
     HObject image = camera->getImage();
     HObject deal_image;
-    DefectsDetect detect = ImageAlgorithm::getInterface();
+    DefectsDetect *detect = ImageAlgorithm::getInterface();
     Hlong winid = (Hlong)this->ui->preview->winId();
-    detect.run(image,deal_image,this->ui->preview->width(),this->ui->preview->height(),winid,this->ui->preview->x(),this->ui->preview->y());
-    current_check_result.isQualified = detect.get_result();
+    detect->run(image,deal_image,this->ui->preview->width(),this->ui->preview->height(),winid,this->ui->preview->x(),this->ui->preview->y());
+    current_check_result.isQualified = detect->get_result();
     if (!current_check_result.isQualified){
-        int itype =  detect.get_defectsType();
+        int itype =  detect->get_defectsType();
         current_check_result.isQualified_s = "bad";
         current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
         current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
@@ -419,9 +419,11 @@ void ScreenCheck::accept_stm_command(Command com, QVariant data)
         if (current_check_result.wrapedOver) this->current_check_result.wrapedOver_s = "good"; else this->current_check_result.wrapedOver_s = "bad";
         if (!data.toInt()){
             this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
+            this->ui->label_9->setText(QString::fromLocal8Bit("包装失败"));
         }
         else {
             this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
+            this->ui->label_9->setText(QString::fromLocal8Bit("包装成功"));
         }
         this->save_check_result(this->getMaxID()+1);
     }
@@ -539,7 +541,6 @@ void ScreenCheck::accept_worker_step(int step)
         this->ui->label->setText("\345\274\200\345\247\213\345\267\245\344\275\234\345\271\266\347\255\211\345\276\205\345\233\276\345\203\217\351\207\207\351\233\206");
         this->ui->label->adjustSize();
     }
-
     else if (step == 3) {
         this->ui->label->setStyleSheet("color:black");
         this->ui->pushButton->setChecked(true);
