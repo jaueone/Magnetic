@@ -25,14 +25,25 @@ int DefectsDetect::threshold_param()
 
 void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width, const int height, const Hlong &winid, int x, int y)
 {
+    //initualization
     if (HDevWindowStack::IsOpen())
         CloseWindow(HDevWindowStack::Pop());
+    //filename: defectsFeedbackV5.5
+    //date:2019.7.14
+    //漏检B都应该检测出
+    //误检B改进
+    //modify:
+    //  smoothDegree:=1.7->1.5
+    //threshold (ImageEdgeAmp2, Regions2, thresholdWhite, 255)
+    //connection (Regions2, preConnectedRegions2)
+    //select_shape (preConnectedRegions2, SelectedRegions2, 'area', 'and', 36.037, 9999.615)
+    //dilation_circle (SelectedRegions2, RegionDilation2, 12.5)
+    //
 
     GetImageSize(ho_Image, &hv_Width, &hv_Height);
     SetWindowAttr("background_color","black");
     OpenWindow(0,0,width,height,winid,"visible","",&hv_mainWindowHandle);
     HDevWindowStack::Push(hv_mainWindowHandle);
-    //set_display_font(hv_mainWindowHandle, 14, "mono", "true", "false");
     if (HDevWindowStack::IsOpen())
         SetDraw(HDevWindowStack::GetActive(),"margin");
     if (HDevWindowStack::IsOpen())
@@ -56,7 +67,8 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     {
         //Image process procedure-1 ,especially for black or bigger size defects
         hv_medianDegree = 5;
-        //hv_thresholdBlack = 34;
+        //default=34
+        hv_thresholdBlack = 14;
         MedianImage(ho_Image, &ho_ImageMedian, "circle", hv_medianDegree, "mirrored");
         //invert_image (ImageMedian, ImageInvert)
         KirschAmp(ho_ImageMedian, &ho_ImageEdgeAmp1);
@@ -71,13 +83,18 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
 
 
         //Image process  procedure-2 ,especially for white or small size defects
-        hv_smoothDegree = 1.7;
-        //hv_thresholdWhite = 50;
+        hv_smoothDegree = 1.5;
+        //default=50
+        hv_thresholdWhite = 30;
 
         SmoothImage(ho_Image, &ho_ImageSmooth, "gauss", hv_smoothDegree);
         KirschAmp(ho_ImageSmooth, &ho_ImageEdgeAmp2);
         Threshold(ho_ImageEdgeAmp2, &ho_Regions2, hv_thresholdWhite, 255);
-        DilationCircle(ho_Regions2, &ho_RegionDilation2, 12.5);
+        Connection(ho_Regions2, &ho_preConnectedRegions2);
+        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions2, "area", "and", 36.037,
+        9999.615);
+
+        DilationCircle(ho_SelectedRegions2, &ho_RegionDilation2, 12.5);
         Connection(ho_RegionDilation2, &ho_Part2ConnectedRegions);
         Union1(ho_Part2ConnectedRegions, &ho_RegionUnion2);
 
@@ -108,9 +125,9 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
 
 
             {
-                HTuple end_val73 = hv_defectsNum2;
-                HTuple step_val73 = 1;
-                for (hv_Index=1; hv_Index.Continue(end_val73, step_val73); hv_Index += step_val73)
+                HTuple end_val91 = hv_defectsNum2;
+                HTuple step_val91 = 1;
+                for (hv_Index=1; hv_Index.Continue(end_val91, step_val91); hv_Index += step_val91)
                 {
                     if (0 != (HTuple(hv_Rectangularity[hv_Index-1])>hv_RecThreshold))
                     {

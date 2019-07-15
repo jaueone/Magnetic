@@ -40,10 +40,10 @@ protected:
 signals:
     void tell_window_step_page(int page);
 
-
-private slots:
+public slots:
     void update_data();
 
+private slots:
     void on_pushButton_clicked();
 
     void on_pushButton_2_clicked();

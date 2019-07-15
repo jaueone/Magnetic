@@ -144,6 +144,7 @@ private:
     unsigned char*  m_pBufForSaveImage;         // 用于保存图像的缓存
     unsigned int    m_nBufSizeForSaveImage;
     int i = 0;
+
 };
 
 

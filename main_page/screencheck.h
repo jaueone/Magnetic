@@ -76,6 +76,7 @@ signals:
     void tell_worker_start_work(SerialSetting);
     void tell_worker_stop_work();
     void tell_worker_stm_command(Command,int);
+    void tell_result_update_data();
 
 private slots:
     void on_pushButton_4_released();

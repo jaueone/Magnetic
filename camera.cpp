@@ -227,7 +227,6 @@ int HKCamera::destroyHandle()
 HObject HKCamera::getImage()
 {
     return ho_Image;
-
 }
 
 CameraSetting HKCamera::get_camera_setting()
@@ -464,6 +463,7 @@ int HKCamera::setParams(DType type,const char *params, QVariant value)
         return MV_CC_SetEnumValue(handle, params,value.toUInt());
     }
     else if (type == DType::String){
+        return MV_CC_SetStringValue(handle, params, value.toString().toStdString().c_str());
     }
     return 0;
 }

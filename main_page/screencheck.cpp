@@ -426,6 +426,7 @@ void ScreenCheck::accept_stm_command(Command com, QVariant data)
             this->ui->label_9->setText(QString::fromLocal8Bit("包装成功"));
         }
         this->save_check_result(this->getMaxID()+1);
+        emit this->tell_result_update_data();
     }
     else if (com == Command::Reset){
         this->ui->label->setStyleSheet("color:black");

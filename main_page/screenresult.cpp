@@ -53,7 +53,7 @@ void ScreenResult::setMen(const Meninfo &info)
     this->ui->label_14->setText(info.name);
     this->check_name = men.name;
     this->timer->setInterval(600);
-    this->timer->start();
+//    this->timer->start();
 }
 
 void ScreenResult::paint_pie()
@@ -78,7 +78,6 @@ void ScreenResult::paint_pie()
     chart_pie->setTitle("");
     chart_pie->legend()->hide();
     chart_pie->setBackgroundVisible(false);
-
 }
 
 void ScreenResult::paint_bar()
@@ -169,16 +168,18 @@ QMap<QString, int> ScreenResult::select_result()
     all = 0;
     qualified = 0;
     unqualified = 0;
-    for (all;query.next();all++){
+    while (query.next()){
         QSqlRecord rec = query.record();
-        if (rec.value("result").toString() == "true")
+        if (rec.value("check_result").toString() == "good")
             qualified +=1;
-        else if(rec.value("result").toString() == "false")
+        else if(rec.value("check_result").toString() == "bad")
             unqualified +=1;
+        all +=1;
     }
     map["all"] = all;
     map["qualified"] = qualified;
     map["unqualified"] = unqualified;
+    qDebug()<< map;
     db->close();
     return map;
 }

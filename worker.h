@@ -122,7 +122,6 @@ signals:
     void tell_window_serial_status(bool isopened);
     void tell_window_work_step(int step);
 
-
 public slots:
     void accept_read_data();
     void accept_timeout();
