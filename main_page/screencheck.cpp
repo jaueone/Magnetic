@@ -275,8 +275,8 @@ QLabel *ScreenCheck::camera_label()
 
 void ScreenCheck::ImageCapture()
 {
-    QDir image_path(QDir("./photo/"+QDate::currentDate().toString("yyyyMMdd")).absolutePath());
-
+    QDir image_path(QDir(QString("D:/qt_photo/%1/").arg(QDate::currentDate().toString("yyyyMMdd"))).absolutePath());
+    qDebug() << image_path.absolutePath();
     if (MV_OK != camera->startCollect())
         return;
     if (MV_OK != camera->collectFrame(this->ui->preview))
@@ -302,20 +302,29 @@ void ScreenCheck::ImageCapture()
     }
     if (current_check_result.isQualified){
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
-        this->filename = QDate::currentDate().toString("hhmmss%1_%2").arg(this->getMaxID()+1).arg("OK");
-        HTuple hv_name1 = filename.toStdString().c_str();
-        if (image_path.exists())
+        this->filename = QTime::currentTime().toString("hhmmss_%1").arg("OK");
+        if (this->ui->checkBox->isChecked())
         {
-            WriteImage(deal_image, "bmp", 0, HTuple(image_path.absolutePath().toStdString().c_str()) + hv_name1);
+            HTuple hv_name1 = filename.toStdString().c_str();
+            if (image_path.exists())
+            {
+                qDebug() << "get photo";
+                WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+            }
         }
+
     }
     else{
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
-        this->filename = QDate::currentDate().toString("hhmmss%1_%2").arg(this->getMaxID()+1).arg("NG");
-        HTuple hv_name1 = filename.toStdString().c_str();
-        if (image_path.exists())
+        this->filename = QTime::currentTime().toString("hhmmss_%1").arg("NG");
+        if (this->ui->checkBox->isChecked())
         {
-            WriteImage(deal_image, "bmp", 0, HTuple(image_path.absolutePath().toStdString().c_str()) + hv_name1);
+            HTuple hv_name1 = filename.toStdString().c_str();
+            if (image_path.exists())
+            {
+                qDebug() << "get photo";
+                WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+            }
         }
     }
     this->ui->stackedWidget->setCurrentIndex(1);

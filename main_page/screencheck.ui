@@ -344,18 +344,17 @@ QPushButton::checked{background-color:black;}</string>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_8">
+       <widget class="QCheckBox" name="checkBox">
         <property name="font">
          <font>
           <family>微软雅黑</family>
-          <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>上次包装结果:</string>
+         <string>保存图片</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+        <property name="tristate">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -371,7 +370,7 @@ QPushButton::checked{background-color:black;}</string>
          <string/>
         </property>
         <property name="alignment">
-         <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>

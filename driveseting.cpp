@@ -409,9 +409,7 @@ void DriveSeting::check_self()
 
 void DriveSeting::set_camera_params()
 {
-    if (!camera->isOpened())
-        HKCamera::camera_message_warn();
-    else {
+
         CameraSetting setting = this->get_camera_setting();
         DefectsDetect *detect = ImageAlgorithm::getInterface();
         detect->set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
@@ -434,7 +432,6 @@ void DriveSeting::set_camera_params()
         qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource));
         qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
         this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
-    }
 }
 
 
@@ -623,6 +620,19 @@ void DriveSeting::on_pushButton_10_clicked()
 
 void DriveSeting::on_pushButton_12_clicked()
 {
+    if (!camera->isOpened()){
+        HKCamera::camera_message_warn();
+        return;
+    }
+    if (camera->isCollecting()){
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+        messageBox.setIcon(QMessageBox::Warning);
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.setText(QString::fromLocal8Bit("先停止抓图在设置参数"));
+        messageBox.exec();
+        return;
+    }
     this->set_camera_params();
     if(!camera->isOpened())
         return;

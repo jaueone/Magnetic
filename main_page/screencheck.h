@@ -29,8 +29,6 @@ struct CurrentCheckResult
     QString blackPoint;
 };
 
-
-
 class ScreenCheck : public QWidget
 {
     Q_OBJECT
@@ -55,6 +53,7 @@ public:
     bool workerSerialIsOpen();
 
     void analysis_FaultCode(QVariant data,QString &str);
+
 public slots:
     void accept_stm_command(Command com,QVariant data);
     void accept_stm_respond_timeout();

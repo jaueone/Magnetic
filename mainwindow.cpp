@@ -48,10 +48,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->stackedWidget->addWidget(drivesetting);
     this->ui->stackedWidget->addWidget(mainpage);
 
-
+    this->CheckDB();
     this->sigcon();
     this->initdir();
-
 }
 
 MainWindow::~MainWindow()
@@ -89,11 +88,14 @@ void MainWindow::initdir()
     QDir photo("./photo");
     QDir picture("./picture");
     QDir database("./database");
-    QDir image("./photo/"+QDate::currentDate().toString("yyyyMMdd"));
+
+
     QDir hobject_path = QDir(hobject.absolutePath());
     QDir photo_path = QDir(photo.absolutePath());
     QDir picture_path = QDir(picture.absolutePath());
     QDir database_path = QDir(database.absolutePath());
+    QDir photoS("D:/qt_photo/");
+    QDir image("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd"));
     QDir image_path(image.absolutePath());
 
     if(!hobject_path.exists()){
@@ -108,9 +110,13 @@ void MainWindow::initdir()
     if(!database_path.exists()){
         if (!database_path.mkdir("."))   qDebug() << "make dir database failed";
     }
-    if(!image_path.exists()){
-        if (!image_path.mkdir("."))   qDebug() << "make dir database failed";
+    if(!photoS.exists()){
+        if (!photoS.mkdir("."))   qDebug() << "make dir image failed";
     }
+    if(!image_path.exists()){
+        if (!image_path.mkdir("."))   qDebug() << "make dir image failed";
+    }
+
 }
 
 void MainWindow::CheckDB()
