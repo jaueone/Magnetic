@@ -275,6 +275,8 @@ QLabel *ScreenCheck::camera_label()
 
 void ScreenCheck::ImageCapture()
 {
+    QDir image_path(QDir("./photo/"+QDate::currentDate().toString("yyyyMMdd")).absolutePath());
+
     if (MV_OK != camera->startCollect())
         return;
     if (MV_OK != camera->collectFrame(this->ui->preview))
@@ -300,13 +302,21 @@ void ScreenCheck::ImageCapture()
     }
     if (current_check_result.isQualified){
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
-        WriteImage(deal_image, "bmp", 0, HTuple("./database/hobject/good"));
+        this->filename = QDate::currentDate().toString("hhmmss%1_%2").arg(this->getMaxID()+1).arg("OK");
+        HTuple hv_name1 = filename.toStdString().c_str();
+        if (image_path.exists())
+        {
+            WriteImage(deal_image, "bmp", 0, HTuple(image_path.absolutePath().toStdString().c_str()) + hv_name1);
+        }
     }
     else{
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
-        this->filename = QDate::currentDate().toString("yyyyMMdd_") + QString("%1").arg(this->getMaxID()+1);
+        this->filename = QDate::currentDate().toString("hhmmss%1_%2").arg(this->getMaxID()+1).arg("NG");
         HTuple hv_name1 = filename.toStdString().c_str();
-        WriteImage(deal_image, "bmp", 0, HTuple("./database/hobject/") + hv_name1);
+        if (image_path.exists())
+        {
+            WriteImage(deal_image, "bmp", 0, HTuple(image_path.absolutePath().toStdString().c_str()) + hv_name1);
+        }
     }
     this->ui->stackedWidget->setCurrentIndex(1);
 //    camera->HObjectToQImage(*himage,&qimage);

@@ -45,6 +45,8 @@ public:
 
     void check_self();
 
+    void set_camera_params();
+
     QSerialPort *Serial(){ return serial;}
 
     HKCamera * Camera(){ return camera;}

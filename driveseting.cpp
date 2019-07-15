@@ -162,6 +162,7 @@ QString DriveSeting::init_camera()
         return "enum fail";
     if (MV_OK != camera->openDevice(0))
         return  "open fail";
+    this->set_camera_params();
     return "opened";
 }
 
@@ -406,6 +407,36 @@ void DriveSeting::check_self()
     this->display_init();
 }
 
+void DriveSeting::set_camera_params()
+{
+    if (!camera->isOpened())
+        HKCamera::camera_message_warn();
+    else {
+        CameraSetting setting = this->get_camera_setting();
+        DefectsDetect *detect = ImageAlgorithm::getInterface();
+        detect->set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
+
+        qDebug("%x",this->camera->setParams(DType::Int, "Width", setting.width));
+        qDebug("%x",this->camera->setParams(DType::Int, "Height", setting.height));
+        qDebug("%x",this->camera->setParams(DType::Int, "OffsetX", setting.offsetX));
+        qDebug("%x",this->camera->setParams(DType::Int, "OffsetY", setting.offsetY));
+        qDebug("%x",this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate));
+        qDebug("%x",this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable));
+        qDebug("%x",this->camera->setParams(DType::Float, "Gain", setting.gain));
+        qDebug("%x",this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto));
+        qDebug("%x",this->camera->setParams(DType::Float, "Gamma", setting.gamma));
+        qDebug("%x",this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable));
+        qDebug("%x",this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector));
+        qDebug("%x",this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime));
+        qDebug("%x",this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable));
+        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode));
+        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector));
+        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource));
+        qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
+        this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
+    }
+}
+
 
 void DriveSeting::accept_scan_serial()
 {
@@ -592,33 +623,10 @@ void DriveSeting::on_pushButton_10_clicked()
 
 void DriveSeting::on_pushButton_12_clicked()
 {
-    if (!camera->isOpened())
-        HKCamera::camera_message_warn();
-    else {
-        CameraSetting setting = this->get_camera_setting();
-        DefectsDetect *detect = ImageAlgorithm::getInterface();
-        detect->set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
-
-        qDebug("%x",this->camera->setParams(DType::Int, "Width", setting.width));
-        qDebug("%x",this->camera->setParams(DType::Int, "Height", setting.height));
-        qDebug("%x",this->camera->setParams(DType::Int, "OffsetX", setting.offsetX));
-        qDebug("%x",this->camera->setParams(DType::Int, "OffsetY", setting.offsetY));
-        qDebug("%x",this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate));
-        qDebug("%x",this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable));
-        qDebug("%x",this->camera->setParams(DType::Float, "Gain", setting.gain));
-        qDebug("%x",this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto));
-        qDebug("%x",this->camera->setParams(DType::Float, "Gamma", setting.gamma));
-        qDebug("%x",this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable));
-        qDebug("%x",this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector));
-        qDebug("%x",this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime));
-        qDebug("%x",this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable));
-        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode));
-        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector));
-        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource));
-        qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
-        this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
-        HKCamera::camera_message_done();
-    }
+    this->set_camera_params();
+    if(!camera->isOpened())
+        return;
+    HKCamera::camera_message_done();
 }
 
 

@@ -1497,24 +1497,6 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>40</y>
-     <width>301</width>
-     <height>181</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微软雅黑</family>
-    </font>
-   </property>
-   <property name="title">
-    <string>摄像头操作</string>
-   </property>
-  </widget>
  </widget>
  <customwidgets>
   <customwidget>

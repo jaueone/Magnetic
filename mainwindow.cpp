@@ -89,10 +89,13 @@ void MainWindow::initdir()
     QDir photo("./photo");
     QDir picture("./picture");
     QDir database("./database");
+    QDir image("./photo/"+QDate::currentDate().toString("yyyyMMdd"));
     QDir hobject_path = QDir(hobject.absolutePath());
     QDir photo_path = QDir(photo.absolutePath());
     QDir picture_path = QDir(picture.absolutePath());
     QDir database_path = QDir(database.absolutePath());
+    QDir image_path(image.absolutePath());
+
     if(!hobject_path.exists()){
         if (!hobject_path.mkdir("."))   qDebug() << "make dir hobject failed";
     }
@@ -104,6 +107,9 @@ void MainWindow::initdir()
     }
     if(!database_path.exists()){
         if (!database_path.mkdir("."))   qDebug() << "make dir database failed";
+    }
+    if(!image_path.exists()){
+        if (!image_path.mkdir("."))   qDebug() << "make dir database failed";
     }
 }
 
