@@ -102,7 +102,6 @@ private:
     CurrentCheckResult current_check_result;
     SerialSetting serial_setting;
 
-
     QPixmap *qpixmap;
     QGraphicsView *graph_view_preview;
     QGraphicsScene *graph_scene;
@@ -111,6 +110,10 @@ private:
     QString filename;
     bool worker_thread_serial_status = false;
     unsigned char id= 1;
+
+    int all_count = 0;
+    int ok_count = 0;
+    int ng_count = 0;
 
 };
 

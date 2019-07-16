@@ -23,6 +23,9 @@ ScreenResult::ScreenResult(QWidget *parent) :
     series_bar = new QBarSeries();
 
     time_select_form_ = new timeSelect;
+    time_select_form_->setWindowFlag(Qt::Dialog);
+    time_select_form_->setWindowModality(Qt::WindowModal);
+
     this->men_model = new QStandardItemModel;
     this->ui->listView->setModel(men_model);
     this->timer = new QTimer(this);
@@ -190,6 +193,7 @@ bool ScreenResult::eventFilter(QObject *watched, QEvent *event)
         if (event->type() == QEvent::MouseButtonPress){
             this->ui->calendarWidget->hide();
             this->ui->listView->hide();
+            this->update_data();
             return true;
         }
     }
@@ -224,6 +228,7 @@ void ScreenResult::accept_time_quantum(const QTime &start, const QTime &end)
     this->start_time = start;
     this->end_time = end;
     this->ui->label_12->setText(QTime::currentTime().toString("%1-%2").arg(start_time.toString("hh:mm")).arg(end_time.toString("hh:mm")));
+    this->update_data();
 }
 
 void ScreenResult::on_calendarWidget_clicked(const QDate &date)

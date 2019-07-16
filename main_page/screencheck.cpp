@@ -4,6 +4,8 @@
 #include "my_control.h"
 #include <QSqlError>
 #include <QDateTime>
+#include <exception>
+#include <Windows.h>
 
 void msleep(unsigned int msec)
 {
@@ -300,7 +302,14 @@ void ScreenCheck::ImageCapture()
         current_check_result.whitePoint = "false";
         current_check_result.blackPoint = "false";
     }
+
     if (current_check_result.isQualified){
+        if (this->ui->checkBox_2->isChecked()){
+            this->ok_count += 1;
+            this->all_count += 1;
+            this->ui->label_14->setNum(this->ok_count);
+            this->ui->label_16->setNum(this->ng_count);
+        }
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
         this->filename = QTime::currentTime().toString("hhmmss_%1").arg("OK");
         if (this->ui->checkBox->isChecked())
@@ -308,13 +317,21 @@ void ScreenCheck::ImageCapture()
             HTuple hv_name1 = filename.toStdString().c_str();
             if (image_path.exists())
             {
-                qDebug() << "get photo";
-                WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+                WriteImage(image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+                this->ui->label_8->setText(QString::fromLocal8Bit("保存图片成功"));
+            }
+            else {
+                this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
             }
         }
-
     }
     else{
+        if (this->ui->checkBox_2->isChecked()){
+            this->all_count += 1;
+            this->ng_count += 1;
+            this->ui->label_16->setNum(this->ng_count);
+            this->ui->label_14->setNum(this->ok_count);
+        }
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
         this->filename = QTime::currentTime().toString("hhmmss_%1").arg("NG");
         if (this->ui->checkBox->isChecked())
@@ -322,8 +339,11 @@ void ScreenCheck::ImageCapture()
             HTuple hv_name1 = filename.toStdString().c_str();
             if (image_path.exists())
             {
-                qDebug() << "get photo";
-                WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+                WriteImage(image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+                this->ui->label_8->setText(QString::fromLocal8Bit("保存图片成功"));
+            }
+            else {
+                this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
             }
         }
     }
@@ -540,7 +560,7 @@ void ScreenCheck::accept_worker_step(int step)
 {
     if (step == 0){
         if (HDevWindowStack::IsOpen())
-          CloseWindow(HDevWindowStack::Pop());
+            CloseWindow(HDevWindowStack::Pop());
         this->ui->label->setStyleSheet("color:black");
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);");
         this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);");
@@ -583,6 +603,16 @@ void ScreenCheck::accept_worker_step(int step)
 
 void ScreenCheck::on_start_check_released()
 {
+    if (!this->camera->isOpened()) {
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
+        messageBox.setIcon(QMessageBox::Critical);
+        messageBox.setText(QString::fromLocal8Bit("先完成系统自检"));
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
+        return;
+    }
     emit ask_serial_setting();
     emit tell_worker_start_work(this->serial_setting);
     msleep(5);

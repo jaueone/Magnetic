@@ -26,6 +26,7 @@ void Worker::init_setting_and_connect()
 
 void Worker::query_status()
 {
+    qDebug() << this->is_Stoped_Work;
     if(this->is_Stoped_Work)
         return;
     if(!serial->isOpen())
@@ -326,6 +327,8 @@ void Worker::accept_read_data()
                 return;
             }
             if (step == 0){
+                if(this->is_Stoped_Work)
+                    return;
                 step = 1;
                 timer->stop();
                 emit tell_window_work_step(step);
@@ -333,12 +336,16 @@ void Worker::accept_read_data()
                 qDebug() << "start_work";
             }
             else if(step == 1){
+                if(this->is_Stoped_Work)
+                    return;
                 timer->stop();
                 step = 2;
                 emit tell_window_work_step(step);
                 qDebug() << "wait_check_command";
             }
             else if (step == 3) {
+                if(this->is_Stoped_Work)
+                    return;
                 step  = 4;
                 timer->stop();
                 emit tell_window_work_step(step);
@@ -486,6 +493,7 @@ void Worker::accept_command_to_stm(Command com, int data)
 
 void Worker::accept_stop_work()
 {
+    timer->stop();
     this->is_Stoped_Work = true;
     if (this->serial->isOpen())
         this->serial->close();

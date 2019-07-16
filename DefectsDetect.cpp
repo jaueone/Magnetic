@@ -1,5 +1,5 @@
 #include "DefectsDetect.h"
-#include<QDebug>
+#include <QDebug>
 
 DefectsDetect::DefectsDetect()
 {
@@ -28,22 +28,20 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     //initualization
     if (HDevWindowStack::IsOpen())
         CloseWindow(HDevWindowStack::Pop());
-    //filename: defectsFeedbackV5.5
-    //date:2019.7.14
-    //漏检B都应该检测出
-    //误检B改进
+    //filename: StickDetectV6
+    //date:2019.7.16
     //modify:
-    //  smoothDegree:=1.7->1.5
-    //threshold (ImageEdgeAmp2, Regions2, thresholdWhite, 255)
-    //connection (Regions2, preConnectedRegions2)
-    //select_shape (preConnectedRegions2, SelectedRegions2, 'area', 'and', 36.037, 9999.615)
-    //dilation_circle (SelectedRegions2, RegionDilation2, 12.5)
-    //
+    //1.set global parameters ***********
+    //2.add areaSelect param
+    //3.'mean', 'and', 0, 55->54.9
+    //4.fix bug: gen_rectangle1 (Rectangle, 0, 0,Height,Width)
 
+    // ReadImage(&ho_Image, "D:/Personal/Pictures/误检A-2019-7-13-参数14-30/误检A-2-2019-7-13-参数14-30/wja2 (5).bmp");
     GetImageSize(ho_Image, &hv_Width, &hv_Height);
     SetWindowAttr("background_color","black");
     OpenWindow(0,0,width,height,winid,"visible","",&hv_mainWindowHandle);
     HDevWindowStack::Push(hv_mainWindowHandle);
+    //set_display_font (mainWindowHandle, 14, 'mono', 'true', 'false')
     if (HDevWindowStack::IsOpen())
         SetDraw(HDevWindowStack::GetActive(),"margin");
     if (HDevWindowStack::IsOpen())
@@ -56,8 +54,17 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     hv_BlackPointExist = 0;
     hv_ReturnIsOK = 0;
     //*********** return parameters setting ***********
+    //*********** global parameters ***********
+    hv_medianDegree = 5;
+    //hv_thresholdBlack = 14;
+    hv_smoothDegree = 1.5;
+    // hv_thresholdWhite = 30;
+    //default=36.047
+    hv_areaSelect = 54.5;
+    //*********** global parameters***********
+
     //pre-judge : detect or not
-    GenRectangle1(&ho_Rectangle, 0, 0, hv_Width, hv_Height);
+    GenRectangle1(&ho_Rectangle, 0, 0, hv_Height, hv_Width);
     Intensity(ho_Rectangle, ho_Image, &hv_Mean, &hv_Deviation);
     if (0 != (hv_Mean<10))
     {
@@ -66,9 +73,6 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     else
     {
         //Image process procedure-1 ,especially for black or bigger size defects
-        hv_medianDegree = 5;
-        //default=34
-        hv_thresholdBlack = 14;
         MedianImage(ho_Image, &ho_ImageMedian, "circle", hv_medianDegree, "mirrored");
         //invert_image (ImageMedian, ImageInvert)
         KirschAmp(ho_ImageMedian, &ho_ImageEdgeAmp1);
@@ -76,22 +80,18 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         DilationCircle(ho_Regions1, &ho_RegionDilation1, 12.5);
         Connection(ho_RegionDilation1, &ho_ConnectedRegions1);
         SelectGray(ho_ConnectedRegions1, ho_Image, &ho_Part1SelectedRegions, "mean",
-        "and", 0, 55);
+        "and", 0, 54.9);
         Union1(ho_Part1SelectedRegions, &ho_RegionUnion1);
 
         CountObj(ho_Part1SelectedRegions, &hv_Part1blackDefectsNum);
 
 
         //Image process  procedure-2 ,especially for white or small size defects
-        hv_smoothDegree = 1.5;
-        //default=50
-        hv_thresholdWhite = 30;
-
         SmoothImage(ho_Image, &ho_ImageSmooth, "gauss", hv_smoothDegree);
         KirschAmp(ho_ImageSmooth, &ho_ImageEdgeAmp2);
         Threshold(ho_ImageEdgeAmp2, &ho_Regions2, hv_thresholdWhite, 255);
         Connection(ho_Regions2, &ho_preConnectedRegions2);
-        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions2, "area", "and", 36.037,
+        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions2, "area", "and", hv_areaSelect,
         9999.615);
 
         DilationCircle(ho_SelectedRegions2, &ho_RegionDilation2, 12.5);
@@ -125,9 +125,9 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
 
 
             {
-                HTuple end_val91 = hv_defectsNum2;
-                HTuple step_val91 = 1;
-                for (hv_Index=1; hv_Index.Continue(end_val91, step_val91); hv_Index += step_val91)
+                HTuple end_val88 = hv_defectsNum2;
+                HTuple step_val88 = 1;
+                for (hv_Index=1; hv_Index.Continue(end_val88, step_val88); hv_Index += step_val88)
                 {
                     if (0 != (HTuple(hv_Rectangularity[hv_Index-1])>hv_RecThreshold))
                     {

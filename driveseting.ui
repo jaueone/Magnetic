@@ -139,7 +139,7 @@
          </font>
         </property>
         <property name="text">
-         <string>thresholdValue_whiteDetect</string>
+         <string>threshold_white</string>
         </property>
        </widget>
       </item>
@@ -171,7 +171,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>thresholdValue_blackDetect</string>
+         <string>threshold_black</string>
         </property>
        </widget>
       </item>
@@ -1385,6 +1385,9 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_5">
+     <property name="topMargin">
+      <number>10</number>
+     </property>
      <item row="2" column="1">
       <widget class="QPushButton" name="pushButton_14">
        <property name="font">
