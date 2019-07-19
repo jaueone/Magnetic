@@ -3,6 +3,17 @@
 #include <QLabel>
 //#define MAX_BUF_SIZE    (6576*4384)
 
+static HKCamera *camera_ = nullptr;
+
+HKCamera *HKCamera::getInterface(){
+    if (camera_ == nullptr){
+        camera_ = new HKCamera;
+        return camera_;
+    }
+    else {
+        return camera_;
+    }
+}
 
 HKCamera::HKCamera() {
 

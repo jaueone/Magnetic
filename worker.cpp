@@ -246,6 +246,7 @@ void Worker::analysis_FaultCode(const QByteArray &data)
     status.rollerMotorSpeedStatus = (stm_status & 0x04) == 0x04 ? true : false;
     status.slidingTableMotorSpeedStatus = (stm_status & 0x08) == 0x08 ? true : false;
     status.packingbag_fault = (stm_status & 0x10) == 0x10 ? true : false;
+    status.material_buffer_cylinde = (stm_status & 0x20) == 0x20 ? true : false;
 
     status.grab_cylinder = (stm_cylinder & 0x01) == 0x01 ? true : false;
     status.magnetic_roller_positioning_cylinder = (stm_cylinder & 0x02) == 0x02 ? true : false;

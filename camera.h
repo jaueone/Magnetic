@@ -102,35 +102,37 @@ struct CameraSetting{
     LineSelector lineSelector;
 };
 
+
 class HKCamera
 {
 public:
-    HKCamera();
-    ~HKCamera();
+    static HKCamera *getInterface();
+    static QByteArray get_camera_bin(CameraSetting setting);
+    static void camera_message_warn();
+    static void camera_message_done();
+    static void HObjectToQImage(HObject himage,QImage **qimage);
+
+
     int enumDevices();
     int openDevice(const int &index);
 
     int startCollect();
     int collectFrame(QLabel *label);
     int stopCollect();
-
     int closeDevice();
 
-
-    HObject getImage();
-    CameraSetting get_camera_setting();
-    static QByteArray get_camera_bin(CameraSetting setting);
-
-    int setParams(DType type,const char *params, QVariant value);
     bool isOpened();
     bool isCollecting();
-    static void camera_message_warn();
-    static void camera_message_done();
 
-    void rgb3_to_interleaved (HObject ho_ImageRGB, HObject *ho_ImageInterleaved);
-    void HObjectToQImage(HObject himage,QImage **qimage);
+    HObject getImage();
+
+    int setParams(DType type,const char *params, QVariant value);
+    CameraSetting get_camera_setting();
 
 private:
+    static void rgb3_to_interleaved(HObject ho_ImageRGB, HObject *ho_ImageInterleaved);
+    HKCamera();
+    ~HKCamera();
     int destroyHandle();
 
     bool is_start_collected = false;
@@ -144,9 +146,7 @@ private:
     unsigned char*  m_pBufForSaveImage;         // 用于保存图像的缓存
     unsigned int    m_nBufSizeForSaveImage;
     int i = 0;
-
 };
-
 
 #endif // CAMERA_H
 

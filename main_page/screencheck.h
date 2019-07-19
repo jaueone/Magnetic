@@ -20,7 +20,8 @@ class ScreenCheck;
 
 struct CurrentCheckResult
 {
-    bool isQualified;
+    bool isOK;
+    bool isGood;
     bool wrapedOver;
     QString isQualified_s;
     QString wrapedOver_s;
@@ -114,6 +115,7 @@ private:
     int all_count = 0;
     int ok_count = 0;
     int ng_count = 0;
+    int good_count = 0;
 
 };
 

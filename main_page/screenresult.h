@@ -31,17 +31,16 @@ public:
     void setMen(const Meninfo &info);
     void paint_pie();
     void paint_bar();
-
+    void update_data();
     QMap<QString,int> select_result();
-
     void setSerial(QSerialPort *serial){this->serial = serial;}
-protected:
-    bool eventFilter(QObject *watched, QEvent *event);
+
+    void accept_update_data();
 signals:
     void tell_window_step_page(int page);
 
-public slots:
-    void update_data();
+protected:
+    bool eventFilter(QObject *watched, QEvent *event);
 
 private slots:
     void on_pushButton_clicked();

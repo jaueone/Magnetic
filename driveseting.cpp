@@ -11,7 +11,6 @@
 #include <QSqlRecord>
 #include <QSerialPort>
 
-
 const unsigned char chCRCHTalbe[] =
 {
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,// CRC 高位字节值表
@@ -87,7 +86,8 @@ DriveSeting::DriveSeting(QWidget *parent) :
 {
     ui->setupUi(this);
     serial = new QSerialPort(this);
-    camera = new HKCamera();
+    camera = HKCamera::getInterface();
+
     this->ui->pushButton_7->setText(QString::fromLocal8Bit("打开串口"));
     this->ui->baudRateBox->setCurrentIndex(1);
     this->ui->dataBitsBox->setCurrentIndex(3);
@@ -100,7 +100,6 @@ DriveSeting::DriveSeting(QWidget *parent) :
 DriveSeting::~DriveSeting()
 {
     delete ui;
-    delete camera;
 }
 
 bool DriveSeting::init()
@@ -344,8 +343,6 @@ void DriveSeting::load_setting()
     this->ui->serialPortInfoListBox->setCurrentText(ser_obj["name"].toString());
 }
 
-
-
 void DriveSeting::save_setting(SerialSetting setting_ser, CameraSetting setting_cam)
 {
     QByteArray serial = Serial::get_serial_bin(setting_ser);
@@ -398,7 +395,6 @@ void DriveSeting::scan_serial()
         qDebug() << list;
     }
     this->ui->serialPortInfoListBox->addItem(tr("Custom"));
-
 }
 
 void DriveSeting::check_self()
@@ -433,7 +429,6 @@ void DriveSeting::set_camera_params()
         qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
         this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
 }
-
 
 void DriveSeting::accept_scan_serial()
 {

@@ -7,8 +7,47 @@
 #include <QCoreApplication>
 #include <QFileDialog>
 #include <QTime>
+#include <iostream>
 
 
+
+#define cout qDebug() << "[" <<__FILE__ <<":"<<__FUNCTION__<<":"<<__LINE__ <<"]"
+
+quint64 getDiskFreeSpace(QString driver)
+{
+    LPCWSTR lpcwstrDriver=(LPCWSTR)driver.utf16();
+
+    ULARGE_INTEGER liFreeBytesAvailable, liTotalBytes, liTotalFreeBytes;
+
+    if( !GetDiskFreeSpaceEx( lpcwstrDriver, &liFreeBytesAvailable, &liTotalBytes, &liTotalFreeBytes) )
+    {
+      qDebug() << "ERROR: Call to GetDiskFreeSpaceEx() failed.";
+      return 0;
+    }
+    return (quint64) liTotalFreeBytes.QuadPart/1024/1024/1024;
+}
+
+void removefilesindir(const QString& path)
+{
+    QDir dir(path);
+    QFileInfoList info_list = dir.entryInfoList(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks | QDir::AllDirs);
+    foreach(QFileInfo file_info, info_list)
+    {
+        if (file_info.isDir())
+        {
+            removefilesindir(file_info.absoluteFilePath());
+        }
+        else if (file_info.isFile())
+        {
+            QFile file(file_info.absoluteFilePath());
+            qDebug() << "remove file  : " << file_info.absoluteFilePath();
+            file.remove();
+        }
+    }
+    QDir temp_dir;
+    temp_dir.rmdir(path) ;
+    qDebug() << "remove empty dir : " << path;
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -51,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->CheckDB();
     this->sigcon();
     this->initdir();
+
 }
 
 MainWindow::~MainWindow()
@@ -72,7 +112,7 @@ void MainWindow::sigcon()
     this->connect(this->screen_check,&ScreenCheck::tell_window_stm_status, this->drivesetting,&DriveSeting::accept_stm_status);
     this->connect(this->screen_check,&ScreenCheck::ask_serial_setting, this->drivesetting,&DriveSeting::accept_return_serial_setting);
     this->connect(this->drivesetting,&DriveSeting::tell_screencheck_setting,this->screen_check,&ScreenCheck::accept_serial_setting);
-    this->connect(this->screen_check,&ScreenCheck::tell_result_update_data, this->screen_result,&ScreenResult::update_data);
+    this->connect(this->screen_check,&ScreenCheck::tell_result_update_data, this->screen_result,&ScreenResult::accept_update_data);
 
 //    this->connect(this->drivesetting,&DriveSeting::tell_worker_stm_command,this->worker,&Worker::accept_command_to_stm,Qt::QueuedConnection);
 //    this->connect(this->drivesetting,&DriveSeting::tell_worker_stop_work,this->worker,&Worker::accept_stop_work,Qt::QueuedConnection);
@@ -84,11 +124,12 @@ void MainWindow::sigcon()
 
 void MainWindow::initdir()
 {
+    if (getDiskFreeSpace("d:/")< 2)
+        removefilesindir("d:/qt_photo/");
     QDir hobject("./database/hobject/");
     QDir photo("./photo");
     QDir picture("./picture");
     QDir database("./database");
-
 
     QDir hobject_path = QDir(hobject.absolutePath());
     QDir photo_path = QDir(photo.absolutePath());
@@ -116,7 +157,6 @@ void MainWindow::initdir()
     if(!image_path.exists()){
         if (!image_path.mkdir("."))   qDebug() << "make dir image failed";
     }
-
 }
 
 void MainWindow::CheckDB()

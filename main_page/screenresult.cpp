@@ -6,6 +6,7 @@
 #include <QFont>
 #include "worker.h"
 
+
 ScreenResult::ScreenResult(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ScreenResult),
@@ -39,6 +40,7 @@ ScreenResult::ScreenResult(QWidget *parent) :
     this->ui->label_12->setText(QTime::currentTime().toString("00:00-hh:mm"));
     this->connect(this->timer,&QTimer::timeout,this, &ScreenResult::update_data);
     this->connect(this->time_select_form_,&timeSelect::tell_window_time_quantum,this,&ScreenResult::accept_time_quantum);
+
     this->installEventFilter(this);
     this->ui->listView->hide();
 }
@@ -61,15 +63,13 @@ void ScreenResult::setMen(const Meninfo &info)
 
 void ScreenResult::paint_pie()
 {
-    this->ui->label_17->setParent(chart_pie_view);
-    this->ui->label_18->setParent(chart_pie_view);
-    this->ui->label_17->setGeometry(350,10,100,20);
-    this->ui->label_18->setGeometry(10,174,100,100);
-    this->ui->label_17->show();
-    this->ui->label_18->show();
-    series_pie->setPieSize(1.0);
-    series_pie->append("不合格率10%", 1);
-    series_pie->append("合格率90%" , 9);
+    QFont font;
+    font.setFamily("微软雅黑");
+    font.setPixelSize(13);
+    series_pie->setPieSize(0.7);
+    series_pie->append("\344\270\215\345\220\210\346\240\274\347\216\20710%", 1);
+    series_pie->append("\345\220\210\346\240\274\347\216\20790%", 8);
+    series_pie->append("\351\253\230\350\264\250\351\207\217\347\216\20720%", 1);
     series_pie->setLabelsVisible();
 
     QPieSlice *slice_red = series_pie->slices().at(0);
@@ -81,6 +81,9 @@ void ScreenResult::paint_pie()
     chart_pie->setTitle("");
     chart_pie->legend()->hide();
     chart_pie->setBackgroundVisible(false);
+    for (auto slice:this->series_pie->slices())
+        slice->setLabelFont(font);
+
 }
 
 void ScreenResult::paint_bar()
@@ -119,7 +122,7 @@ void ScreenResult::paint_bar()
     chart_bar->setFont(font);
 
     chart_bar_view->setRenderHint(QPainter::Antialiasing);
-    this->ui->verticalLayout_2->addWidget(chart_bar_view);
+    this->ui->verticalLayout->addWidget(chart_bar_view);
 }
 
 void ScreenResult::update_data()
@@ -131,23 +134,29 @@ void ScreenResult::update_data()
 
     int qualified = map["qualified"];
     int unqualified = map["unqualified"];
+    int highquality = map["highquality"];
     this->ui->label_5->setText(QString("%1").arg(all));
     this->ui->label_6->setText(QString("%1").arg(qualified));
     this->ui->label_7->setText(QString("%1").arg(unqualified));     //\344\270\215\345\220\210\346\240\274\347\216\20710% 不合格率
-    double q;
+    this->ui->label_11->setText(QString("%1").arg(highquality));
+    double q,iq;
     if (all !=0){
         q = qualified/all;
+        iq = highquality/all;
     }
     else {
         q = 1;
     }
-    double unq = 1 - q;
-    this->ui->label_18->setText("\345\220\210\346\240\274\347\216\207" + QString::number(q*100,'f',2) + "%");
-    this->ui->label_17->setText("\344\270\215\345\220\210\346\240\274\347\216\207"+ QString::number(unq*100,'f',2) + "%");
-    QPieSlice *slice_red = series_pie->slices().at(0);
-    QPieSlice *slice_green = series_pie->slices().at(1);
-    slice_red->setValue(unq*10);
-    slice_green->setValue(q*10);
+    double unq = 1 - q - iq;
+    QPieSlice *slice_ug = series_pie->slices().at(0);
+    QPieSlice *slice_ok = series_pie->slices().at(1);
+    QPieSlice *slice_high = series_pie->slices().at(2);
+    slice_ug->setValue(unq*10);
+    slice_ok->setValue(q*10);
+    slice_high->setValue(iq*10);
+    slice_ok->setLabelVisible(qualified);
+    slice_ug->setLabelVisible(unqualified);
+    slice_high->setLabelVisible(highquality);
 }
 
 QMap<QString, int> ScreenResult::select_result()
@@ -167,22 +176,30 @@ QMap<QString, int> ScreenResult::select_result()
           db->close();
           return map;
     }
-    int all, unqualified,qualified;
+    int all, unqualified,qualified,highquality;
     all = 0;
     qualified = 0;
     unqualified = 0;
+    highquality = 0;
     while (query.next()){
         QSqlRecord rec = query.record();
-        if (rec.value("check_result").toString() == "good")
+        if (rec.value("check_result").toString() == "ok"){
+            all +=1;
             qualified +=1;
-        else if(rec.value("check_result").toString() == "bad")
+        }
+        else if(rec.value("check_result").toString() == "ng"){
+            all +=1;
             unqualified +=1;
-        all +=1;
+        }
+        else if(rec.value("check_result").toString() == "good"){
+            all +=1;
+            highquality +=1;
+        }
     }
     map["all"] = all;
     map["qualified"] = qualified;
     map["unqualified"] = unqualified;
-    qDebug()<< map;
+    map["highquality"] = highquality;
     db->close();
     return map;
 }
@@ -200,15 +217,24 @@ bool ScreenResult::eventFilter(QObject *watched, QEvent *event)
     return QWidget::eventFilter(watched, event);
 }
 
+void ScreenResult::accept_update_data()
+{
+    this->end_time = QTime::currentTime();
+    this->check_date = QDate::currentDate();
+    this->ui->label_12->setText(QTime::currentTime().toString("%1-%2").arg(start_time.toString("hh:mm")).arg(end_time.toString("hh:mm")));
+    this->update_data();
+}
+
 void ScreenResult::on_pushButton_clicked()
 {
     if (this->ui->calendarWidget->isVisible()){
         this->ui->calendarWidget->hide();
+
     }
-    else
-    {
+    else {
     this->ui->calendarWidget->show();
     this->ui->calendarWidget->setGeometry(20,53,300,197);
+
     }
 }
 

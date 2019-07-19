@@ -1370,7 +1370,7 @@ border:1px solid rgb(0, 58, 176);</string>
     <rect>
      <x>20</x>
      <y>490</y>
-     <width>331</width>
+     <width>372</width>
      <height>37</height>
     </rect>
    </property>
@@ -1424,6 +1424,36 @@ border:1px solid rgb(0, 58, 176);</string>
      </widget>
     </item>
     <item>
+     <widget class="QLabel" name="label_17">
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="text">
+       <string>良品</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_18">
+      <property name="minimumSize">
+       <size>
+        <width>20</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLabel" name="label_13">
       <property name="font">
        <font>
@@ -1431,7 +1461,7 @@ border:1px solid rgb(0, 58, 176);</string>
        </font>
       </property>
       <property name="text">
-       <string>合格</string>
+       <string>次品</string>
       </property>
      </widget>
     </item>
@@ -1461,7 +1491,7 @@ border:1px solid rgb(0, 58, 176);</string>
        </font>
       </property>
       <property name="text">
-       <string>不合格</string>
+       <string>废料</string>
       </property>
      </widget>
     </item>

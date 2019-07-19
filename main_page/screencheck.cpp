@@ -4,8 +4,6 @@
 #include "my_control.h"
 #include <QSqlError>
 #include <QDateTime>
-#include <exception>
-#include <Windows.h>
 
 void msleep(unsigned int msec)
 {
@@ -246,7 +244,7 @@ void ScreenCheck::save_check_result(int product_id)
     if (!db->open()){
         qDebug() << "Error: Failed to connect database." << db->lastError();
         return;
-     }
+    }
     QSqlQuery query(*db);
     QString str = QString("INSERT INTO checked_result (product_id,check_result,wrap_result,scratch,white_point,black_point,time,men_id,men_name) VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\", \"%6\", \"%7\", \"%8\", \"%9\" );")
             .arg(product_id)
@@ -269,7 +267,6 @@ void ScreenCheck::save_check_result(int product_id)
     db->close();
 }
 
-
 QLabel *ScreenCheck::camera_label()
 {
     return this->ui->preview;
@@ -288,63 +285,67 @@ void ScreenCheck::ImageCapture()
     DefectsDetect *detect = ImageAlgorithm::getInterface();
     Hlong winid = (Hlong)this->ui->preview->winId();
     detect->run(image,deal_image,this->ui->preview->width(),this->ui->preview->height(),winid,this->ui->preview->x(),this->ui->preview->y());
-    current_check_result.isQualified = detect->get_result();
-    if (!current_check_result.isQualified){
-        int itype =  detect->get_defectsType();
-        current_check_result.isQualified_s = "bad";
+    current_check_result.isOK = detect->get_isok();
+    current_check_result.isGood = detect->get_isgood();
+    qDebug() << current_check_result.isOK << current_check_result.isGood;
+    int itype =  detect->get_defectsType();
+    if (!current_check_result.isOK){
+        current_check_result.isQualified_s = "ng";
         current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
         current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
         current_check_result.blackPoint = (itype & 0x04) == 0x04 ? "true" : "false";
     }
-    else {
+    else if (current_check_result.isOK && current_check_result.isGood) {
         current_check_result.isQualified_s = "good";
-        current_check_result.scratch = "false";
-        current_check_result.whitePoint = "false";
-        current_check_result.blackPoint = "false";
+        current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
+        current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
+        current_check_result.blackPoint = (itype & 0x04) == 0x04 ? "true" : "false";
     }
-
-    if (current_check_result.isQualified){
+    else if (current_check_result.isOK && !current_check_result.isGood){
+        current_check_result.isQualified_s = "ok";
+        current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
+        current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
+        current_check_result.blackPoint = (itype & 0x04) == 0x04 ? "true" : "false";
+    }
+    if (current_check_result.isOK && !current_check_result.isGood){
         if (this->ui->checkBox_2->isChecked()){
             this->ok_count += 1;
             this->all_count += 1;
-            this->ui->label_14->setNum(this->ok_count);
-            this->ui->label_16->setNum(this->ng_count);
         }
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
         this->filename = QTime::currentTime().toString("hhmmss_%1").arg("OK");
-        if (this->ui->checkBox->isChecked())
-        {
-            HTuple hv_name1 = filename.toStdString().c_str();
-            if (image_path.exists())
-            {
-                WriteImage(image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
-                this->ui->label_8->setText(QString::fromLocal8Bit("保存图片成功"));
-            }
-            else {
-                this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
-            }
-        }
     }
-    else{
+    else if (current_check_result.isOK &&current_check_result.isGood){
+        if (this->ui->checkBox_2->isChecked()){
+            this->good_count += 1;
+            this->all_count += 1;
+        }
+        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
+        this->filename = QTime::currentTime().toString("hhmmss_%1").arg("GOOD");
+    }
+    else if(!current_check_result.isOK) {
+        qDebug() << "thy";
         if (this->ui->checkBox_2->isChecked()){
             this->all_count += 1;
             this->ng_count += 1;
-            this->ui->label_16->setNum(this->ng_count);
-            this->ui->label_14->setNum(this->ok_count);
+            qDebug() << "thy";
         }
         this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
         this->filename = QTime::currentTime().toString("hhmmss_%1").arg("NG");
-        if (this->ui->checkBox->isChecked())
+    }
+    this->ui->label_14->setNum(this->ok_count);
+    this->ui->label_16->setNum(this->ng_count);
+    this->ui->label_18->setNum(this->good_count);
+    if (this->ui->checkBox->isChecked())
+    {
+        HTuple hv_name1 = filename.toStdString().c_str();
+        if (image_path.exists())
         {
-            HTuple hv_name1 = filename.toStdString().c_str();
-            if (image_path.exists())
-            {
-                WriteImage(image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
-                this->ui->label_8->setText(QString::fromLocal8Bit("保存图片成功"));
-            }
-            else {
-                this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
-            }
+            WriteImage(image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+            this->ui->label_8->setText(QString::fromLocal8Bit("保存图片成功"));
+        }
+        else {
+            this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
         }
     }
     this->ui->stackedWidget->setCurrentIndex(1);
@@ -371,6 +372,7 @@ void ScreenCheck::analysis_FaultCode(QVariant data, QString &str)
     status.rollerMotorSpeedStatus = (stm_status & 0x04) == 0x04 ? true : false;
     status.slidingTableMotorSpeedStatus = (stm_status & 0x08) == 0x08 ? true : false;
     status.packingbag_fault = (stm_status & 0x10) == 0x10 ? true : false;
+    status.material_buffer_cylinde = (stm_status & 0x20) == 0x20 ? true : false;
 
     status.grab_cylinder = (stm_cylinder & 0x01) == 0x01 ? true : false;
     status.magnetic_roller_positioning_cylinder = (stm_cylinder & 0x02) == 0x02 ? true : false;
@@ -406,7 +408,8 @@ void ScreenCheck::analysis_FaultCode(QVariant data, QString &str)
         str.append(QString::fromLocal8Bit("切料气缸故障, 先检查气压是否正常\n"));
     if (status.waste_cylinder)
         str.append(QString::fromLocal8Bit("废料气缸故障, 先检查气压是否正常\n"));
-
+    if (status.material_buffer_cylinde)
+        str.append(QString::fromLocal8Bit("物料缓冲气缸故障, 先检查气压是否正常\n"));
     this->ui->motor_1->setChecked(!status.transportMotorSpeedStatus);
     this->ui->motor_2->setChecked(!status.rollMontorSpeedStatus);
     this->ui->motor_3->setChecked(!status.rollerMotorSpeedStatus);
@@ -449,7 +452,16 @@ void ScreenCheck::accept_stm_command(Command com, QVariant data)
         msleep(800);
         time.start();
         this->ImageCapture();
-        emit tell_worker_stm_command(Command::CheckResult,this->current_check_result.isQualified);
+        uint8_t send_data = 0;
+        if (!this->current_check_result.isOK)
+            send_data = 2;
+        else if (this->current_check_result.isOK && this->current_check_result.isGood) {
+            send_data = 1;
+        }
+        else if (this->current_check_result.isOK && !this->current_check_result.isGood) {
+            send_data = 0;
+        }
+        emit tell_worker_stm_command(Command::CheckResult,send_data);
         qDebug() << QString::fromLocal8Bit("检测时间") << time.elapsed();
     }
     else if (com == Command::WrapResult)
@@ -613,9 +625,10 @@ void ScreenCheck::on_start_check_released()
         messageBox.exec();
         return;
     }
+    camera->collectFrame(this->ui->preview);
     emit ask_serial_setting();
     emit tell_worker_start_work(this->serial_setting);
-    msleep(5);
+    msleep(10);
     if (!this->worker_thread_serial_status && !camera->isOpened()){
         QMessageBox messageBox;
         messageBox.setWindowTitle(QString::fromLocal8Bit("警告"));
@@ -667,7 +680,6 @@ void ScreenCheck::on_pushButton_18_released()
 {
     emit tell_worker_stm_command(Command::Reset,0);
 }
-
 
 void ScreenCheck::on_pushButton_8_released()
 {

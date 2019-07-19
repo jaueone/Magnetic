@@ -17,11 +17,13 @@ public:
     int threshold_param();
 
     void run(HObject &ho_Image,HObject &deal_image, const int width, const int height, const Hlong &winid, int x, int y);
-	bool get_result();
+    bool get_isok();
+    bool get_isgood();
     int get_defectsType();
 
 private:
     bool _bResult;
+    bool _isGood;
     int _iType=0xF0;
 
 

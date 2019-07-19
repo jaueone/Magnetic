@@ -187,7 +187,12 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         if (HDevWindowStack::IsOpen())
             DispObj(ho_RegionUnion, HDevWindowStack::GetActive());
     }
-  DumpWindowImage(&deal_image,hv_mainWindowHandle);
+    DumpWindowImage(&deal_image,hv_mainWindowHandle);
+}
+
+bool DefectsDetect::get_isgood()
+{
+    return _isGood;
 }
 
 
@@ -198,7 +203,7 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
 @return 0: is not OK
 
  ************************************************************************/
-bool DefectsDetect::get_result()
+bool DefectsDetect::get_isok()
 {
 
     if (hv_ReturnIsOK==1)

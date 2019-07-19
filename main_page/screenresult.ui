@@ -18,8 +18,8 @@
     <rect>
      <x>40</x>
      <y>100</y>
-     <width>280</width>
-     <height>151</height>
+     <width>302</width>
+     <height>222</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout_2">
@@ -67,7 +67,7 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item row="2" column="0">
      <widget class="QLabel" name="label_3">
       <property name="minimumSize">
        <size>
@@ -89,7 +89,7 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
+    <item row="2" column="1">
      <widget class="QLabel" name="label_6">
       <property name="font">
        <font>
@@ -105,7 +105,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="label_4">
       <property name="minimumSize">
        <size>
@@ -127,8 +127,46 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
+    <item row="3" column="1">
      <widget class="QLabel" name="label_7">
+      <property name="font">
+       <font>
+        <family>Microsoft YaHei</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel{color:white;font-family:Microsoft YaHei; background-color:rgb(132,151,176);}</string>
+      </property>
+      <property name="text">
+       <string>XXX</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_9">
+      <property name="minimumSize">
+       <size>
+        <width>150</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Microsoft YaHei</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLabel{color:white;font-family:Microsoft YaHei; background-color:rgb(132,151,176);}</string>
+      </property>
+      <property name="text">
+       <string>累计检测高质量数</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="label_11">
       <property name="font">
        <font>
         <family>Microsoft YaHei</family>
@@ -400,7 +438,7 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
     <rect>
      <x>350</x>
      <y>110</y>
-     <width>591</width>
+     <width>601</width>
      <height>401</height>
     </rect>
    </property>
@@ -410,70 +448,11 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
     </property>
    </layout>
   </widget>
-  <widget class="QLabel" name="label_17">
-   <property name="geometry">
-    <rect>
-     <x>880</x>
-     <y>70</y>
-     <width>91</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微软雅黑</family>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>不合格率10%</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_18">
-   <property name="geometry">
-    <rect>
-     <x>930</x>
-     <y>90</y>
-     <width>81</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微软雅黑</family>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>合格率90%</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="widget" native="true">
-   <property name="geometry">
-    <rect>
-     <x>670</x>
-     <y>20</y>
-     <width>301</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <widget class="QWidget" name="verticalLayoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>10</y>
-      <width>371</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2"/>
-   </widget>
-  </widget>
   <widget class="QCalendarWidget" name="calendarWidget">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>270</y>
+     <x>40</x>
+     <y>330</y>
      <width>291</width>
      <height>221</height>
     </rect>
@@ -496,17 +475,6 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
    <property name="navigationBarVisible">
     <bool>false</bool>
    </property>
-  </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget_3">
-   <property name="geometry">
-    <rect>
-     <x>690</x>
-     <y>10</y>
-     <width>369</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_3"/>
   </widget>
   <widget class="QListView" name="listView">
    <property name="geometry">

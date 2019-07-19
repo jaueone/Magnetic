@@ -77,6 +77,7 @@ struct Status{
     bool cutting_cylinder;
     bool waste_cylinder;
     bool packingbag_fault;
+    bool material_buffer_cylinde;
 
     uint16_t transport_motor_speed;
     uint16_t roll_motor_speed;
