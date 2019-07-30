@@ -285,54 +285,52 @@ void ScreenCheck::ImageCapture()
     DefectsDetect *detect = ImageAlgorithm::getInterface();
     Hlong winid = (Hlong)this->ui->preview->winId();
     detect->run(image,deal_image,this->ui->preview->width(),this->ui->preview->height(),winid,this->ui->preview->x(),this->ui->preview->y());
-    current_check_result.isOK = detect->get_isok();
-    current_check_result.isGood = detect->get_isgood();
-    qDebug() << current_check_result.isOK << current_check_result.isGood;
+    current_check_result.isOK = detect->get_result();
     int itype =  detect->get_defectsType();
-    if (!current_check_result.isOK){
+    qDebug() << current_check_result.isOK;
+    if (current_check_result.isOK == 0){
         current_check_result.isQualified_s = "ng";
         current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
         current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
         current_check_result.blackPoint = (itype & 0x04) == 0x04 ? "true" : "false";
     }
-    else if (current_check_result.isOK && current_check_result.isGood) {
+    else if (current_check_result.isOK == 2) {
         current_check_result.isQualified_s = "good";
         current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
         current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
         current_check_result.blackPoint = (itype & 0x04) == 0x04 ? "true" : "false";
     }
-    else if (current_check_result.isOK && !current_check_result.isGood){
+    else if (current_check_result.isOK == 1){
         current_check_result.isQualified_s = "ok";
         current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
         current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
         current_check_result.blackPoint = (itype & 0x04) == 0x04 ? "true" : "false";
     }
-    if (current_check_result.isOK && !current_check_result.isGood){
+    if (current_check_result.isOK == 1){
         if (this->ui->checkBox_2->isChecked()){
             this->ok_count += 1;
             this->all_count += 1;
         }
-        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
+        this->ui->label_5->setText(QString::fromLocal8Bit("次品"));
         this->filename = QTime::currentTime().toString("hhmmss_%1").arg("OK");
     }
-    else if (current_check_result.isOK &&current_check_result.isGood){
+    else if (current_check_result.isOK == 2){
         if (this->ui->checkBox_2->isChecked()){
             this->good_count += 1;
             this->all_count += 1;
         }
-        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ok.png);");
+        this->ui->label_5->setText(QString::fromLocal8Bit("良品"));
         this->filename = QTime::currentTime().toString("hhmmss_%1").arg("GOOD");
     }
-    else if(!current_check_result.isOK) {
-        qDebug() << "thy";
+    else if(current_check_result.isOK == 0) {
         if (this->ui->checkBox_2->isChecked()){
             this->all_count += 1;
             this->ng_count += 1;
-            qDebug() << "thy";
         }
-        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);image: url(:/image/ng.png);");
+        this->ui->label_5->setText(QString::fromLocal8Bit("废料"));
         this->filename = QTime::currentTime().toString("hhmmss_%1").arg("NG");
     }
+    qDebug() << ok_count << ng_count << good_count;
     this->ui->label_14->setNum(this->ok_count);
     this->ui->label_16->setNum(this->ng_count);
     this->ui->label_18->setNum(this->good_count);
@@ -453,12 +451,12 @@ void ScreenCheck::accept_stm_command(Command com, QVariant data)
         time.start();
         this->ImageCapture();
         uint8_t send_data = 0;
-        if (!this->current_check_result.isOK)
+        if (this->current_check_result.isOK == 0)
             send_data = 2;
-        else if (this->current_check_result.isOK && this->current_check_result.isGood) {
+        else if (this->current_check_result.isOK == 2) {
             send_data = 1;
         }
-        else if (this->current_check_result.isOK && !this->current_check_result.isGood) {
+        else if (this->current_check_result.isOK == 1) {
             send_data = 0;
         }
         emit tell_worker_stm_command(Command::CheckResult,send_data);
@@ -574,7 +572,7 @@ void ScreenCheck::accept_worker_step(int step)
         if (HDevWindowStack::IsOpen())
             CloseWindow(HDevWindowStack::Pop());
         this->ui->label->setStyleSheet("color:black");
-        this->ui->label_5->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);");
+        this->ui->label_5->setText(QString::fromLocal8Bit("无"));
         this->ui->label_6->setStyleSheet("border:1px solid black;background-color: rgb(255, 255, 255);");
         this->ui->pushButton_7->setChecked(true);
         this->ui->label->setText("\345\207\206\345\244\207\345\267\245\344\275\234");

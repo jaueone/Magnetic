@@ -20,8 +20,7 @@ class ScreenCheck;
 
 struct CurrentCheckResult
 {
-    bool isOK;
-    bool isGood;
+    int isOK;
     bool wrapedOver;
     QString isQualified_s;
     QString wrapedOver_s;

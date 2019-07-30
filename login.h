@@ -35,6 +35,8 @@ private slots:
     void on_lineEdit_textChanged(const QString &arg1);
 
 
+    void on_pushButton_2_released();
+
 signals:
     void tell_window_step_page(int page);
     void tell_window_men_login(Meninfo info);

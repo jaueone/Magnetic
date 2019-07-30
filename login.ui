@@ -119,6 +119,19 @@
     <string/>
    </property>
   </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>450</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>测试/登录</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

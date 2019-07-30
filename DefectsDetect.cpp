@@ -25,18 +25,64 @@ int DefectsDetect::threshold_param()
 
 void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width, const int height, const Hlong &winid, int x, int y)
 {
+    //filename: StickDetect-3classV3.5-withoutWaterMarkDetectV4.hdev
+    //date:2019.7.30
+    //Algorithm procedure see: 3classification.draw.io
+    //inherit file: StickDetectV6
+
+    //modify:
+
+    //1. part 1 detect
+    //select_gray (ConnectedRegions1, Image, Part1SelectedRegion1, 'deviation', 'and', 3.95, 5)
+    //'and', 3.95, 5)
+
+
+    //2.part 1 detect
+    //select_shape (Part1SelectedRegion1, Part1SelectedRegion2, 'area', 'and', 1100, 5000)
+    //area =1000 -> 1100
+
+    //上位机注意事项：
+    //好良品:
+    //returnIsOK =1;
+    //returnIsGood=1;
+
+    //一般良品：
+    //returnIsOK=1；
+    //returnIsGood=0;
+
+    //不良品：
+    //returnIsOK=0;
+
+    //去掉了函数： get defectsType ();
+    //getResult() 返回值bool改为int ;
+
+    //窗口显示需要加在，每个//display defects之后,return之前
+
+    //display 对象：
+    //
+    //RegionUnion1
+    //RegionUnion2
+
     //initualization
     if (HDevWindowStack::IsOpen())
         CloseWindow(HDevWindowStack::Pop());
-    //filename: StickDetectV6
-    //date:2019.7.16
-    //modify:
-    //1.set global parameters ***********
-    //2.add areaSelect param
-    //3.'mean', 'and', 0, 55->54.9
-    //4.fix bug: gen_rectangle1 (Rectangle, 0, 0,Height,Width)
 
-    // ReadImage(&ho_Image, "D:/Personal/Pictures/误检A-2019-7-13-参数14-30/误检A-2-2019-7-13-参数14-30/wja2 (5).bmp");
+    //*********** statistic parameters***********
+    hv_NumberNg = 0;
+    hv_NumberGood = 0;
+    hv_NumberOkNotGood = 0;
+
+    //*********** statistic parameters***********
+
+
+    ReadImage(&ho_Image, "E:/WorkSpace/ImgData/磁锟样本/03--不良批次检测结果20190715/170101_NG.bmp");
+    //list_files ('E:/WorkSpace/ImgData/磁锟样本/03--不良批次检测结果20190715', ['files','follow_links'], ImageFiles)
+    //tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)
+    //* for Index := 0 to |ImageFiles| - 1 by 1
+    //* read_image (Image, ImageFiles[Index])
+
+
+
     GetImageSize(ho_Image, &hv_Width, &hv_Height);
     SetWindowAttr("background_color","black");
     OpenWindow(0,0,width,height,winid,"visible","",&hv_mainWindowHandle);
@@ -48,20 +94,29 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         SetLineWidth(HDevWindowStack::GetActive(),3);
     if (HDevWindowStack::IsOpen())
         SetColored(HDevWindowStack::GetActive(),12);
+
+
+    //* currentFiledir := ImageFiles[Index]
+    //* disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
+
+
     //*********** return parameters setting  ***********
     hv_ScratchExist = 0;
     hv_WhitePointExist = 0;
     hv_BlackPointExist = 0;
     hv_ReturnIsOK = 0;
+    hv_ReturnIsGood = 0;
     //*********** return parameters setting ***********
     //*********** global parameters ***********
     hv_medianDegree = 5;
-    //hv_thresholdBlack = 14;
+    hv_thresholdBlack = 14;
     hv_smoothDegree = 1.5;
-    // hv_thresholdWhite = 30;
+    hv_thresholdWhite = 30;
     //default=36.047
-    hv_areaSelect = 54.5;
+    hv_areaSelect_good = 54.5;
+    hv_areaSelect_notGood = 85;
     //*********** global parameters***********
+
 
     //pre-judge : detect or not
     GenRectangle1(&ho_Rectangle, 0, 0, hv_Height, hv_Width);
@@ -72,6 +127,9 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     }
     else
     {
+
+
+
         //Image process procedure-1 ,especially for black or bigger size defects
         MedianImage(ho_Image, &ho_ImageMedian, "circle", hv_medianDegree, "mirrored");
         //invert_image (ImageMedian, ImageInvert)
@@ -79,11 +137,30 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         Threshold(ho_ImageEdgeAmp1, &ho_Regions1, hv_thresholdBlack, 255);
         DilationCircle(ho_Regions1, &ho_RegionDilation1, 12.5);
         Connection(ho_RegionDilation1, &ho_ConnectedRegions1);
-        SelectGray(ho_ConnectedRegions1, ho_Image, &ho_Part1SelectedRegions, "mean",
+        SelectGray(ho_ConnectedRegions1, ho_Image, &ho_Part1SelectedRegion0, "mean",
         "and", 0, 54.9);
-        Union1(ho_Part1SelectedRegions, &ho_RegionUnion1);
+        SelectGray(ho_ConnectedRegions1, ho_Image, &ho_Part1SelectedRegion1, "deviation",
+        "and", 3.95, 5);
+        SelectShape(ho_Part1SelectedRegion1, &ho_Part1SelectedRegion2, "area", "and",
+        1100, 5000);
+        Union2(ho_Part1SelectedRegion0, ho_Part1SelectedRegion2, &ho_RegionUnion1);
+        Connection(ho_RegionUnion1, &ho_Part1SelectedRegions);
+        CountObj(ho_Part1SelectedRegions, &hv_Part1DefectsNum);
 
-        CountObj(ho_Part1SelectedRegions, &hv_Part1blackDefectsNum);
+        //if black defects contain
+        if (0 != (hv_Part1DefectsNum>0))
+        {
+            hv_ReturnIsOK = 0;
+            hv_NumberNg += 1;
+            //stop ()
+            //display defects
+            if (HDevWindowStack::IsOpen())
+                DispObj(ho_Image, HDevWindowStack::GetActive());
+            if (HDevWindowStack::IsOpen())
+                DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
+            DumpWindowImage(&deal_image,hv_mainWindowHandle);
+            return;
+        }
 
 
         //Image process  procedure-2 ,especially for white or small size defects
@@ -91,110 +168,114 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         KirschAmp(ho_ImageSmooth, &ho_ImageEdgeAmp2);
         Threshold(ho_ImageEdgeAmp2, &ho_Regions2, hv_thresholdWhite, 255);
         Connection(ho_Regions2, &ho_preConnectedRegions2);
-        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions2, "area", "and", hv_areaSelect,
-        9999.615);
+        //good condition Area select
+        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_good, "area", "and",
+        hv_areaSelect_good, 9999.615);
+        DilationCircle(ho_SelectedRegions_good, &ho_RegionDilation2_good, 12.5);
+        CountObj(ho_SelectedRegions_good, &hv_Part2DefectsNum2_good);
+        //notGood condition Area select
 
-        DilationCircle(ho_SelectedRegions2, &ho_RegionDilation2, 12.5);
-        Connection(ho_RegionDilation2, &ho_Part2ConnectedRegions);
-        Union1(ho_Part2ConnectedRegions, &ho_RegionUnion2);
+        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_notGood1, "area", "and",
+        hv_areaSelect_notGood, 9999.615);
+        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_notGood2, "height",
+        "and", 10.518, 50);
+        DilationCircle(ho_SelectedRegions_notGood1, &ho_RegionDilation2_notGood1, 12.5);
+        DilationCircle(ho_SelectedRegions_notGood2, &ho_RegionDilation2_notGood2, 12.5);
+        Union2(ho_SelectedRegions_notGood1, ho_SelectedRegions_notGood2, &ho_UnionSelectedRegions_notGood
+               );
+        Connection(ho_UnionSelectedRegions_notGood, &ho_SelectedRegions_notGood);
+        CountObj(ho_SelectedRegions_notGood, &hv_Part2DefectsNum2_notGood);
 
-        //****************
-        Union2(ho_RegionUnion1, ho_RegionUnion2, &ho_RegionUnion);
+
+        //connection (RegionDilation2, Part2ConnectedRegions)
+        //Union good and notgood defects for displaying
+        Union1(ho_RegionDilation2_good, &ho_RegionUnion2_good);
+        Union2(ho_RegionDilation2_notGood1, ho_RegionDilation2_notGood2, &ho_RegionUnion2_notGood
+               );
+        Union2(ho_RegionUnion2_good, ho_RegionUnion2_notGood, &ho_RegionUnion2);
 
 
-
-        //result feedback
-        CountObj(ho_Part1SelectedRegions, &hv_defectsNum1);
-        CountObj(ho_Part2ConnectedRegions, &hv_defectsNum2);
-        hv_defectsNum = hv_defectsNum1+hv_defectsNum2;
-
-        hv_ScratchNum = 0;
-        hv_WhitePointNum = 0;
-        hv_BlackPointNum = 0;
-
-        //if is not ok ,then...
-        if (0 != (hv_defectsNum>2))
+        //if white defects not contain
+        if (0 != (hv_Part2DefectsNum2_good<=2))
         {
-            //defects statistic
-            Rectangularity(ho_Part2ConnectedRegions, &hv_Rectangularity);
-            AreaCenter(ho_Part2ConnectedRegions, &hv_Area, &hv_Row, &hv_Column);
-            GetGrayval(ho_Image, hv_Row, hv_Column, &hv_Grayval);
-
-            hv_RecThreshold = 0.85;
-            hv_GrayvalThreshold = 20;
-
-
+            //start :water mark detect
+            //gen_rectangle2 (waterRectangle, Height/2, Width/2, 0, Width-2000, Height/5-50)
+            //reduce_domain (Image, waterRectangle, waterImageReduced)
+            //crop_domain (waterImageReduced, waterImagePart)
+            //intensity (waterRectangle, waterImageReduced, Mean_Value, deviation_Value)
+            //if water mark contain
+            //if (deviation_Value>4.97)
+            //NumberNg := NumberNg+1
+            //ReturnIsOK := 0
+            //*             continue
+            //water mark not contain
+            //else
+            hv_NumberGood += 1;
+            hv_ReturnIsOK = 1;
+            hv_ReturnIsGood = 1;
+            //display defects
+            if (HDevWindowStack::IsOpen())
+                DispObj(ho_Image, HDevWindowStack::GetActive());
+            if (HDevWindowStack::IsOpen())
+                DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
+            if (HDevWindowStack::IsOpen())
+                DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
+            DumpWindowImage(&deal_image,hv_mainWindowHandle);
+            return;
+            //endif
+            //if white defects contain
+        }
+        else if (0 != (hv_Part2DefectsNum2_good>2))
+        {
+            //if Big Defects contain
+            if (0 != (hv_Part2DefectsNum2_notGood>=1))
             {
-                HTuple end_val88 = hv_defectsNum2;
-                HTuple step_val88 = 1;
-                for (hv_Index=1; hv_Index.Continue(end_val88, step_val88); hv_Index += step_val88)
-                {
-                    if (0 != (HTuple(hv_Rectangularity[hv_Index-1])>hv_RecThreshold))
-                    {
-                        hv_ScratchNum += 1;
-                        continue;
-                    }
-                    else if (0 != (HTuple(hv_Grayval[hv_Index-1])>hv_GrayvalThreshold))
-                    {
-                        hv_WhitePointNum += 1;
-                        continue;
-                    }
-                    else
-                    {
-                        hv_BlackPointNum += 1;
-                    }
-                }
+                hv_ReturnIsOK = 0;
+                hv_NumberNg += 1;
+                //stop ()
+                //display defects
+                if (HDevWindowStack::IsOpen())
+                    DispObj(ho_Image, HDevWindowStack::GetActive());
+                if (HDevWindowStack::IsOpen())
+                    DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
+                if (HDevWindowStack::IsOpen())
+                    DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
+                DumpWindowImage(&deal_image,hv_mainWindowHandle);
+                return;
+                //if Big Defects not contain
+            }
+            else
+            {
+                //gen_rectangle2 (waterRectangle, Height/2, Width/2, 0, Width-2000, Height/5-50)
+                //intensity (waterRectangle, ImageMedian, Mean_Value, deviation_Value)
+                //if water mark contain
+                //if (deviation_Value>4.92)
+                //ReturnIsOK := 0
+                //NumberNg := NumberNg+1
+                //stop ()
+                //*                 continue
+                //if water mark not contain
+                //else
+                hv_ReturnIsOK = 1;
+                hv_ReturnIsGood = 0;
+                hv_NumberOkNotGood += 1;
+
+                //endif
             }
 
-            hv_BlackPointNum += hv_Part1blackDefectsNum;
-            hv_ResultMessage.Clear();
-            hv_ResultMessage[0] = " Not OK";
-            hv_ResultMessage.Append(" 划痕: "+hv_ScratchNum);
-            hv_ResultMessage.Append(" 白色缺陷: "+hv_WhitePointNum);
-            hv_ResultMessage.Append(" 黑色缺陷: "+hv_BlackPointNum);
-            hv_Color.Clear();
-            hv_Color[0] = "red";
-            hv_Color[1] = "black";
-            hv_Color[2] = "black";
-            hv_Color[3] = "black";
-            hv_ReturnIsOK = 0;
         }
-        else
-        {
-            hv_ResultMessage = "OK";
-            hv_Color = "forest green";
-            hv_ReturnIsOK = 1;
-        }
-
-        //*********** return parameters  ***********
-        if (0 != (hv_ScratchNum>0))
-        {
-            hv_ScratchExist = 1;
-        }
-        if (0 != (hv_WhitePointNum>0))
-        {
-            hv_WhitePointExist = 1;
-        }
-        if (0 != (hv_BlackPointNum>0))
-        {
-            hv_BlackPointExist = 1;
-        }
-        //*********** return parameters  ***********
-
-        //Display the results
         if (HDevWindowStack::IsOpen())
             DispObj(ho_Image, HDevWindowStack::GetActive());
         if (HDevWindowStack::IsOpen())
-            DispObj(ho_RegionUnion, HDevWindowStack::GetActive());
+            DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
+        if (HDevWindowStack::IsOpen())
+            DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
+        DumpWindowImage(&deal_image,hv_mainWindowHandle);
+
+
     }
-    DumpWindowImage(&deal_image,hv_mainWindowHandle);
-}
 
-bool DefectsDetect::get_isgood()
-{
-    return _isGood;
 }
-
 
 
 /************************************************************************
@@ -203,15 +284,19 @@ bool DefectsDetect::get_isgood()
 @return 0: is not OK
 
  ************************************************************************/
-bool DefectsDetect::get_isok()
+int DefectsDetect::get_result()
 {
 
-    if (hv_ReturnIsOK==1)
-    _bResult = 1;
-    else
-    _bResult = 0;
+    if((hv_ReturnIsOK==1)&&(hv_ReturnIsGood==1))
+        _iResult = 2;
 
-    return _bResult;
+    if((hv_ReturnIsOK==1)&&(hv_ReturnIsGood==0))
+        _iResult = 1;
+
+    if (hv_ReturnIsOK==0)
+        _iResult = 0;
+
+    return _iResult;
 }
 
 
@@ -221,9 +306,10 @@ int DefectsDetect::get_defectsType()
     if(hv_ScratchExist==1)
         _iType=0xF1;
     if (hv_WhitePointExist == 1)
-        _iType = (0xF1 || 0xF2);
+        _iType = (0xF1 | 0xF2);
     if (hv_BlackPointExist==1)
-        _iType = (0xF1 || 0xF4);
+        _iType = (0xF1 | 0xF4);
+
     return _iType;
 }
 

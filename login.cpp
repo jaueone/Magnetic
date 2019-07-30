@@ -95,5 +95,13 @@ void Login::clear()
 
 
 
-
-
+void Login::on_pushButton_2_released()
+{
+    Meninfo info;
+    info.name = "员工1";
+    info.isengineer = 1;
+    info.number = 001;
+    info.picture = "1.png";
+    emit tell_window_step_page(1);
+    emit tell_window_men_login(info);
+}
