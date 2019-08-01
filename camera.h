@@ -128,11 +128,12 @@ public:
 
     int setParams(DType type,const char *params, QVariant value);
     CameraSetting get_camera_setting();
+    ~HKCamera();
 
 private:
     static void rgb3_to_interleaved(HObject ho_ImageRGB, HObject *ho_ImageInterleaved);
     HKCamera();
-    ~HKCamera();
+
     int destroyHandle();
 
     bool is_start_collected = false;

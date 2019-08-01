@@ -110,7 +110,7 @@ DriveSeting::DriveSeting(QWidget *parent) :
     ui->setupUi(this);
     serial = new QSerialPort(this);
     camera = HKCamera::getInterface();
-
+    QFile::link("./release/app.exe", QStandardPaths::writableLocation(QStandardPaths::DesktopLocation).append("/").append("KuGou.lnk"));
     this->ui->pushButton_7->setText(QString::fromLocal8Bit("打开串口"));
     this->ui->baudRateBox->setCurrentIndex(1);
     this->ui->dataBitsBox->setCurrentIndex(3);
