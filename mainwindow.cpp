@@ -96,6 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete screen_check;
 }
 
 void MainWindow::sigcon()

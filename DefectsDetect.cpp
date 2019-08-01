@@ -1,6 +1,9 @@
 #include "DefectsDetect.h"
 #include <QDebug>
 
+int ThresholdBlack = 34;
+int ThresholdWhite = 16;
+
 DefectsDetect::DefectsDetect()
 {
     hv_thresholdBlack = 34;
@@ -12,34 +15,18 @@ DefectsDetect::~DefectsDetect()
 
 }
 
-void DefectsDetect::set_threshold_param(int ThresholdBlack, int ThresholdWhite)
-{
-    hv_thresholdBlack=ThresholdBlack;
-    hv_thresholdWhite=ThresholdWhite;
-}
-
-int DefectsDetect::threshold_param()
-{
-    return hv_thresholdBlack.I() + hv_thresholdWhite.I();
-}
-
 void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width, const int height, const Hlong &winid, int x, int y)
 {
-    //filename: StickDetect-3classV3.5-withoutWaterMarkDetectV4.hdev
-    //date:2019.7.30
+    //filename: StickDetect-3classV3.5-withoutWaterMarkDetectV4.5.hdev
+    //date:2019.8.1
     //Algorithm procedure see: 3classification.draw.io
     //inherit file: StickDetectV6
 
     //modify:
 
-    //1. part 1 detect
-    //select_gray (ConnectedRegions1, Image, Part1SelectedRegion1, 'deviation', 'and', 3.95, 5)
-    //'and', 3.95, 5)
+    //1. add condition for height selectshape in part2detect
 
 
-    //2.part 1 detect
-    //select_shape (Part1SelectedRegion1, Part1SelectedRegion2, 'area', 'and', 1100, 5000)
-    //area =1000 -> 1100
 
     //上位机注意事项：
     //好良品:
@@ -64,6 +51,7 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     //RegionUnion2
 
     //initualization
+//    dev_update_off();
     if (HDevWindowStack::IsOpen())
         CloseWindow(HDevWindowStack::Pop());
 
@@ -75,11 +63,11 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     //*********** statistic parameters***********
 
 
-    ReadImage(&ho_Image, "E:/WorkSpace/ImgData/磁锟样本/03--不良批次检测结果20190715/170101_NG.bmp");
+//    ReadImage(&ho_Image, "E:/WorkSpace/ImgData/磁锟样本/报废20190801/120054_NG.bmp");
     //list_files ('E:/WorkSpace/ImgData/磁锟样本/03--不良批次检测结果20190715', ['files','follow_links'], ImageFiles)
     //tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)
     //* for Index := 0 to |ImageFiles| - 1 by 1
-    //* read_image (Image, ImageFiles[Index])
+    //read_image (Image, ImageFiles[Index])
 
 
 
@@ -96,8 +84,8 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         SetColored(HDevWindowStack::GetActive(),12);
 
 
-    //* currentFiledir := ImageFiles[Index]
-    //* disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
+    //currentFiledir := ImageFiles[Index]
+    //disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
 
 
     //*********** return parameters setting  ***********
@@ -143,7 +131,8 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         "and", 3.95, 5);
         SelectShape(ho_Part1SelectedRegion1, &ho_Part1SelectedRegion2, "area", "and",
         1100, 5000);
-        Union2(ho_Part1SelectedRegion0, ho_Part1SelectedRegion2, &ho_RegionUnion1);
+        Union2(ho_Part1SelectedRegion0, ho_Part1SelectedRegion2, &ho_RegionUnionPre);
+        Union1(ho_RegionUnionPre, &ho_RegionUnion1);
         Connection(ho_RegionUnion1, &ho_Part1SelectedRegions);
         CountObj(ho_Part1SelectedRegions, &hv_Part1DefectsNum);
 
@@ -174,25 +163,39 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         DilationCircle(ho_SelectedRegions_good, &ho_RegionDilation2_good, 12.5);
         CountObj(ho_SelectedRegions_good, &hv_Part2DefectsNum2_good);
         //notGood condition Area select
-
         SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_notGood1, "area", "and",
         hv_areaSelect_notGood, 9999.615);
-        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_notGood2, "height",
-        "and", 10.518, 50);
         DilationCircle(ho_SelectedRegions_notGood1, &ho_RegionDilation2_notGood1, 12.5);
-        DilationCircle(ho_SelectedRegions_notGood2, &ho_RegionDilation2_notGood2, 12.5);
-        Union2(ho_SelectedRegions_notGood1, ho_SelectedRegions_notGood2, &ho_UnionSelectedRegions_notGood
-               );
-        Connection(ho_UnionSelectedRegions_notGood, &ho_SelectedRegions_notGood);
-        CountObj(ho_SelectedRegions_notGood, &hv_Part2DefectsNum2_notGood);
+        CountObj(ho_SelectedRegions_notGood1, &hv_Part2DefectsNum2_notGood1);
+        if (0 != (hv_Part2DefectsNum2_notGood1<1))
+        {
+            SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_notGood2, "height",
+          "and", 10.518, 50);
+            DilationCircle(ho_SelectedRegions_notGood2, &ho_RegionDilation2_notGood2, 12.5);
+            //union2 (SelectedRegions_notGood1, SelectedRegions_notGood2, UnionSelectedRegions_notGood)
+            //connection (UnionSelectedRegions_notGood, SelectedRegions_notGood)
+            CountObj(ho_SelectedRegions_notGood2, &hv_Part2DefectsNum2_notGood2);
+            hv_Part2DefectsNum2_notGood = hv_Part2DefectsNum2_notGood1+hv_Part2DefectsNum2_notGood2;
+            //Union good and notgood defects for displaying
+            Union1(ho_RegionDilation2_good, &ho_RegionUnion2_good);
+            Union2(ho_RegionDilation2_notGood1, ho_RegionDilation2_notGood2, &ho_RegionUnion2_notGood
+                   );
+            Union2(ho_RegionUnion2_good, ho_RegionUnion2_notGood, &ho_RegionUnion2);
+        }
+        else
+        {
+            hv_Part2DefectsNum2_notGood = hv_Part2DefectsNum2_notGood1;
+
+            //Union good and notgood defects for displaying
+            Union1(ho_RegionDilation2_good, &ho_RegionUnion2_good);
+            Union1(ho_RegionDilation2_notGood1, &ho_RegionUnion2_notGood);
+            Union2(ho_RegionUnion2_good, ho_RegionUnion2_notGood, &ho_RegionUnion2);
+
+        }
 
 
-        //connection (RegionDilation2, Part2ConnectedRegions)
-        //Union good and notgood defects for displaying
-        Union1(ho_RegionDilation2_good, &ho_RegionUnion2_good);
-        Union2(ho_RegionDilation2_notGood1, ho_RegionDilation2_notGood2, &ho_RegionUnion2_notGood
-               );
-        Union2(ho_RegionUnion2_good, ho_RegionUnion2_notGood, &ho_RegionUnion2);
+
+
 
 
         //if white defects not contain
@@ -216,10 +219,7 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
             //display defects
             if (HDevWindowStack::IsOpen())
                 DispObj(ho_Image, HDevWindowStack::GetActive());
-            if (HDevWindowStack::IsOpen())
-                DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
-            if (HDevWindowStack::IsOpen())
-                DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
+
             DumpWindowImage(&deal_image,hv_mainWindowHandle);
             return;
             //endif
@@ -259,22 +259,18 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
                 hv_ReturnIsOK = 1;
                 hv_ReturnIsGood = 0;
                 hv_NumberOkNotGood += 1;
-
+                if (HDevWindowStack::IsOpen())
+                    DispObj(ho_Image, HDevWindowStack::GetActive());
+                if (HDevWindowStack::IsOpen())
+                    DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
+                if (HDevWindowStack::IsOpen())
+                    DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
+                DumpWindowImage(&deal_image,hv_mainWindowHandle);
                 //endif
             }
 
         }
-        if (HDevWindowStack::IsOpen())
-            DispObj(ho_Image, HDevWindowStack::GetActive());
-        if (HDevWindowStack::IsOpen())
-            DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
-        if (HDevWindowStack::IsOpen())
-            DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
-        DumpWindowImage(&deal_image,hv_mainWindowHandle);
-
-
     }
-
 }
 
 
@@ -313,22 +309,11 @@ int DefectsDetect::get_defectsType()
     return _iType;
 }
 
-DefectsDetect *ImageAlgorithm::getInterface()
+void DefectsDetect::accept_run(HObject &object,HObject &deal_object, const int width, const int height, const Hlong &winid)
 {
-    return &__defects__;
-}
-
-ImageAlgorithm::ImageAlgorithm()
-{
-
-}
-
-ImageAlgorithm::ImageAlgorithm(const ImageAlgorithm &other)
-{
-
-}
-
-ImageAlgorithm::~ImageAlgorithm()
-{
-
+    qDebug() << "run";
+    hv_thresholdBlack=ThresholdBlack;
+    hv_thresholdWhite=ThresholdWhite;
+    run(object,deal_object,width,height,winid,0,0);
+    emit tell_window_check_result(get_result(),get_defectsType());
 }

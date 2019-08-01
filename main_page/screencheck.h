@@ -6,6 +6,7 @@
 #include "login.h"
 #include "worker.h"
 #include "pixitem.h"
+#include "DefectsDetect.h"
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -63,6 +64,8 @@ public slots:
     void accept_worker_serial_status(bool isopened){this->worker_thread_serial_status = isopened; qDebug() << "ask and get serial:"<< worker_thread_serial_status;}
     void accept_worker_step(int step);
 
+    void accept_detect_result(int result,int itype);
+
 signals:
     void tell_window_step_page(int page);
     void tell_window_start_check();
@@ -76,6 +79,7 @@ signals:
     void tell_worker_stop_work();
     void tell_worker_stm_command(Command,int);
     void tell_result_update_data();
+    void tell_detect_run(HObject &object,HObject &deal_object, const int width, const int height, const Hlong &winid);
 
 private slots:
     void on_pushButton_4_released();
@@ -97,7 +101,11 @@ private:
 
     QThread *worker_thread;
     Worker *worker;
-    QImage *qimage;
+    QThread *algorithm_thread;
+    DefectsDetect *detect;
+    HObject ho_Image;
+    HObject deal_Image;
+
 
     CurrentCheckResult current_check_result;
     SerialSetting serial_setting;

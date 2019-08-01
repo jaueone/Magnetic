@@ -197,11 +197,12 @@ void Worker::set_motor_speed(Command com, uint16_t data)
 void Worker::analysis_MCStatus(const QByteArray &data)
 {
     QByteArray ba(data);
+    qDebug() << "this" << data.toHex();
     QDataStream in(&ba,QIODevice::ReadOnly);
     uint8_t stm_cylinder;
     uint8_t stm_status;
     stm_status = (uint8_t)data.at(0);
-    stm_cylinder = (uint8_t)data.at(9);
+    stm_cylinder = (uint8_t)data.at(1);
 
     status.E_Stop = (stm_status & 0x01) == 0x01 ? true : false;
     status.transportMotorSpeedStatus = (stm_status & 0x02) == 0x02 ? true : false;

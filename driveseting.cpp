@@ -11,6 +11,29 @@
 #include <QSqlRecord>
 #include <QSerialPort>
 
+#define Version 0.4
+
+static bool compare (const QString& x, const QString& y)
+{
+    QStringList versionsX = x.split (".");
+    QStringList versionsY = y.split (".");
+
+    int count = qMin (versionsX.count(), versionsY.count());
+
+    for (int i = 0; i < count; ++i) {
+        int a = QString (versionsX.at (i)).toInt();
+        int b = QString (versionsY.at (i)).toInt();
+
+        if (a > b)
+            return true;
+
+        else if (b > a)
+            return false;
+    }
+
+    return versionsY.count() < versionsX.count();
+}
+
 const unsigned char chCRCHTalbe[] =
 {
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,// CRC 高位字节值表
@@ -307,8 +330,8 @@ void DriveSeting::load_setting()
 
     QJsonObject ser_obj = ser_doc.object();
     QJsonObject cam_obj = cam_doc.object();
-    DefectsDetect *detect = ImageAlgorithm::getInterface();
-    detect->set_threshold_param(cam_obj["thresholdValue_blackDetect"].toInt(),cam_obj["thresholdValue_whiteDetect"].toInt());
+    ThresholdBlack = cam_obj["thresholdValue_blackDetect"].toInt();
+    ThresholdWhite = cam_obj["thresholdValue_whiteDetect"].toInt();
     this->ui->spinBox->setValue(cam_obj["thresholdValue_whiteDetect"].toInt());
     this->ui->spinBox_2->setValue(cam_obj["thresholdValue_blackDetect"].toInt());
     this->ui->spinBox_3->setValue(cam_obj["width"].toInt());
@@ -405,29 +428,28 @@ void DriveSeting::check_self()
 
 void DriveSeting::set_camera_params()
 {
+    CameraSetting setting = this->get_camera_setting();
+    ThresholdBlack = (int)setting.thresholdValue_blackDetect;
+    ThresholdWhite = (int)setting.thresholdValue_whiteDetect;
 
-        CameraSetting setting = this->get_camera_setting();
-        DefectsDetect *detect = ImageAlgorithm::getInterface();
-        detect->set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
-
-        qDebug("%x",this->camera->setParams(DType::Int, "Width", setting.width));
-        qDebug("%x",this->camera->setParams(DType::Int, "Height", setting.height));
-        qDebug("%x",this->camera->setParams(DType::Int, "OffsetX", setting.offsetX));
-        qDebug("%x",this->camera->setParams(DType::Int, "OffsetY", setting.offsetY));
-        qDebug("%x",this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate));
-        qDebug("%x",this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable));
-        qDebug("%x",this->camera->setParams(DType::Float, "Gain", setting.gain));
-        qDebug("%x",this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto));
-        qDebug("%x",this->camera->setParams(DType::Float, "Gamma", setting.gamma));
-        qDebug("%x",this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable));
-        qDebug("%x",this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector));
-        qDebug("%x",this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime));
-        qDebug("%x",this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable));
-        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode));
-        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector));
-        qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource));
-        qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
-        this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
+    qDebug("%x",this->camera->setParams(DType::Int, "Width", setting.width));
+    qDebug("%x",this->camera->setParams(DType::Int, "Height", setting.height));
+    qDebug("%x",this->camera->setParams(DType::Int, "OffsetX", setting.offsetX));
+    qDebug("%x",this->camera->setParams(DType::Int, "OffsetY", setting.offsetY));
+    qDebug("%x",this->camera->setParams(DType::Int, "AcquisitionLineRate", setting.acquisitionLineRate));
+    qDebug("%x",this->camera->setParams(DType::Bool, "AcquisitionLineRateEnable", setting.acquisitionLineRateEnable));
+    qDebug("%x",this->camera->setParams(DType::Float, "Gain", setting.gain));
+    qDebug("%x",this->camera->setParams(DType::Enum, "GainAuto", setting.gainAuto));
+    qDebug("%x",this->camera->setParams(DType::Float, "Gamma", setting.gamma));
+    qDebug("%x",this->camera->setParams(DType::Bool, "GammaEnable", setting.gammaEnable));
+    qDebug("%x",this->camera->setParams(DType::Enum, "GammaSelector", setting.gammaSelector));
+    qDebug("%x",this->camera->setParams(DType::Float, "ExposureTime", setting.exposureTime));
+    qDebug("%x",this->camera->setParams(DType::Bool, "NUCEnable", setting.nucEnable));
+    qDebug("%x",this->camera->setParams(DType::Enum, "TriggerMode", setting.triggerMode));
+    qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector));
+    qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource));
+    qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
+    this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
 }
 
 void DriveSeting::accept_scan_serial()
@@ -509,8 +531,8 @@ void DriveSeting::on_pushButton_2_released()
 {
     CameraSetting setting = this->get_camera_setting();
     this->save_setting(this->get_serial_setting(), setting);
-    DefectsDetect *detect = ImageAlgorithm::getInterface();
-    detect->set_threshold_param((int)setting.thresholdValue_blackDetect,(int)setting.thresholdValue_whiteDetect);
+    ThresholdBlack = (int)setting.thresholdValue_blackDetect;
+    ThresholdWhite = (int)setting.thresholdValue_whiteDetect;
 
     QMessageBox messageBox;
     messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
@@ -708,3 +730,50 @@ void DriveSeting::on_pushButton_18_released()
     this->ui->label_27->setText(QString::fromLocal8Bit("开始抓图"));
 }
 
+
+void DriveSeting::on_pushButton_6_released()
+{
+    QJsonObject obj = RemoteDB::CheckMacIPAndDownload();
+    QString last_version,current_version;
+    if (!obj.isEmpty())
+        last_version = obj["latest_version"].toString();
+    current_version = QString("%1").arg(Version);
+    qDebug() << last_version << current_version;
+    QFileInfo file("./Update.exe");
+    if (!file.exists()){
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("错误"));
+        messageBox.setIcon(QMessageBox::Critical);
+        messageBox.setText(QString::fromLocal8Bit("安装程序不存在，请联系管理员"));
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
+        return;
+    }
+    if (compare(last_version,current_version)){
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
+        messageBox.setIcon(QMessageBox::Information);
+        messageBox.setText(QString::fromLocal8Bit("有新的程序版本可以更新，选择是否更新"));
+        QPushButton button(QString::fromLocal8Bit("更新"));
+        QPushButton button1(QString::fromLocal8Bit("取消"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.addButton(&button1, QMessageBox::RejectRole);
+        connect(&button,&QPushButton::clicked,[](){
+            QProcess process;
+            process.startDetached("./Update.exe");
+            process.waitForFinished(-1);
+            exit(0);
+        });
+        messageBox.exec();
+    }
+    else{
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
+        messageBox.setIcon(QMessageBox::Information);
+        messageBox.setText(QString::fromLocal8Bit("没有新的可用程序"));
+        QPushButton button(QString::fromLocal8Bit("确定"));
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
+    }
+}

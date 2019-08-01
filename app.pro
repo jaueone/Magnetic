@@ -7,6 +7,7 @@
 QT       += core gui sql
 QT       += serialport
 QT       += charts
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -46,6 +47,7 @@ SOURCES += \
     driveseting.cpp \
     camera.cpp \
     DefectsDetect.cpp \
+    my_control.cpp \
     serial.cpp \
     main_page/timeselect.cpp \
     worker.cpp \

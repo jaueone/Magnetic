@@ -23,6 +23,7 @@ MainPage::MainPage(QWidget *parent) :
 
 MainPage::~MainPage()
 {
+    delete screencheck;
     delete ui;
 }
 

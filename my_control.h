@@ -12,9 +12,13 @@
 #include <QSqlRecord>
 #include <QThread>
 #include <QTime>
+#include <QJsonObject>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QCoreApplication>
+#include <QtNetwork/QNetworkInterface>
 
-static QSqlDatabase database;
+static QSqlDatabase __database__;
 
 class Label : public QLabel
 {
@@ -40,6 +44,23 @@ public:
     }
 };
 
+class DMessageBox
+{
+public:
+    static void box(QMessageBox::Icon icon,QString info,QString content){
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(info);
+        messageBox.setIcon(icon);
+        messageBox.setText(content);
+        QPushButton button("确定");
+        messageBox.addButton(&button, QMessageBox::YesRole);
+        messageBox.exec();
+    }
+
+private:
+    DMessageBox() {}
+};
+
 class ComboBox: public QComboBox
 {
     Q_OBJECT
@@ -57,25 +78,41 @@ signals:
 class DB
 {
 public:
-    static QSqlDatabase * getInterface(){
-        if (QSqlDatabase::contains("qt_sql_default_connection"))
-        {
-            database = QSqlDatabase::database("qt_sql_default_connection");
-            return &database;
-        }
-        else {
-            database = QSqlDatabase::addDatabase("QSQLITE");
-            database.setDatabaseName("./database/MyDataBase.db");
-            database.setUserName("XingYeZhiXia");
-            database.setPassword("123456");
-            return &database;
-        }
-    }
+    static QSqlDatabase * getInterface();
 
 protected:
     DB() {}
     DB(const DB& other){}
     ~DB(){}
+};
+
+static QString get_mac()
+{
+    QList<QNetworkInterface> NetList; //网卡链表
+    int NetCount = 0; //网卡个数
+    int Neti = 0;
+    QNetworkInterface thisNet; //所要使用的网卡
+    NetList = QNetworkInterface::allInterfaces();//获取所有网卡信息
+    NetCount = NetList.count(); //统计网卡个数
+    for(Neti = 0;Neti < NetCount; Neti++){ //遍历所有网卡
+        if(NetList[Neti].isValid()){ //判断该网卡是否是合法
+            thisNet = NetList[Neti]; //将该网卡置为当前网卡
+            break;
+        }
+    }
+    return ( thisNet.hardwareAddress() ); //获取该网卡的MAC
+}
+
+class RemoteDB
+{
+public:
+    static bool mac_is_legal;
+    static QJsonObject CheckMacIPAndDownload();
+
+protected:
+    RemoteDB() {}
+    RemoteDB(const RemoteDB& other){}
+    ~RemoteDB(){}
 };
 
 class Sleep
@@ -89,4 +126,6 @@ public:
             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     }
 };
+
+
 #endif

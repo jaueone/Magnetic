@@ -2,6 +2,8 @@
 #include "my_control.h"
 #include "ui_choose.h"
 #include <QPixmap>
+#include <QFileInfo>
+#include <QProcess>
 
 
 Choose::Choose(QWidget *parent) :
@@ -56,3 +58,4 @@ void Choose::on_pushButton_5_released()
 {
     emit tell_window_get_picture();
 }
+

@@ -154,6 +154,10 @@ void ScreenResult::update_data()
     slice_ug->setValue(unq*10);
     slice_ok->setValue(q*10);
     slice_high->setValue(iq*10);
+    slice_ug->setLabel(QString("\344\270\215\345\220\210\346\240\274\347\216\207%1%").arg(unq*100));
+    slice_ok->setLabel(QString("\345\220\210\346\240\274\347\216\207%1%").arg(q*100));
+    slice_high->setLabel(QString("\351\253\230\350\264\250\351\207\217\347\216\207%1%").arg(iq*100));
+
     slice_ok->setLabelVisible(qualified);
     slice_ug->setLabelVisible(unqualified);
     slice_high->setLabelVisible(highquality);
