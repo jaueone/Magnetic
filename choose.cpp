@@ -12,6 +12,7 @@ Choose::Choose(QWidget *parent) :
 {
     ui->setupUi(this);
     this->ui->pushButton_5->hide();
+    this->ui->label_5->setText(QString("%1").arg(Version_));
 }
 
 Choose::~Choose()

@@ -11,7 +11,6 @@
 #include <QSqlRecord>
 #include <QSerialPort>
 
-#define Version 0.4
 
 static bool compare (const QString& x, const QString& y)
 {
@@ -110,7 +109,6 @@ DriveSeting::DriveSeting(QWidget *parent) :
     ui->setupUi(this);
     serial = new QSerialPort(this);
     camera = HKCamera::getInterface();
-    QFile::link("./release/app.exe", QStandardPaths::writableLocation(QStandardPaths::DesktopLocation).append("/").append("KuGou.lnk"));
     this->ui->pushButton_7->setText(QString::fromLocal8Bit("打开串口"));
     this->ui->baudRateBox->setCurrentIndex(1);
     this->ui->dataBitsBox->setCurrentIndex(3);
@@ -737,7 +735,7 @@ void DriveSeting::on_pushButton_6_released()
     QString last_version,current_version;
     if (!obj.isEmpty())
         last_version = obj["latest_version"].toString();
-    current_version = QString("%1").arg(Version);
+    current_version = QString("%1").arg(Version_);
     qDebug() << last_version << current_version;
     QFileInfo file("./Update.exe");
     if (!file.exists()){

@@ -410,10 +410,13 @@ void Worker::accept_read_data()
             if (status.E_Stop)
                 return;
             this->is_Stoped_Work = false;
-            this->response_continue_work();
-            emit tell_window_command(Command::ContinueWork,0);
-            this->do_noting = true;
-            qDebug() << "Continue Work";
+//            this->response_continue_work();
+            step = 0;
+            emit tell_window_work_step(0);
+            this->is_Stoped_Work = false;
+            this->do_noting = false;
+            this->query_status();
+            qDebug() << "NEW start Work";
             break;
 
         case SuspendWork:

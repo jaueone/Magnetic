@@ -18,6 +18,8 @@
 #include <QCoreApplication>
 #include <QtNetwork/QNetworkInterface>
 
+#define Version_ 0.5
+
 static QSqlDatabase __database__;
 
 class Label : public QLabel
