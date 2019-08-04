@@ -100,6 +100,8 @@ struct CameraSetting{
     TriggerMode triggerMode;
     TriggerSource triggerSource;
     LineSelector lineSelector;
+    unsigned int preDivider;
+    unsigned int multiplier;
 };
 
 

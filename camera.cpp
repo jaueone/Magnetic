@@ -62,10 +62,8 @@ int HKCamera::openDevice(const int &index)
         return -1;
     }
     qDebug() << "information camera opened";
-//    MV_CC_SetIntValue(this->handle,"GevSCPD",7000);
-//    MV_CC_SetIntValue(this->handle,"PreDivider",1);
-//    MV_CC_SetIntValue(this->handle,"Multiplier",2);
-//    MV_CC_SetBoolValue(this->handle,"GevPAUSEFrameReception",true);
+    qDebug() << MV_CC_SetIntValue(this->handle,"GevSCPD",7000);
+    qDebug() << MV_CC_SetBoolValue(this->handle,"GevPAUSEFrameReception",true);
 //    MV_CC_SetEnumValue(this->handle,"TriggerSelector",9);
 //    MV_CC_SetEnumValue(this->handle,"TriggerMode",1);
 //    MV_CC_SetEnumValue(this->handle,"TriggerSource",8);
@@ -247,7 +245,7 @@ CameraSetting HKCamera::get_camera_setting()
         qDebug() << "camera no connected, get params fail";
         return setting;
     }
-    MVCC_INTVALUE width,height,offsetX,offsetY,acquisitionLineRate;
+    MVCC_INTVALUE width,height,offsetX,offsetY,acquisitionLineRate, multiplier, preDivider;
     MVCC_FLOATVALUE gain, gamma, exposureTime;
     MVCC_ENUMVALUE gainAuto, gammaSelector, triggerSelector, triggerMode, triggerSource, lineSelector;
 
@@ -272,11 +270,16 @@ CameraSetting HKCamera::get_camera_setting()
     MV_CC_GetEnumValue(handle, "TriggerSource", &triggerSource);
     MV_CC_GetEnumValue(handle, "LineSelector", &lineSelector);
 
+    MV_CC_GetIntValue(handle, "PreDivider",&preDivider);
+    MV_CC_GetIntValue(handle, "Multiplier",&multiplier);
+
     setting.width = width.nCurValue;
     setting.height = height.nCurValue;
     setting.offsetX = offsetX.nCurValue;
     setting.offsetY = offsetY.nCurValue;
     setting.acquisitionLineRate = acquisitionLineRate.nCurValue;
+    setting.preDivider = preDivider.nCurValue;
+    setting.multiplier = multiplier.nCurValue;
 
     setting.gain = gain.fCurValue;
     setting.gamma = gamma.fCurValue;
@@ -347,6 +350,8 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
         {"triggerSelector",triggerSelector_map[setting.triggerSelector]},
         {"triggerSource",triggerSource_map[setting.triggerSource]},
         {"lineSelector",lineSelector_map[setting.lineSelector]},
+        {"multiplier",(int)setting.multiplier},
+        {"preDivider",(int)setting.preDivider},
     };
 
     QJsonDocument camera_doc = QJsonDocument(camera_obj);

@@ -298,6 +298,8 @@ CameraSetting DriveSeting::get_camera_setting()
     setting.triggerMode = static_cast<TriggerMode>(map_1[this->ui->comboBox_4->currentText()]);
     setting.triggerSource = static_cast<TriggerSource>(map[this->ui->comboBox_5->currentText()]);
     setting.lineSelector = static_cast<LineSelector>(map_1[this->ui->comboBox_6->currentText()]);
+    setting.preDivider = static_cast<unsigned int>(this->ui->spinBox_8->value());
+    setting.multiplier = static_cast<unsigned int>(this->ui->spinBox_9->value());
     return setting;
 }
 
@@ -360,6 +362,9 @@ void DriveSeting::load_setting()
     this->ui->parityBox->setCurrentText(ser_obj["parity"].toString());
     this->ui->stopBitsBox->setCurrentText(ser_obj["stopBits"].toString());
     this->ui->flowControlBox->setCurrentText(ser_obj["flowControl"].toString());
+
+    this->ui->spinBox_8->setValue(cam_obj["preDivider"].toInt());
+    this->ui->spinBox_9->setValue(cam_obj["multiplier"].toInt());
 
     this->ui->serialPortInfoListBox->setCurrentText(ser_obj["name"].toString());
 }
@@ -447,6 +452,8 @@ void DriveSeting::set_camera_params()
     qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSelector", setting.triggerSelector));
     qDebug("%x",this->camera->setParams(DType::Enum, "TriggerSource", setting.triggerSource));
     qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
+    qDebug("%x",this->camera->setParams(DType::Int, "PreDivider", setting.preDivider));
+    qDebug("%x",this->camera->setParams(DType::Int, "Multiplier", setting.multiplier));
     this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
 }
 

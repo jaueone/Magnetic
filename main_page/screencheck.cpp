@@ -292,6 +292,7 @@ void ScreenCheck::ImageCapture()
     if (MV_OK != camera->collectFrame(this->ui->preview))
         return;
     ho_Image = camera->getImage();
+    deal_Image = ho_Image;
     Hlong winid = (Hlong)this->ui->preview->winId();
     emit tell_detect_run(ho_Image,deal_Image,this->ui->preview->width(),this->ui->preview->height(),winid);
 }
@@ -448,7 +449,7 @@ void ScreenCheck::accept_stm_command(Command com, QVariant data)
         messageBox.exec();
     }
 }
-void ScreenCheck::accept_detect_result(int result, int itype)
+void ScreenCheck::accept_detect_result(int result, int itype, HObject deal_image)
 {
     QDir image_path(QDir(QString("D:/qt_photo/%1/").arg(QDate::currentDate().toString("yyyyMMdd"))).absolutePath());
     current_check_result.isOK = result;
@@ -469,6 +470,7 @@ void ScreenCheck::accept_detect_result(int result, int itype)
         current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
         current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
         current_check_result.blackPoint = (itype & 0x04) == 0x04 ? "true" : "false";
+
     }
     if (current_check_result.isOK == 1){
         if (this->ui->checkBox_2->isChecked()){
@@ -476,7 +478,7 @@ void ScreenCheck::accept_detect_result(int result, int itype)
             this->all_count += 1;
         }
         this->ui->label_5->setText(QString::fromLocal8Bit("次品"));
-        this->filename = QTime::currentTime().toString("hhmmss_%1").arg("OK");
+        this->filename = QTime::currentTime().toString("%1_hhmmss").arg("OK");
     }
     else if (current_check_result.isOK == 2){
         if (this->ui->checkBox_2->isChecked()){
@@ -484,7 +486,7 @@ void ScreenCheck::accept_detect_result(int result, int itype)
             this->all_count += 1;
         }
         this->ui->label_5->setText(QString::fromLocal8Bit("良品"));
-        this->filename = QTime::currentTime().toString("hhmmss_%1").arg("GOOD");
+        this->filename = QTime::currentTime().toString("%1_hhmmss").arg("GOOD");
     }
     else if(current_check_result.isOK == 0) {
         if (this->ui->checkBox_2->isChecked()){
@@ -492,13 +494,8 @@ void ScreenCheck::accept_detect_result(int result, int itype)
             this->ng_count += 1;
         }
         this->ui->label_5->setText(QString::fromLocal8Bit("废料"));
-        this->filename = QTime::currentTime().toString("hhmmss_%1").arg("NG");
+        this->filename = QTime::currentTime().toString("%1_hhmmss").arg("NG");
     }
-    this->ui->label_14->setNum(this->ok_count);
-    this->ui->label_16->setNum(this->ng_count);
-    this->ui->label_18->setNum(this->good_count);
-    this->ui->stackedWidget->setCurrentIndex(1);
-
     if (this->ui->checkBox->isChecked())
     {
         HTuple hv_name1 = filename.toStdString().c_str();
@@ -511,6 +508,28 @@ void ScreenCheck::accept_detect_result(int result, int itype)
             this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
         }
     }
+    if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_4->isChecked()){
+        HTuple hv_name1 = QString(filename + "From_GOOD").toStdString().c_str();
+        if(current_check_result.isOK != 2){
+            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+        }
+    }
+    else if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_5->isChecked()){
+        HTuple hv_name1 = QString(filename + "From_OK").toStdString().c_str();
+        if(current_check_result.isOK != 1)
+            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+    }
+
+    else if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_6->isChecked()){
+        HTuple hv_name1 = QString(filename + "From_NG").toStdString().c_str();
+        if(current_check_result.isOK != 0)
+            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+    }
+    this->ui->label_14->setNum(this->ok_count);
+    this->ui->label_16->setNum(this->ng_count);
+    this->ui->label_18->setNum(this->good_count);
+    this->ui->stackedWidget->setCurrentIndex(1);
+
     uint8_t send_data = 0;
     if (this->current_check_result.isOK == 0)
         send_data = 2;
@@ -691,3 +710,13 @@ void ScreenCheck::on_pushButton_8_released()
 {
     this->ui->stackedWidget->setCurrentIndex(0);
 }
+
+void ScreenCheck::on_checkBox_3_stateChanged(int arg1)
+{
+    if(arg1){
+        this->ui->checkBox->setChecked(true);
+        this->ui->checkBox_2->setChecked(true);
+    }
+}
+
+

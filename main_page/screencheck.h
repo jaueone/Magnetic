@@ -64,7 +64,7 @@ public slots:
     void accept_worker_serial_status(bool isopened){this->worker_thread_serial_status = isopened; qDebug() << "ask and get serial:"<< worker_thread_serial_status;}
     void accept_worker_step(int step);
 
-    void accept_detect_result(int result,int itype);
+    void accept_detect_result(int result,int itype,HObject deal_image);
 
 signals:
     void tell_window_step_page(int page);
@@ -91,6 +91,8 @@ private slots:
     void on_pushButton_18_released();
 
     void on_pushButton_8_released();
+
+    void on_checkBox_3_stateChanged(int arg1);
 
 private:
     Ui::ScreenCheck *ui;

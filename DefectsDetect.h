@@ -23,7 +23,7 @@ public:
     int get_defectsType();
 
 signals:
-    void tell_window_check_result(int,int);
+    void tell_window_check_result(int,int,HObject deal_image);
 
 public slots:
     void accept_run(HObject &object,HObject &deal_object, const int width, const int height,const Hlong &winid);

@@ -219,7 +219,6 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
             //display defects
             if (HDevWindowStack::IsOpen())
                 DispObj(ho_Image, HDevWindowStack::GetActive());
-
             DumpWindowImage(&deal_image,hv_mainWindowHandle);
             return;
             //endif
@@ -315,5 +314,5 @@ void DefectsDetect::accept_run(HObject &object,HObject &deal_object, const int w
     hv_thresholdBlack=ThresholdBlack;
     hv_thresholdWhite=ThresholdWhite;
     run(object,deal_object,width,height,winid,0,0);
-    emit tell_window_check_result(get_result(),get_defectsType());
+    emit tell_window_check_result(get_result(),get_defectsType(),deal_object);
 }
