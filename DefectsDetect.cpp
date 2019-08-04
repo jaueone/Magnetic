@@ -15,20 +15,42 @@ DefectsDetect::~DefectsDetect()
 
 }
 
-void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width, const int height, const Hlong &winid, int x, int y)
+void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, const int height, const Hlong &winid, int x, int y)
 {
-    //filename: StickDetect-3classV3.5-withoutWaterMarkDetectV4.5.hdev
-    //date:2019.8.1
+    //filename: StickDetect-3classV3.5-withoutWaterMarkDetectV4.5-2019年8月4日-B-release.hdev
+    //date:2019.8.4
     //Algorithm procedure see: 3classification.draw.io
     //inherit file: StickDetectV6
 
     //modify:
+    //1. part 1 detect
+    //select_gray (ConnectedRegions1, Image, Part1SelectedRegion0, 'mean', 'and', 0, 54.9)
+    //select_gray (ConnectedRegions1, Image, Part1SelectedRegion1, 'deviation', 'and', 3.65, 5)
 
-    //1. add condition for height selectshape in part2detect
+    //pre modify
+    //1. part 1 detect
+    //select_gray (ConnectedRegions1, Image, Part1SelectedRegion1, 'deviation', 'and', 3.95, 5)
+    //'and', 3.95, 5)
+
+
+    //2.part 1 detect
+    //select_shape (Part1SelectedRegion1, Part1SelectedRegion2, 'area', 'and', 1100, 5000)
+    //area =1000 -> 1100
+
+
+    //release CONVENTION *
+    //1. continue to return ()
+    //2. display to
+    //dev_display (Image)
+    //dev_display (RegionUnion1)
+    //dev_display (RegionUnion2)
+    //3.
+    //currentFiledir := ImageFiles[Index]
+    //disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
 
 
 
-    //上位机注意事项：
+    //***上位机注意事项：****
     //好良品:
     //returnIsOK =1;
     //returnIsGood=1;
@@ -45,15 +67,11 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
 
     //窗口显示需要加在，每个//display defects之后,return之前
 
-    //display 对象：
-    //
-    //RegionUnion1
-    //RegionUnion2
+
 
     //initualization
-//    dev_update_off();
-    if (HDevWindowStack::IsOpen())
-        CloseWindow(HDevWindowStack::Pop());
+    //dev_update_off ()
+    //dev_close_window ()
 
     //*********** statistic parameters***********
     hv_NumberNg = 0;
@@ -63,11 +81,13 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
     //*********** statistic parameters***********
 
 
-//    ReadImage(&ho_Image, "E:/WorkSpace/ImgData/磁锟样本/报废20190801/120054_NG.bmp");
-    //list_files ('E:/WorkSpace/ImgData/磁锟样本/03--不良批次检测结果20190715', ['files','follow_links'], ImageFiles)
+    //ReadImage(&ho_Image, "E:/WorkSpace/ImgData/磁锟样本/不良品检测结果20190716/182925_NG.bmp");
+    //list_files ('E:/WorkSpace/ImgData/磁锟样本/20190804废品', ['files','follow_links'], ImageFiles)
+
+    //list_files ('E:/WorkSpace/ImgData/磁锟样本/漏检2019年8月3日', ['files','follow_links'], ImageFiles)
     //tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)
     //* for Index := 0 to |ImageFiles| - 1 by 1
-    //read_image (Image, ImageFiles[Index])
+    //* read_image (Image, ImageFiles[Index])
 
 
 
@@ -84,8 +104,8 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         SetColored(HDevWindowStack::GetActive(),12);
 
 
-    //currentFiledir := ImageFiles[Index]
-    //disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
+    //* currentFiledir := ImageFiles[Index]
+    //* disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
 
 
     //*********** return parameters setting  ***********
@@ -128,9 +148,9 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
         SelectGray(ho_ConnectedRegions1, ho_Image, &ho_Part1SelectedRegion0, "mean",
         "and", 0, 54.9);
         SelectGray(ho_ConnectedRegions1, ho_Image, &ho_Part1SelectedRegion1, "deviation",
-        "and", 3.95, 5);
+        "and", 3.65, 5);
         SelectShape(ho_Part1SelectedRegion1, &ho_Part1SelectedRegion2, "area", "and",
-        1100, 5000);
+        1050, 5000);
         Union2(ho_Part1SelectedRegion0, ho_Part1SelectedRegion2, &ho_RegionUnionPre);
         Union1(ho_RegionUnionPre, &ho_RegionUnion1);
         Connection(ho_RegionUnion1, &ho_Part1SelectedRegions);
@@ -148,6 +168,7 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
             if (HDevWindowStack::IsOpen())
                 DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
             DumpWindowImage(&deal_image,hv_mainWindowHandle);
+            //dev_display (RegionUnion2)
             return;
         }
 
@@ -190,12 +211,7 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
             Union1(ho_RegionDilation2_good, &ho_RegionUnion2_good);
             Union1(ho_RegionDilation2_notGood1, &ho_RegionUnion2_notGood);
             Union2(ho_RegionUnion2_good, ho_RegionUnion2_notGood, &ho_RegionUnion2);
-
         }
-
-
-
-
 
 
         //if white defects not contain
@@ -210,7 +226,7 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
             //if (deviation_Value>4.97)
             //NumberNg := NumberNg+1
             //ReturnIsOK := 0
-            //*             continue
+            //return ()
             //water mark not contain
             //else
             hv_NumberGood += 1;
@@ -219,6 +235,10 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
             //display defects
             if (HDevWindowStack::IsOpen())
                 DispObj(ho_Image, HDevWindowStack::GetActive());
+            if (HDevWindowStack::IsOpen())
+                DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
+            if (HDevWindowStack::IsOpen())
+                DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
             DumpWindowImage(&deal_image,hv_mainWindowHandle);
             return;
             //endif
@@ -231,8 +251,8 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
             {
                 hv_ReturnIsOK = 0;
                 hv_NumberNg += 1;
-                //stop ()
                 //display defects
+                //stop ()
                 if (HDevWindowStack::IsOpen())
                     DispObj(ho_Image, HDevWindowStack::GetActive());
                 if (HDevWindowStack::IsOpen())
@@ -252,12 +272,13 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
                 //ReturnIsOK := 0
                 //NumberNg := NumberNg+1
                 //stop ()
-                //*                 continue
+                //return ()
                 //if water mark not contain
                 //else
                 hv_ReturnIsOK = 1;
                 hv_ReturnIsGood = 0;
                 hv_NumberOkNotGood += 1;
+                //display defects
                 if (HDevWindowStack::IsOpen())
                     DispObj(ho_Image, HDevWindowStack::GetActive());
                 if (HDevWindowStack::IsOpen())
@@ -269,6 +290,7 @@ void DefectsDetect::run(HObject &ho_Image, HObject &deal_image, const int width,
             }
 
         }
+
     }
 }
 
