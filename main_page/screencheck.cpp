@@ -508,23 +508,26 @@ void ScreenCheck::accept_detect_result(int result, int itype, HObject deal_image
             this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
         }
     }
-    if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_4->isChecked()){
-        HTuple hv_name1 = QString(filename + "From_GOOD").toStdString().c_str();
-        if(current_check_result.isOK != 2){
-            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
-        }
-    }
-    else if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_5->isChecked()){
-        HTuple hv_name1 = QString(filename + "From_OK").toStdString().c_str();
-        if(current_check_result.isOK != 1)
-            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
-    }
 
-    else if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_6->isChecked()){
-        HTuple hv_name1 = QString(filename + "From_NG").toStdString().c_str();
-        if(current_check_result.isOK != 0)
-            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
-    }
+//    if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_4->isChecked()){
+//        HTuple hv_name1 = QString(filename + "From_GOOD").toStdString().c_str();
+//        if(current_check_result.isOK != 2){
+//            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+//        }
+//    }
+
+//    else if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_5->isChecked()){
+//        HTuple hv_name1 = QString(filename + "From_OK").toStdString().c_str();
+//        if(current_check_result.isOK != 1)
+//            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+//    }
+
+//    else if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_6->isChecked()){
+//        HTuple hv_name1 = QString(filename + "From_NG").toStdString().c_str();
+//        if(current_check_result.isOK != 0)
+//            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+//    }
+
     this->ui->label_14->setNum(this->ok_count);
     this->ui->label_16->setNum(this->ng_count);
     this->ui->label_18->setNum(this->good_count);

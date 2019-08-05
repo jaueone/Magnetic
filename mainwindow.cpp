@@ -125,7 +125,7 @@ void MainWindow::sigcon()
 
 void MainWindow::initdir()
 {
-    if (getDiskFreeSpace("d:/")< 2)
+    if (getDiskFreeSpace("d:/")< 1)
         removefilesindir("d:/qt_photo/");
     QDir hobject("./database/hobject/");
     QDir photo("./photo");

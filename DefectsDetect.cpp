@@ -17,25 +17,11 @@ DefectsDetect::~DefectsDetect()
 
 void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, const int height, const Hlong &winid, int x, int y)
 {
-    //filename: StickDetect-3classV3.5-withoutWaterMarkDetectV4.5-2019年8月4日-B-release.hdev
-    //date:2019.8.4
+    //filename: StickDetect-3class--new--2019年8月4日-A.hdev
+
     //Algorithm procedure see: 3classification.draw.io
-    //inherit file: StickDetectV6
 
-    //modify:
-    //1. part 1 detect
-    //select_gray (ConnectedRegions1, Image, Part1SelectedRegion0, 'mean', 'and', 0, 54.9)
-    //select_gray (ConnectedRegions1, Image, Part1SelectedRegion1, 'deviation', 'and', 3.65, 5)
-
-    //pre modify
-    //1. part 1 detect
-    //select_gray (ConnectedRegions1, Image, Part1SelectedRegion1, 'deviation', 'and', 3.95, 5)
-    //'and', 3.95, 5)
-
-
-    //2.part 1 detect
-    //select_shape (Part1SelectedRegion1, Part1SelectedRegion2, 'area', 'and', 1100, 5000)
-    //area =1000 -> 1100
+    //ps: without watermark detect
 
 
     //release CONVENTION *
@@ -47,8 +33,6 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
     //3.
     //currentFiledir := ImageFiles[Index]
     //disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
-
-
 
     //***上位机注意事项：****
     //好良品:
@@ -68,7 +52,6 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
     //窗口显示需要加在，每个//display defects之后,return之前
 
 
-
     //initualization
     //dev_update_off ()
     //dev_close_window ()
@@ -82,12 +65,12 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
 
 
     //ReadImage(&ho_Image, "E:/WorkSpace/ImgData/磁锟样本/不良品检测结果20190716/182925_NG.bmp");
-    //list_files ('E:/WorkSpace/ImgData/磁锟样本/20190804废品', ['files','follow_links'], ImageFiles)
+    //list_files ('E:/WorkSpace/ImgData/磁锟样本/漏检废品--2019年8月4日/good', ['files','follow_links'], ImageFiles)
 
-    //list_files ('E:/WorkSpace/ImgData/磁锟样本/漏检2019年8月3日', ['files','follow_links'], ImageFiles)
-    //tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)
-    //* for Index := 0 to |ImageFiles| - 1 by 1
-    //* read_image (Image, ImageFiles[Index])
+    //list_files ('E:/WorkSpace/ImgData/磁锟样本/01--20190804良品100', ['files','follow_links'], ImageFiles)
+    //list_files ('E:/WorkSpace/ImgData/磁锟样本/02--20190804次品100', ['files','follow_links'], ImageFiles)
+    //list_files ('E:/WorkSpace/ImgData/磁锟样本/03--20190804废品', ['files','follow_links'], ImageFiles)
+
 
 
 
@@ -104,9 +87,9 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
         SetColored(HDevWindowStack::GetActive(),12);
 
 
-    //* currentFiledir := ImageFiles[Index]
-    //* disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
-
+    //currentFiledir := ImageFiles[Index]
+    //disp_message (mainWindowHandle, ImageFiles[Index], 'window', 60, 12, 'black', 'true')
+    //dstFiledir := 'E:/WorkSpace/ImgData/磁锟样本/漏检废品--2019年8月4日/'
 
     //*********** return parameters setting  ***********
     hv_ScratchExist = 0;
@@ -116,13 +99,13 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
     hv_ReturnIsGood = 0;
     //*********** return parameters setting ***********
     //*********** global parameters ***********
-    hv_medianDegree = 5;
+    hv_medianDegree = 1.5;
     hv_thresholdBlack = 14;
-    hv_smoothDegree = 1.5;
+    hv_smoothDegree = 1;
     hv_thresholdWhite = 30;
-    //default=36.047
-    hv_areaSelect_good = 54.5;
-    hv_areaSelect_notGood = 85;
+    //default=26.5
+    hv_areaSelect_good = 34.5;
+    hv_areaSelect_notGood = 54;
     //*********** global parameters***********
 
 
@@ -138,29 +121,23 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
 
 
 
-        //Image process procedure-1 ,especially for black or bigger size defects
+        //P1-- for black defects
         MedianImage(ho_Image, &ho_ImageMedian, "circle", hv_medianDegree, "mirrored");
-        //invert_image (ImageMedian, ImageInvert)
         KirschAmp(ho_ImageMedian, &ho_ImageEdgeAmp1);
-        Threshold(ho_ImageEdgeAmp1, &ho_Regions1, hv_thresholdBlack, 255);
-        DilationCircle(ho_Regions1, &ho_RegionDilation1, 12.5);
-        Connection(ho_RegionDilation1, &ho_ConnectedRegions1);
-        SelectGray(ho_ConnectedRegions1, ho_Image, &ho_Part1SelectedRegion0, "mean",
-        "and", 0, 54.9);
-        SelectGray(ho_ConnectedRegions1, ho_Image, &ho_Part1SelectedRegion1, "deviation",
-        "and", 3.65, 5);
-        SelectShape(ho_Part1SelectedRegion1, &ho_Part1SelectedRegion2, "area", "and",
-        1050, 5000);
-        Union2(ho_Part1SelectedRegion0, ho_Part1SelectedRegion2, &ho_RegionUnionPre);
-        Union1(ho_RegionUnionPre, &ho_RegionUnion1);
-        Connection(ho_RegionUnion1, &ho_Part1SelectedRegions);
-        CountObj(ho_Part1SelectedRegions, &hv_Part1DefectsNum);
+        Threshold(ho_ImageEdgeAmp1, &ho_Regions1, 38, 255);
+        Connection(ho_Regions1, &ho_ConnectedRegions1);
+        SelectGray(ho_ConnectedRegions1, ho_Image, &ho_SelectedRegions, "mean", "and",
+          0, 63.601);
+        DilationCircle(ho_SelectedRegions, &ho_RegionDilation1, 12.5);
+        Union1(ho_RegionDilation1, &ho_RegionUnion1);
+        CountObj(ho_SelectedRegions, &hv_Part1DefectsNum);
 
         //if black defects contain
         if (0 != (hv_Part1DefectsNum>0))
         {
             hv_ReturnIsOK = 0;
             hv_NumberNg += 1;
+            //copy_file (currentFiledir, dstFiledir+Index+'.bmp')
             //stop ()
             //display defects
             if (HDevWindowStack::IsOpen())
@@ -168,31 +145,33 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
             if (HDevWindowStack::IsOpen())
                 DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
             DumpWindowImage(&deal_image,hv_mainWindowHandle);
-            //dev_display (RegionUnion2)
             return;
         }
 
 
-        //Image process  procedure-2 ,especially for white or small size defects
+        //P2-- for white defects
         SmoothImage(ho_Image, &ho_ImageSmooth, "gauss", hv_smoothDegree);
         KirschAmp(ho_ImageSmooth, &ho_ImageEdgeAmp2);
+        //threshold (ImageEdgeAmp2, Regions, 47, 187)
+
         Threshold(ho_ImageEdgeAmp2, &ho_Regions2, hv_thresholdWhite, 255);
         Connection(ho_Regions2, &ho_preConnectedRegions2);
         //good condition Area select
         SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_good, "area", "and",
-        hv_areaSelect_good, 9999.615);
+          hv_areaSelect_good, 9999.615);
         DilationCircle(ho_SelectedRegions_good, &ho_RegionDilation2_good, 12.5);
         CountObj(ho_SelectedRegions_good, &hv_Part2DefectsNum2_good);
         //notGood condition Area select
-        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_notGood1, "area", "and",
-        hv_areaSelect_notGood, 9999.615);
+        SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_notGood1, "area",
+          "and", hv_areaSelect_notGood, 9999.615);
         DilationCircle(ho_SelectedRegions_notGood1, &ho_RegionDilation2_notGood1, 12.5);
         CountObj(ho_SelectedRegions_notGood1, &hv_Part2DefectsNum2_notGood1);
         if (0 != (hv_Part2DefectsNum2_notGood1<1))
         {
             SelectShape(ho_preConnectedRegions2, &ho_SelectedRegions_notGood2, "height",
-          "and", 10.518, 50);
-            DilationCircle(ho_SelectedRegions_notGood2, &ho_RegionDilation2_notGood2, 12.5);
+            "and", 10.518, 50);
+            DilationCircle(ho_SelectedRegions_notGood2, &ho_RegionDilation2_notGood2,
+            12.5);
             //union2 (SelectedRegions_notGood1, SelectedRegions_notGood2, UnionSelectedRegions_notGood)
             //connection (UnionSelectedRegions_notGood, SelectedRegions_notGood)
             CountObj(ho_SelectedRegions_notGood2, &hv_Part2DefectsNum2_notGood2);
@@ -232,13 +211,11 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
             hv_NumberGood += 1;
             hv_ReturnIsOK = 1;
             hv_ReturnIsGood = 1;
-            //display defects
             if (HDevWindowStack::IsOpen())
                 DispObj(ho_Image, HDevWindowStack::GetActive());
-            if (HDevWindowStack::IsOpen())
-                DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
-            if (HDevWindowStack::IsOpen())
-                DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
+            //dev_display (RegionUnion1)
+            //dev_display (RegionUnion2)
+            //copy_file (currentFiledir, dstFiledir+Index+'.bmp')
             DumpWindowImage(&deal_image,hv_mainWindowHandle);
             return;
             //endif
@@ -251,7 +228,7 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
             {
                 hv_ReturnIsOK = 0;
                 hv_NumberNg += 1;
-                //display defects
+                //copy_file (currentFiledir, dstFiledir+Index+'.bmp')
                 //stop ()
                 if (HDevWindowStack::IsOpen())
                     DispObj(ho_Image, HDevWindowStack::GetActive());
@@ -278,20 +255,22 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
                 hv_ReturnIsOK = 1;
                 hv_ReturnIsGood = 0;
                 hv_NumberOkNotGood += 1;
-                //display defects
                 if (HDevWindowStack::IsOpen())
                     DispObj(ho_Image, HDevWindowStack::GetActive());
                 if (HDevWindowStack::IsOpen())
                     DispObj(ho_RegionUnion1, HDevWindowStack::GetActive());
                 if (HDevWindowStack::IsOpen())
                     DispObj(ho_RegionUnion2, HDevWindowStack::GetActive());
+                //copy_file (currentFiledir, dstFiledir+Index+'ok'+'.bmp')
                 DumpWindowImage(&deal_image,hv_mainWindowHandle);
                 //endif
             }
 
         }
 
+
     }
+
 }
 
 
