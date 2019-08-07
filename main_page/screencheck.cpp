@@ -449,6 +449,7 @@ void ScreenCheck::accept_stm_command(Command com, QVariant data)
         messageBox.exec();
     }
 }
+
 void ScreenCheck::accept_detect_result(int result, int itype, HObject deal_image)
 {
     QDir image_path(QDir(QString("D:/qt_photo/%1/").arg(QDate::currentDate().toString("yyyyMMdd"))).absolutePath());
