@@ -30,6 +30,8 @@ private slots:
     void on_pushButton_5_released();
 
 
+    void on_pushButton_6_released();
+
 signals:
     void tell_window_step_page(int page);
     void tell_window_check_self();

@@ -4,6 +4,8 @@
 #include "my_control.h"
 #include <QSqlError>
 #include <QDateTime>
+#include <QScreen>
+#include <QGuiApplication>
 
 void msleep(unsigned int msec)
 {
@@ -210,6 +212,11 @@ void ScreenCheck::setCamera(HKCamera *camera_)
     this->camera = camera_;
 }
 
+void ScreenCheck::setDriversetting(DriveSeting *drivesetting)
+{
+    this->drivesetting = drivesetting;
+}
+
 
 void ScreenCheck::serial_send_start()
 {
@@ -294,7 +301,7 @@ void ScreenCheck::ImageCapture()
     ho_Image = camera->getImage();
     deal_Image = ho_Image;
     Hlong winid = (Hlong)this->ui->preview->winId();
-    emit tell_detect_run(ho_Image,deal_Image,this->ui->preview->width(),this->ui->preview->height(),winid);
+    emit tell_detect_run(ho_Image,deal_Image,this->ui->preview->width(),this->ui->preview->height(),winid,drivesetting->get_algorithm());
 }
 
 bool ScreenCheck::workerSerialIsOpen()
@@ -452,7 +459,6 @@ void ScreenCheck::accept_stm_command(Command com, QVariant data)
 
 void ScreenCheck::accept_detect_result(int result, int itype, HObject deal_image)
 {
-    QDir image_path(QDir(QString("D:/qt_photo/%1/").arg(QDate::currentDate().toString("yyyyMMdd"))).absolutePath());
     current_check_result.isOK = result;
     if (current_check_result.isOK == 0){
         current_check_result.isQualified_s = "ng";
@@ -471,7 +477,6 @@ void ScreenCheck::accept_detect_result(int result, int itype, HObject deal_image
         current_check_result.scratch = (itype & 0x01) == 0x01 ? "true" : "false";
         current_check_result.whitePoint = (itype & 0x02) == 0x02 ? "true" : "false";
         current_check_result.blackPoint = (itype & 0x04) == 0x04 ? "true" : "false";
-
     }
     if (current_check_result.isOK == 1){
         if (this->ui->checkBox_2->isChecked()){
@@ -497,12 +502,29 @@ void ScreenCheck::accept_detect_result(int result, int itype, HObject deal_image
         this->ui->label_5->setText(QString::fromLocal8Bit("废料"));
         this->filename = QTime::currentTime().toString("%1_hhmmss").arg("NG");
     }
-    if (this->ui->checkBox->isChecked())
-    {
+    qDebug() << this->ui->checkBox->isChecked() << this->ui->checkBox_3->isChecked() << this->ui->checkBox_4->isChecked() << this->ui->checkBox_7->isChecked();
+    if(this->ui->checkBox->isChecked() && this->ui->checkBox_3->isChecked() && this->ui->checkBox_4->isChecked()){
+        qDebug() << "hello ";
+        QDir good_image_path(QDir("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd")+"/GOOD").absolutePath());
         HTuple hv_name1 = filename.toStdString().c_str();
-        if (image_path.exists())
+        if (good_image_path.exists())
         {
-            WriteImage(ho_Image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+            qDebug() << "hello ";
+            WriteImage(ho_Image, "bmp", 0, HTuple(QString(good_image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+            this->ui->label_8->setText(QString::fromLocal8Bit("保存图片成功"));
+        }
+        else {
+            this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
+        }
+
+    }
+
+    else if(this->ui->checkBox->isChecked() && this->ui->checkBox_3->isChecked() && this->ui->checkBox_5->isChecked()){
+        QDir ok_image_path(QDir("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd")+"/OK").absolutePath());
+        HTuple hv_name1 = filename.toStdString().c_str();
+        if (ok_image_path.exists())
+        {
+            WriteImage(ho_Image, "bmp", 0, HTuple(QString(ok_image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
             this->ui->label_8->setText(QString::fromLocal8Bit("保存图片成功"));
         }
         else {
@@ -510,25 +532,24 @@ void ScreenCheck::accept_detect_result(int result, int itype, HObject deal_image
         }
     }
 
-//    if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_4->isChecked()){
-//        HTuple hv_name1 = QString(filename + "From_GOOD").toStdString().c_str();
-//        if(current_check_result.isOK != 2){
-//            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
-//        }
-//    }
-
-//    else if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_5->isChecked()){
-//        HTuple hv_name1 = QString(filename + "From_OK").toStdString().c_str();
-//        if(current_check_result.isOK != 1)
-//            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
-//    }
-
-//    else if(this->ui->checkBox_3->isChecked() && this->ui->checkBox_6->isChecked()){
-//        HTuple hv_name1 = QString(filename + "From_NG").toStdString().c_str();
-//        if(current_check_result.isOK != 0)
-//            WriteImage(deal_image, "bmp", 0, HTuple(QString(image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
-//    }
-
+    else if(this->ui->checkBox->isChecked() && this->ui->checkBox_3->isChecked() && this->ui->checkBox_6->isChecked()){
+        QDir ng_image_path(QDir("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd")+"/NG").absolutePath());
+        HTuple hv_name1 = filename.toStdString().c_str();
+        if (ng_image_path.exists())
+        {
+            WriteImage(ho_Image, "bmp", 0, HTuple(QString(ng_image_path.absolutePath()+"/").toStdString().c_str()) + hv_name1);
+            this->ui->label_8->setText(QString::fromLocal8Bit("保存图片成功"));
+        }
+        else {
+            this->ui->label_8->setText(QString::fromLocal8Bit("保存图片失败"));
+        }
+    }
+    if(this->ui->checkBox_7->isChecked()){
+        QDir path(QDir("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd")+"/DEAL/").absolutePath());
+        QScreen *screen = QGuiApplication::primaryScreen();
+        QPixmap pixmap = screen->grabWindow(this->ui->preview->winId());
+        pixmap.save(path.filePath(filename+".bmp"),"BMP");
+    }
     this->ui->label_14->setNum(this->ok_count);
     this->ui->label_16->setNum(this->ng_count);
     this->ui->label_18->setNum(this->good_count);
@@ -720,6 +741,7 @@ void ScreenCheck::on_checkBox_3_stateChanged(int arg1)
     if(arg1){
         this->ui->checkBox->setChecked(true);
         this->ui->checkBox_2->setChecked(true);
+        this->ui->checkBox_4->setChecked(true);
     }
 }
 

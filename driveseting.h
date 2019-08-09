@@ -37,6 +37,10 @@ public:
 
     void load_setting();
 
+    void load_algorithm();
+
+    QJsonObject get_algorithm();
+
     void scan_serial();
 
     void save_setting(SerialSetting setting_ser,CameraSetting setting_cam);
@@ -104,7 +108,7 @@ private slots:
     void on_pushButton_18_released();
 
 
-    void on_pushButton_6_released();
+    void on_pushButton_5_released();
 
 private:
     Ui::DriveSeting *ui;

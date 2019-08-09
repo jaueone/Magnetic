@@ -12,26 +12,7 @@
 #include <QSerialPort>
 
 
-static bool compare (const QString& x, const QString& y)
-{
-    QStringList versionsX = x.split (".");
-    QStringList versionsY = y.split (".");
 
-    int count = qMin (versionsX.count(), versionsY.count());
-
-    for (int i = 0; i < count; ++i) {
-        int a = QString (versionsX.at (i)).toInt();
-        int b = QString (versionsY.at (i)).toInt();
-
-        if (a > b)
-            return true;
-
-        else if (b > a)
-            return false;
-    }
-
-    return versionsY.count() < versionsX.count();
-}
 
 const unsigned char chCRCHTalbe[] =
 {
@@ -112,10 +93,17 @@ DriveSeting::DriveSeting(QWidget *parent) :
     this->ui->pushButton_7->setText(QString::fromLocal8Bit("打开串口"));
     this->ui->baudRateBox->setCurrentIndex(1);
     this->ui->dataBitsBox->setCurrentIndex(3);
+
+    QWidget *widgets = new QWidget;
+    this->ui->tabWidget->setCornerWidget(widgets,Qt::TopRightCorner);
+    QWidget *widget = this->ui->tabWidget->cornerWidget();
+    widget->setStyleSheet("background-color:rgb(255,0,0);");
+    qDebug() << widget->size();
     this->connect(this->ui->serialPortInfoListBox,&ComboBox::clicked, this, &DriveSeting::accept_scan_serial);
 
     this->scan_serial();
     this->load_setting();
+    this->load_algorithm();
 }
 
 DriveSeting::~DriveSeting()
@@ -367,6 +355,57 @@ void DriveSeting::load_setting()
     this->ui->spinBox_9->setValue(cam_obj["multiplier"].toInt());
 
     this->ui->serialPortInfoListBox->setCurrentText(ser_obj["name"].toString());
+}
+
+void DriveSeting::load_algorithm()
+{
+    QJsonObject params;
+    QSqlDatabase *db = DB::getInterface();
+    QSqlQuery query(*db);
+    if (!db->open()){
+        qDebug() << "open database failed";
+        return;
+    }
+    QString temp = QString("SELECT data FROM algorithm WHERE type = \"%1\";").arg("algorithmic_parameters");
+    if (!query.exec(temp))
+    {
+        qDebug() << "exec failed";
+        return;
+    }
+    else
+    {
+        qDebug() << "exec successed";
+    }
+    query.next();
+    QSqlRecord rec = query.record();
+    QByteArray JSON_S = rec.value(0).toByteArray();
+    params = QJsonDocument::fromJson(JSON_S).object();
+    if (params.isEmpty()){
+        return;
+    }
+    QList<QDoubleSpinBox*> list = this->ui->groupBox_5->findChildren<QDoubleSpinBox*>();
+    QList<QDoubleSpinBox*> list1 = this->ui->groupBox_6->findChildren<QDoubleSpinBox*>();
+    for (auto object:list) {
+
+        object->setValue(params[object->objectName()].toDouble());
+    }
+    for (auto object:list1) {
+        object->setValue(params[object->objectName()].toDouble());
+    }
+}
+
+QJsonObject DriveSeting::get_algorithm()
+{
+    QJsonObject params;
+    QList<QDoubleSpinBox*> list = this->ui->groupBox_5->findChildren<QDoubleSpinBox*>();
+    QList<QDoubleSpinBox*> list1 = this->ui->groupBox_6->findChildren<QDoubleSpinBox*>();
+    for (auto object:list) {
+        params[object->objectName()] = object->value();
+    }
+    for (auto object:list1) {
+        params[object->objectName()] = object->value();
+    }
+    return params;
 }
 
 void DriveSeting::save_setting(SerialSetting setting_ser, CameraSetting setting_cam)
@@ -735,50 +774,38 @@ void DriveSeting::on_pushButton_18_released()
     this->ui->label_27->setText(QString::fromLocal8Bit("开始抓图"));
 }
 
-
-void DriveSeting::on_pushButton_6_released()
+void DriveSeting::on_pushButton_5_released()
 {
-    QJsonObject obj = RemoteDB::CheckMacIPAndDownload();
-    QString last_version,current_version;
-    if (!obj.isEmpty())
-        last_version = obj["latest_version"].toString();
-    current_version = QString("%1").arg(Version_);
-    qDebug() << last_version << current_version;
-    QFileInfo file("./Update.exe");
-    if (!file.exists()){
-        QMessageBox messageBox;
-        messageBox.setWindowTitle(QString::fromLocal8Bit("错误"));
-        messageBox.setIcon(QMessageBox::Critical);
-        messageBox.setText(QString::fromLocal8Bit("安装程序不存在，请联系管理员"));
-        QPushButton button(QString::fromLocal8Bit("确定"));
-        messageBox.addButton(&button, QMessageBox::YesRole);
-        messageBox.exec();
+    QJsonObject params;
+    QSqlDatabase *db = DB::getInterface();
+    if (!db->open()){
+        qDebug() << "open database failed";
         return;
     }
-    if (compare(last_version,current_version)){
-        QMessageBox messageBox;
-        messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
-        messageBox.setIcon(QMessageBox::Information);
-        messageBox.setText(QString::fromLocal8Bit("有新的程序版本可以更新，选择是否更新"));
-        QPushButton button(QString::fromLocal8Bit("更新"));
-        QPushButton button1(QString::fromLocal8Bit("取消"));
-        messageBox.addButton(&button, QMessageBox::YesRole);
-        messageBox.addButton(&button1, QMessageBox::RejectRole);
-        connect(&button,&QPushButton::clicked,[](){
-            QProcess process;
-            process.startDetached("./Update.exe");
-            process.waitForFinished(-1);
-            exit(0);
-        });
-        messageBox.exec();
+    QList<QDoubleSpinBox*> list = this->ui->groupBox_5->findChildren<QDoubleSpinBox*>();
+    QList<QDoubleSpinBox*> list1 = this->ui->groupBox_6->findChildren<QDoubleSpinBox*>();
+    for (auto object:list) {
+        params[object->objectName()] = object->value();
     }
-    else{
-        QMessageBox messageBox;
-        messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
-        messageBox.setIcon(QMessageBox::Information);
-        messageBox.setText(QString::fromLocal8Bit("没有新的可用程序"));
-        QPushButton button(QString::fromLocal8Bit("确定"));
-        messageBox.addButton(&button, QMessageBox::YesRole);
-        messageBox.exec();
+    for (auto object:list1) {
+        params[object->objectName()] = object->value();
     }
+    QSqlQuery query(*db);
+    QJsonDocument doc(params);
+    QString temp = QString::fromLocal8Bit("UPDATE algorithm SET data = :data, time = :time WHERE type = :type;");
+    query.prepare(temp);
+    query.bindValue(":data",doc.toJson());
+    query.bindValue(":time",QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+    query.bindValue(":type","algorithmic_parameters");
+
+    if (!query.exec())
+    {
+        qDebug() << "exec failed";
+    }
+    else
+    {
+        qDebug() << "exec successed";
+    }
+
+    db->close();
 }

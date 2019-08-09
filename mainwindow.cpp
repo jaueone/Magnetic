@@ -73,9 +73,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->screen_check->setSerial(serial);
     this->screen_check->setCamera(camera);
     this->screen_result->setSerial(serial);
+    this->screen_check->setDriversetting(this->drivesetting);
 
     this->time = new DateTime(this->ui->stackedWidget);
-    this->time->setGeometry(860,0,200,50);
+    this->time->setGeometry(860,10,200,50);
 
     this->setCentralWidget(this->ui->stackedWidget);
 
@@ -87,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->stackedWidget->addWidget(drivesetting);
     this->ui->stackedWidget->addWidget(mainpage);
 
+    this->initDB();
     this->CheckDB();
     this->sigcon();
     this->initdir();
@@ -127,12 +129,10 @@ void MainWindow::initdir()
 {
     if (getDiskFreeSpace("d:/")< 1)
         removefilesindir("d:/qt_photo/");
-    QDir hobject("./database/hobject/");
     QDir photo("./photo");
     QDir picture("./picture");
     QDir database("./database");
 
-    QDir hobject_path = QDir(hobject.absolutePath());
     QDir photo_path = QDir(photo.absolutePath());
     QDir picture_path = QDir(picture.absolutePath());
     QDir database_path = QDir(database.absolutePath());
@@ -140,9 +140,12 @@ void MainWindow::initdir()
     QDir image("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd"));
     QDir image_path(image.absolutePath());
 
-    if(!hobject_path.exists()){
-        if (!hobject_path.mkdir("."))   qDebug() << "make dir hobject failed";
-    }
+    QDir good_image_path(QDir("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd")+"/GOOD").absolutePath());
+    QDir ok_image_path(QDir("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd")+"/OK").absolutePath());
+    QDir ng_image_path(QDir("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd")+"/NG").absolutePath());
+
+    QDir deal_image_path(QDir("D:/qt_photo/"+QDate::currentDate().toString("yyyyMMdd")+"/DEAL").absolutePath());
+
     if(!photo_path.exists()){
         if (!photo_path.mkdir("."))   qDebug() << "make dir photo failed";
     }
@@ -158,8 +161,121 @@ void MainWindow::initdir()
     if(!image_path.exists()){
         if (!image_path.mkdir("."))   qDebug() << "make dir image failed";
     }
+    if(!ok_image_path.exists()){
+        if (!ok_image_path.mkdir("."))   qDebug() << "make OK dir image failed";
+    }
+    if(!good_image_path.exists()){
+        if (!good_image_path.mkdir("."))   qDebug() << "make GOOD dir image failed";
+    }
+    if(!ng_image_path.exists()){
+        if (!ng_image_path.mkdir("."))   qDebug() << "make NG dir image failed";
+    }
+    if(!deal_image_path.exists()){
+        if (!deal_image_path.mkdir("."))   qDebug() << "make DEAL dir image failed";
+    }
 }
+void MainWindow::initDB()
+{
+    int checked = 0;
+    QSqlDatabase *db = DB::getInterface();
+    if (!db->open())
+        return;
+    QSqlQuery query(*db);
+    QString temps = QString("SELECT count(*) FROM sqlite_master WHERE type=\"%1\" AND name=\"%2\";").arg("table").arg("checked_result");
+    if (!query.exec(temps)){
+        qDebug() << "failed";
+        return;
+    }
+    while(query.next()) {
+        QSqlRecord rec = query.record();
+        checked = rec.value(0).toInt();
+    }
+    if (!checked){
+        QString temp = "CREATE TABLE checked_result ( "
+                        "id integer NOT NULL,"
+                        "product_id integer,"
+                        "check_result TEXT NOT NULL,"
+                        "wrap_result TEXT,"
+                        "scratch text,"
+                        "white_point text,"
+                        "black_point text,"
+                        "time TEXT,"
+                        "men_id TEXT NOT NULL,"
+                        "men_name TEXT,"
+                        "comments TEXT,"
+                        "PRIMARY KEY (id));";
+        if (!query.exec(temp)) qDebug() << "create table failed";
+    }
+    temps = QString("SELECT count(*) FROM sqlite_master WHERE type=\"%1\" AND name=\"%2\";").arg("table").arg("algorithm");
+    if (!query.exec(temps)){
+        qDebug() << "failed";
+        return;
+    }
+    while(query.next()) {
+        QSqlRecord rec = query.record();
+        checked = rec.value(0).toInt();
+    }
+    if (!checked){
+        QString temp = "CREATE TABLE algorithm ("
+                        "id integer NOT NULL,"
+                        "admin TEXT,"
+                        "type TEXT NOT NULL,"
+                        "data TEXT,"
+                        "time TEXT,"
+                        "PRIMARY KEY (id));";
+        if (!query.exec(temp)) qDebug() << "create table failed";
+        temp = QString::fromLocal8Bit("INSERT INTO algorithm(id,admin,type) VALUES (\"%1\",\"%2\",\"%3\")").arg(1).arg("admin").arg("algorithmic_parameters");
+        if (!query.exec(temp)){ qDebug() << "exec failed";} else qDebug() << "exec successed";
+    }
 
+    temps = QString("SELECT count(*) FROM sqlite_master WHERE type=\"%1\" AND name=\"%2\";").arg("table").arg("admin_config");
+    if (!query.exec(temps)){
+        qDebug() << "failed";
+        return;
+    }
+    while(query.next()) {
+        QSqlRecord rec = query.record();
+        checked = rec.value(0).toInt();
+    }
+    if (!checked){
+        QString temp = "CREATE TABLE  admin_config ("
+                        "id INTEGER NOT NULL,"
+                        "admin TEXT NOT NULL,"
+                        "serial_config blob NOT NULL,"
+                        "camera_config blob NOT NULL,"
+                        "speed_config blob,"
+                        "PRIMARY KEY (id));";
+        if (!query.exec(temp)) qDebug() << "create table failed";
+        temp = QString::fromLocal8Bit("INSERT INTO admin_config(admin) VALUES (\"%1\")").arg("admin");
+        if (!query.exec(temp)){ qDebug() << "exec failed";} else qDebug() << "exec successed";
+    }
+
+    temps = QString("SELECT count(*) FROM sqlite_master WHERE type=\"%1\" AND name=\"%2\";").arg("table").arg("men");
+    if (!query.exec(temps)){
+        qDebug() << "failed";
+        return;
+    }
+
+    while(query.next()) {
+        QSqlRecord rec = query.record();
+        checked = rec.value(0).toInt();
+    }
+    if (!checked){
+        QString temp = "CREATE TABLE men (id INTEGER NOT NULL,"
+                       "number text NOT NULL,"
+                       "name text NOT NULL,"
+                       "picture text,"
+                       "isengineer text NOT NULL,"
+                       "gender text,"
+                       "effective INTEGER NOT NULL,"
+                       "PRIMARY KEY (id));";
+        if (!query.exec(temp)) qDebug() << "create table failed"; else qDebug() << "create men successed";
+        temp = QString("INSERT INTO men (number,name,picture,isengineer,gender,effective) VALUES (\"%1\",\"%2\",\"%3\",\"%4\",\"%5\",\"%6\")")
+                   .arg("admin").arg("admin").arg("admin").arg("Root").arg("men").arg(1);
+        if (!query.exec(temp)){ qDebug() << "exec failed";} else qDebug() << "exec successed";
+    }
+    db->close();
+}
 void MainWindow::CheckDB()
 {
     QSqlDatabase *db = DB::getInterface();
@@ -231,8 +347,9 @@ void MainWindow::check_self()
        this->ui->stackedWidget->setCurrentIndex(3);
        this->screen_check->start_check();
     }
-    else
+    else {
         this->drivesetting->display_init();
+    }
 }
 
 void MainWindow::accept_camera_start_check()

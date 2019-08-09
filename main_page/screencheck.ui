@@ -1376,7 +1376,7 @@ border:1px solid rgb(0, 58, 176);</string>
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>220</x>
+     <x>270</x>
      <y>490</y>
      <width>221</width>
      <height>31</height>
@@ -1511,7 +1511,7 @@ border:1px solid rgb(0, 58, 176);</string>
   <widget class="QWidget" name="horizontalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>480</x>
+     <x>500</x>
      <y>490</y>
      <width>211</width>
      <height>31</height>
@@ -1594,11 +1594,14 @@ border:1px solid rgb(0, 58, 176);</string>
     <rect>
      <x>20</x>
      <y>490</y>
-     <width>160</width>
+     <width>240</width>
      <height>31</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <property name="spacing">
+     <number>1</number>
+    </property>
     <item>
      <widget class="QCheckBox" name="checkBox">
       <property name="font">
@@ -1607,7 +1610,7 @@ border:1px solid rgb(0, 58, 176);</string>
        </font>
       </property>
       <property name="text">
-       <string>保存图片</string>
+       <string>保存原图</string>
       </property>
       <property name="tristate">
        <bool>false</bool>
@@ -1629,6 +1632,21 @@ border:1px solid rgb(0, 58, 176);</string>
       </property>
       <property name="text">
        <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkBox_7">
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+       </font>
+      </property>
+      <property name="text">
+       <string>保存处理图</string>
+      </property>
+      <property name="tristate">
+       <bool>false</bool>
       </property>
      </widget>
     </item>

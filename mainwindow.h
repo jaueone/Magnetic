@@ -22,7 +22,7 @@ public:
     ~MainWindow();
     void sigcon();
     void initdir();
-
+    void initDB();
     void CheckDB();
 
 public slots:

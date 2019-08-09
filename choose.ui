@@ -95,7 +95,7 @@
 QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
       </property>
       <property name="text">
-       <string>屏幕检测</string>
+       <string>磁辊检测</string>
       </property>
      </widget>
     </item>
@@ -259,6 +259,40 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_6">
+   <property name="geometry">
+    <rect>
+     <x>790</x>
+     <y>567</y>
+     <width>70</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>70</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>9</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{color:white;background-color: rgb(68, 113, 196);border-radius:1px}                               QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
+   </property>
+   <property name="text">
+    <string>检查更新</string>
    </property>
   </widget>
  </widget>

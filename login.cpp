@@ -58,7 +58,6 @@ void Login::on_lineEdit_textChanged(const QString &arg1)
 Meninfo Login::search_meninfo(const QString &number)
 {
     Meninfo info;
-
     QSqlDatabase *database = DB::getInterface();
     if (!database->open())
     {
@@ -92,8 +91,6 @@ void Login::clear()
     this->ui->lineEdit->clear();
     this->ui->lineEdit_2->clear();
 }
-
-
 
 void Login::on_pushButton_2_released()
 {

@@ -6,6 +6,7 @@
 #include "login.h"
 #include "worker.h"
 #include "pixitem.h"
+#include "driveseting.h"
 #include "DefectsDetect.h"
 #include <QGraphicsItem>
 #include <QGraphicsScene>
@@ -45,6 +46,7 @@ public:
     void setMen(const Meninfo &info);
     void setSerial(QSerialPort* serial_);
     void setCamera(HKCamera *camera_);
+    void setDriversetting(DriveSeting *drivesetting);
     void serial_send_start();
     void serial_send_end();
     void serial_send_change_image();
@@ -79,7 +81,7 @@ signals:
     void tell_worker_stop_work();
     void tell_worker_stm_command(Command,int);
     void tell_result_update_data();
-    void tell_detect_run(HObject &object,HObject &deal_object, const int width, const int height, const Hlong &winid);
+    void tell_detect_run(HObject &object,HObject &deal_object, const int width, const int height, const Hlong &winid,QJsonObject obj);
 
 private slots:
     void on_pushButton_4_released();
@@ -100,6 +102,7 @@ private:
     QSerialPort *serial;
     HKCamera *camera;
     Meninfo men_info;
+    DriveSeting *drivesetting;
 
     QThread *worker_thread;
     Worker *worker;
