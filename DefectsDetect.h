@@ -7,8 +7,6 @@
 #include <QJsonObject>
 using namespace HalconCpp;
 
-extern int ThresholdBlack;
-extern int ThresholdWhite;
 
 class DefectsDetect:public QObject
 {
@@ -44,7 +42,7 @@ private:
     HObject  ho_P1RegionUnion2_big, ho_ImageSmooth, ho_ImageEdgeAmp2;
     HObject  ho_Regions2, ho_preConnectedRegions2, ho_P2Selectedarea_holes;
     HObject  ho_P2SelectedRegions_small, ho_RegionDilation2_small;
-    HObject  ho_P2SelectedRegions_big1, ho_RegionDilation2_big1;
+    HObject  ho_P2SelectedRegions_big0,ho_P2SelectedRegions_big1, ho_RegionDilation2_big1;
     HObject  ho_P2SelectedRegions_big2, ho_RegionDilation2_big2;
     HObject  ho_RegionUnion2_small, ho_RegionUnion2_big;
 

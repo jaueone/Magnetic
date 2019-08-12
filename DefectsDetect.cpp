@@ -1,8 +1,7 @@
 #include "DefectsDetect.h"
 #include <QDebug>
 
-int ThresholdBlack = 34;
-int ThresholdWhite = 16;
+
 
 DefectsDetect::DefectsDetect()
 {
@@ -17,6 +16,8 @@ DefectsDetect::~DefectsDetect()
 
 void DefectsDetect::set_Params(int ThresholdBlack, int ThresholdWhite, float P1areaSelect_t_low, float P1areaSelect_t_high, float P1deviation_t_big, int P1DefectsNum_small_t, float P2areaSelect_t_low, float P2areaSelect_t_high, float P2deviation_t_big, float P2height_t, float P2width_t, int P2DefectsNum_small_t)
 {
+    qDebug() << "set_Params";
+
     hv_thresholdBlack=ThresholdBlack;
     hv_thresholdWhite=ThresholdWhite;
 
@@ -32,6 +33,9 @@ void DefectsDetect::set_Params(int ThresholdBlack, int ThresholdWhite, float P1a
     hv_P2height_t = P2height_t;
     hv_P2width_t = P2width_t;
     hv_P2DefectsNum_small_t = P2DefectsNum_small_t;
+    qDebug() <<hv_thresholdBlack.I() << hv_thresholdWhite.I() << hv_P1areaSelect_t_low.D() << hv_P1areaSelect_t_high.D() << hv_P1deviation_t_big.D()
+             <<hv_P1DefectsNum_small_t.I() << hv_P2areaSelect_t_low.D() << hv_P2areaSelect_t_high.D() << hv_P2deviation_t_big.D() << hv_P2height_t.D()
+             << hv_P2width_t.D() << hv_P2DefectsNum_small_t.I();
 }
 
 void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, const int height, const Hlong &winid, int x, int y)
@@ -195,9 +199,9 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
         DilationCircle(ho_P2SelectedRegions_small, &ho_RegionDilation2_small, 12.5);
         CountObj(ho_P2SelectedRegions_small, &hv_P2DefectsNum_small);
         //big--notGood condition Area select
-        SelectShape(ho_preConnectedRegions2, &ho_P2SelectedRegions_big1, "area", "and",
+        SelectShape(ho_preConnectedRegions2, &ho_P2SelectedRegions_big0, "area", "and",
         hv_P2areaSelect_t_high, 50000000);
-        SelectGray(ho_P1SelectedRegions_big0, ho_Image, &ho_P2SelectedRegions_big1, "deviation",
+        SelectGray(ho_P2SelectedRegions_big0, ho_Image, &ho_P2SelectedRegions_big1, "deviation",
         "and", hv_P2deviation_t_big, 20);
         DilationCircle(ho_P2SelectedRegions_big1, &ho_RegionDilation2_big1, 12.5);
         CountObj(ho_P2SelectedRegions_big1, &hv_P2DefectsNum2_big1);
@@ -282,7 +286,6 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
 
 
     //* endfor
-
 }
 
 
@@ -323,10 +326,11 @@ int DefectsDetect::get_defectsType()
 
 void DefectsDetect::accept_run(HObject &object, HObject &deal_object, const int width, const int height, const Hlong &winid, QJsonObject params)
 {
-    qDebug() << "run";
-    set_Params(ThresholdBlack, ThresholdWhite, params["area_min_part1"].toDouble(),params["area_max_part1"].toDouble(), params["gradient_part1"].toDouble(),params["num_part1"].toInt(),
+    set_Params(params["threshold_black"].toInt(), params["threshold_white"].toInt(), params["area_min_part1"].toDouble(),
+               params["area_max_part1"].toDouble(), params["gradient_part1"].toDouble(),params["num_part1"].toInt(),
                params["area_min_part2"].toDouble(),params["area_max_part2"].toDouble(),params["gradient_part2"].toDouble(),
                params["defect_length_part2"].toDouble(), params["defect_width_part2"].toDouble(),params["num_part2"].toInt());
+
     run(object,deal_object,width,height,winid,0,0);
     emit tell_window_check_result(get_result(),get_defectsType(),deal_object);
 }

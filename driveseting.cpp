@@ -265,8 +265,6 @@ CameraSetting DriveSeting::get_camera_setting()
         {"Line4", 4},   //LineSelector
     };
     CameraSetting setting;
-    setting.thresholdValue_whiteDetect = static_cast<unsigned int>(this->ui->spinBox->value());
-    setting.thresholdValue_blackDetect = static_cast<unsigned int>(this->ui->spinBox_2->value());
     setting.width = static_cast<unsigned int>(this->ui->spinBox_3->value());
     setting.height = static_cast<unsigned int>(this->ui->spinBox_4->value());
     setting.offsetX = static_cast<unsigned int>(this->ui->spinBox_5->value());
@@ -318,10 +316,7 @@ void DriveSeting::load_setting()
 
     QJsonObject ser_obj = ser_doc.object();
     QJsonObject cam_obj = cam_doc.object();
-    ThresholdBlack = cam_obj["thresholdValue_blackDetect"].toInt();
-    ThresholdWhite = cam_obj["thresholdValue_whiteDetect"].toInt();
-    this->ui->spinBox->setValue(cam_obj["thresholdValue_whiteDetect"].toInt());
-    this->ui->spinBox_2->setValue(cam_obj["thresholdValue_blackDetect"].toInt());
+
     this->ui->spinBox_3->setValue(cam_obj["width"].toInt());
     this->ui->spinBox_4->setValue(cam_obj["height"].toInt());
     this->ui->spinBox_5->setValue(cam_obj["offsetX"].toInt());
@@ -386,10 +381,13 @@ void DriveSeting::load_algorithm()
     QList<QDoubleSpinBox*> list = this->ui->groupBox_5->findChildren<QDoubleSpinBox*>();
     QList<QDoubleSpinBox*> list1 = this->ui->groupBox_6->findChildren<QDoubleSpinBox*>();
     for (auto object:list) {
-
+        if(!params[object->objectName()].toDouble())
+            continue;
         object->setValue(params[object->objectName()].toDouble());
     }
     for (auto object:list1) {
+        if(!params[object->objectName()].toDouble())
+            continue;
         object->setValue(params[object->objectName()].toDouble());
     }
 }
@@ -471,8 +469,6 @@ void DriveSeting::check_self()
 void DriveSeting::set_camera_params()
 {
     CameraSetting setting = this->get_camera_setting();
-    ThresholdBlack = (int)setting.thresholdValue_blackDetect;
-    ThresholdWhite = (int)setting.thresholdValue_whiteDetect;
 
     qDebug("%x",this->camera->setParams(DType::Int, "Width", setting.width));
     qDebug("%x",this->camera->setParams(DType::Int, "Height", setting.height));
@@ -575,8 +571,7 @@ void DriveSeting::on_pushButton_2_released()
 {
     CameraSetting setting = this->get_camera_setting();
     this->save_setting(this->get_serial_setting(), setting);
-    ThresholdBlack = (int)setting.thresholdValue_blackDetect;
-    ThresholdWhite = (int)setting.thresholdValue_whiteDetect;
+
 
     QMessageBox messageBox;
     messageBox.setWindowTitle(QString::fromLocal8Bit("信息"));
@@ -668,14 +663,11 @@ void DriveSeting::on_pushButton_10_clicked()
     }
     QJsonObject cam_obj = cam_doc.object();
     CameraSetting setting = camera->get_camera_setting();
-    qDebug() << cam_obj["thresholdValue_blackDetect"].toInt() << cam_obj["thresholdValue_whiteDetect"].toInt();
-    setting.thresholdValue_blackDetect = cam_obj["thresholdValue_blackDetect"].toInt();
-    setting.thresholdValue_whiteDetect = cam_obj["thresholdValue_whiteDetect"].toInt();
     this->save_setting(this->get_serial_setting(), setting);
     this->load_setting();
     QByteArray by = HKCamera::get_camera_bin(setting);
     QJsonObject j =  QJsonDocument::fromJson(by).object();
-    qDebug() << j;
+
 }
 
 

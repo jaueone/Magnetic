@@ -579,6 +579,12 @@ QPushButton::checked{background-color:rgb(47, 255, 168);}</string>
      <height>598</height>
     </rect>
    </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="font">
     <font>
      <family>黑体</family>
@@ -730,77 +736,13 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
        </property>
        <layout class="QFormLayout" name="formLayout">
         <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="font">
-           <font>
-            <family>微软雅黑</family>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>threshold_white</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QSpinBox" name="spinBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>73</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>73</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="maximum">
-           <number>255</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>threshold_black</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QSpinBox" name="spinBox_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>73</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximum">
-           <number>255</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Width</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="0" column="1">
          <widget class="QSpinBox" name="spinBox_3">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -828,14 +770,14 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
            <string>Height</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="1" column="1">
          <widget class="QSpinBox" name="spinBox_4">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -857,14 +799,14 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
            <string>OffsetX </string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="2" column="1">
          <widget class="QSpinBox" name="spinBox_5">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -883,14 +825,14 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
            <string>OffsetY </string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="3" column="1">
          <widget class="QSpinBox" name="spinBox_6">
           <property name="maximumSize">
            <size>
@@ -903,14 +845,14 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
            <string>AcquisitionLineRate</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="7" column="1">
          <widget class="QSpinBox" name="spinBox_7">
           <property name="maximumSize">
            <size>
@@ -926,14 +868,14 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
            <string>AcquisitionLineRateEnable</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <widget class="QCheckBox" name="checkBox">
           <property name="maximumSize">
            <size>
@@ -946,14 +888,14 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
+        <item row="9" column="0">
          <widget class="QLabel" name="label_17">
           <property name="text">
            <string>ActivateShading</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="9" column="1">
          <widget class="QPushButton" name="pushButton_3">
           <property name="minimumSize">
            <size>
@@ -981,14 +923,14 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="label_10">
           <property name="text">
            <string>ExposureTime(us)</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="1">
+        <item row="4" column="1">
          <widget class="QDoubleSpinBox" name="doubleSpinBox">
           <property name="maximumSize">
            <size>
@@ -1001,6 +943,64 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
           </property>
           <property name="maximum">
            <double>999999999.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_28">
+          <property name="text">
+           <string>PreDivider</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QSpinBox" name="spinBox_8">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>73</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>32</number>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_29">
+          <property name="text">
+           <string>Multiplier</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QSpinBox" name="spinBox_9">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>73</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>32</number>
           </property>
          </widget>
         </item>
@@ -1197,64 +1197,6 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
             <string>Line4</string>
            </property>
           </item>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_28">
-          <property name="text">
-           <string>PreDivider</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_29">
-          <property name="text">
-           <string>Multiplier</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QSpinBox" name="spinBox_8">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>73</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>32</number>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QSpinBox" name="spinBox_9">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>73</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>32</number>
-          </property>
          </widget>
         </item>
        </layout>
@@ -1618,59 +1560,87 @@ QPushButton::pressed{background-color: rgb(142, 170, 220);}</string>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>梯度</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_31">
          <property name="text">
           <string>面接下限</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_32">
-         <property name="text">
-          <string>面积上限</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_33">
-         <property name="text">
-          <string>数量</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
+       <item row="2" column="1">
         <widget class="QDoubleSpinBox" name="gradient_part1">
          <property name="value">
           <double>6.000000000000000</double>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QDoubleSpinBox" name="area_min_part1">
-         <property name="value">
-          <double>18.000000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
+       <item row="4" column="1">
         <widget class="QDoubleSpinBox" name="area_max_part1">
          <property name="value">
           <double>28.000000000000000</double>
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>梯度</string>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="1">
+        <widget class="QDoubleSpinBox" name="area_min_part1">
+         <property name="value">
+          <double>18.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_32">
+         <property name="text">
+          <string>面积上限</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_33">
+         <property name="text">
+          <string>数量</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
         <widget class="QDoubleSpinBox" name="num_part1">
          <property name="value">
           <double>30.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>threshold_white</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>threshold_black</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QDoubleSpinBox" name="threshold_black">
+         <property name="value">
+          <double>33.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QDoubleSpinBox" name="threshold_white">
+         <property name="value">
+          <double>26.000000000000000</double>
          </property>
         </widget>
        </item>

@@ -75,9 +75,6 @@ enum LineSelector{
 };
 
 struct CameraSetting{
-    unsigned int thresholdValue_whiteDetect;
-    unsigned int thresholdValue_blackDetect;
-
     unsigned int width;
     unsigned int height;
     unsigned int offsetX;

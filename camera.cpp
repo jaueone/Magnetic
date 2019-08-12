@@ -331,8 +331,6 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
     };
     QJsonObject camera_obj
     {
-        {"thresholdValue_whiteDetect",(int)setting.thresholdValue_whiteDetect},
-        {"thresholdValue_blackDetect",(int)setting.thresholdValue_blackDetect},
         {"width",(int)setting.width},
         {"height",(int)setting.height},
         {"offsetX",(int)setting.offsetX},
