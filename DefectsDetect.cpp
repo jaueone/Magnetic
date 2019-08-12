@@ -175,7 +175,7 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
         SelectShape(ho_SelectedRegions, &ho_P1SelectedRegions_big0, "area", "and", hv_P1areaSelect_t_high,
         50000000);
         SelectGray(ho_P1SelectedRegions_big0, ho_Image, &ho_P1SelectedRegions_big, "deviation",
-        "and", hv_P1deviation_t_big, 20);
+        "and", hv_P1deviation_t_big, 100);
         DilationCircle(ho_P1SelectedRegions_big, &ho_P1RegionDilation2, 12.5);
         CountObj(ho_P1SelectedRegions_big, &hv_P1DefectsNum_big);
         Union1(ho_P1RegionDilation2, &ho_P1RegionUnion2_big);
@@ -202,7 +202,7 @@ void DefectsDetect::run(HObject ho_Image, HObject deal_image, const int width, c
         SelectShape(ho_preConnectedRegions2, &ho_P2SelectedRegions_big0, "area", "and",
         hv_P2areaSelect_t_high, 50000000);
         SelectGray(ho_P2SelectedRegions_big0, ho_Image, &ho_P2SelectedRegions_big1, "deviation",
-        "and", hv_P2deviation_t_big, 20);
+        "and", hv_P2deviation_t_big, 100);
         DilationCircle(ho_P2SelectedRegions_big1, &ho_RegionDilation2_big1, 12.5);
         CountObj(ho_P2SelectedRegions_big1, &hv_P2DefectsNum2_big1);
         if (0 != (hv_P2DefectsNum2_big1<1))

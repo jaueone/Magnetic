@@ -18,7 +18,7 @@
 #include <QCoreApplication>
 #include <QtNetwork/QNetworkInterface>
 
-#define Version_ 1.3
+#define Version_ 1.4
 
 static QSqlDatabase __database__;
 
