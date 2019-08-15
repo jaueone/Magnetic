@@ -130,6 +130,7 @@ void ScreenResult::update_data()
     QMap<QString,int> map = this->select_result();  //\345\271\264  年   \346\234\210 月 \346\227\245 日
     if (map.isEmpty())
         return;
+    qDebug() << map;
     int all = map["all"];
 
     int qualified = map["qualified"];
@@ -139,24 +140,22 @@ void ScreenResult::update_data()
     this->ui->label_6->setText(QString("%1").arg(qualified));
     this->ui->label_7->setText(QString("%1").arg(unqualified));     //\344\270\215\345\220\210\346\240\274\347\216\20710% 不合格率
     this->ui->label_11->setText(QString("%1").arg(highquality));
-    double q,iq;
-    if (all !=0){
-        q = qualified/all;
-        iq = highquality/all;
+    if (all == 0)
+    {
+        return;
     }
-    else {
-        q = 1;
-    }
-    double unq = 1 - q - iq;
+
     QPieSlice *slice_ug = series_pie->slices().at(0);
     QPieSlice *slice_ok = series_pie->slices().at(1);
     QPieSlice *slice_high = series_pie->slices().at(2);
-    slice_ug->setValue(unq*10);
-    slice_ok->setValue(q*10);
-    slice_high->setValue(iq*10);
-    slice_ug->setLabel(QString("\344\270\215\345\220\210\346\240\274\347\216\207%1%").arg(unq*100));
-    slice_ok->setLabel(QString("\345\220\210\346\240\274\347\216\207%1%").arg(q*100));
-    slice_high->setLabel(QString("\351\253\230\350\264\250\351\207\217\347\216\207%1%").arg(iq*100));
+
+    slice_ug->setValue(unqualified*100/all*1000);
+    slice_ok->setValue(qualified*100/all*1000);
+    slice_high->setValue(highquality*100/all*1000);
+
+    slice_ug->setLabel(QString("\344\270\215\345\220\210\346\240\274\347\216\207%1%").arg(unqualified*100/all));
+    slice_ok->setLabel(QString("\345\220\210\346\240\274\347\216\207%1%").arg(qualified*100/all));
+    slice_high->setLabel(QString("\351\253\230\350\264\250\351\207\217\347\216\207%1%").arg(highquality*100/all));
 
     slice_ok->setLabelVisible(qualified);
     slice_ug->setLabelVisible(unqualified);

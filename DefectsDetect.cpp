@@ -1,5 +1,6 @@
 #include "DefectsDetect.h"
 #include <QDebug>
+#include <QTime>
 
 
 void estimate_background_illumination (HObject ho_Image, HObject *ho_IlluminationImage)
@@ -680,9 +681,9 @@ int DefectsDetect::run_rujie(HObject ho_Image, HObject deal_image, const int wid
 {
     // Local iconic variables
     HObject  ho_Image0, ho_GrayImage, ho_Rectangle0;
-    HObject  ho_ImageReduced0, ho_ImageFFT1, ho_ImageSub, ho_Image1;
-    HObject  ho_Rectangle1, ho_ImageReduced1, ho_Image2, ho_Rectangle2;
-    HObject  ho_ImageReduced2;
+    HObject  ho_ImageReduced0, ho_ImageFFT1, ho_ImageSub, ho_ImageSub1;
+    HObject  ho_ImageResult, ho_Image1, ho_Rectangle1, ho_ImageReduced1;
+    HObject  ho_Image2, ho_Rectangle2, ho_ImageReduced2;
 
     // Local control variables
     HTuple  hv_saveimage, hv_saveFile0, hv_studyFile0;
@@ -744,13 +745,14 @@ int DefectsDetect::run_rujie(HObject ho_Image, HObject deal_image, const int wid
     hv_inspectOnLine = 0;
 
 
+
     hv_medianDegree = 1.5;
 
 
     if (0 != hv_test)
     {
-            qDebug() << "start";
-        ReadClassMlp("D:/StickDetect.gmc", &hv_MLPHandle);
+
+        ReadClassMlp("D:/StickDetect01.gmc", &hv_MLPHandle);
         {
 //            ReadImage(&ho_Image2, HTuple(hv_ImageFiles[hv_Index]));
             ho_Image2 = ho_Image;
@@ -772,13 +774,14 @@ int DefectsDetect::run_rujie(HObject ho_Image, HObject deal_image, const int wid
             GenRectangle1(&ho_Rectangle2, 1, 1, hv_Height2-2, hv_Width2-2);
             ReduceDomain(ho_Image2, ho_Rectangle2, &ho_ImageReduced2);
 
-
-        qDebug() << "end1";
-            CoocFeatureImage(ho_Rectangle2, ho_ImageReduced2, 6, 90, &hv_Energy2, &hv_Correlation2,
-        &hv_Homogeneity2, &hv_Contrast2);
             estimate_background_illumination(ho_ImageReduced2, &ho_ImageFFT1);
-            SubImage(ho_ImageReduced2, ho_ImageFFT1, &ho_ImageSub, 2, 100);
-            GrayHistoAbs(ho_Rectangle2, ho_ImageSub, 8, &hv_AbsoluteHisto2);
+            SubImage(ho_ImageReduced2, ho_ImageFFT1, &ho_ImageSub, 2, 0);
+            SubImage(ho_ImageFFT1, ho_ImageReduced2, &ho_ImageSub1, 2, 0);
+            AddImage(ho_ImageSub, ho_ImageSub1, &ho_ImageResult, 1, 0);
+            CoocFeatureImage(ho_Rectangle2, ho_ImageResult, 6, 90, &hv_Energy2, &hv_Correlation2,
+            &hv_Homogeneity2, &hv_Contrast2);
+
+            GrayHistoAbs(ho_Rectangle2, ho_ImageResult, 8, &hv_AbsoluteHisto2);
             //***************************
             hv_FeaturesExtended112.Clear();
             hv_FeaturesExtended112.Append(hv_Energy2);
@@ -812,13 +815,25 @@ int DefectsDetect::run_rujie(HObject ho_Image, HObject deal_image, const int wid
         }
         // stop(); only in hdevelop
     }
-    qDebug() << "end";
     //**********************************************
-    int i = hv_Class112.I() - 1;
-    if(i < 0 )
+    int i = hv_Class112.I();
+
+    if (i == 0)
+    {
         return 2;
+    }
+    else if (i == 1)
+    {
+        return 0;
+    }
+    else if (i == 2)
+    {
+        return 1;
+    }
     else
-        return i;
+    {
+        return -1;
+    }
 
 }
 
@@ -861,14 +876,18 @@ int DefectsDetect::get_defectsType()
 
 void DefectsDetect::accept_run(HObject &object, HObject &deal_object, const int width, const int height, const Hlong &winid, QJsonObject params)
 {
-    set_Params(params["threshold_black"].toInt(), params["threshold_white"].toInt(), params["area_min_part1"].toDouble(),
-               params["area_max_part1"].toDouble(), params["gradient_part1"].toDouble(),params["num_part1"].toInt(),
-               params["area_min_part2"].toDouble(),params["area_max_part2"].toDouble(),params["gradient_part2"].toDouble(),
-               params["defect_length_part2"].toDouble(), params["defect_width_part2"].toDouble(),params["num_part2"].toInt(),
-               params["confidence_Contain"].toDouble(), params["confidence_notContain"].toDouble());
+//    set_Params(params["threshold_black"].toInt(), params["threshold_white"].toInt(), params["area_min_part1"].toDouble(),
+//               params["area_max_part1"].toDouble(), params["gradient_part1"].toDouble(),params["num_part1"].toInt(),
+//               params["area_min_part2"].toDouble(),params["area_max_part2"].toDouble(),params["gradient_part2"].toDouble(),
+//               params["defect_length_part2"].toDouble(), params["defect_width_part2"].toDouble(),params["num_part2"].toInt(),
+//               params["confidence_Contain"].toDouble(), params["confidence_notContain"].toDouble());
 
-    run(object,deal_object,width,height,winid,0,0);
-//    int result = run_rujie(object,deal_object,width,height,winid);
-//    qDebug() << result;
-    emit tell_window_check_result(get_result(),get_defectsType(),deal_object);
+//    run(object,deal_object,width,height,winid,0,0);
+    int result = run_rujie(object,deal_object,width,height,winid);
+    qDebug() << result;
+//    QTime time;
+//    time= QTime::currentTime();
+//    qsrand(time.msec()+time.second()*1000);
+//    int n = qrand() % 3;    //产生3以内的随机数
+    emit tell_window_check_result(result,get_defectsType(),deal_object);
 }

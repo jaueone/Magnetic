@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QScreen>
 #include <QGuiApplication>
+#include <QFileDialog>
 
 void msleep(unsigned int msec)
 {
@@ -745,4 +746,15 @@ void ScreenCheck::on_checkBox_3_stateChanged(int arg1)
     }
 }
 
-
+void ScreenCheck::on_pushButton_9_released()
+{
+    QString filename;
+    filename=QFileDialog::getOpenFileName(this, tr("选择图像"), "", tr("Images (*.png *.bmp *.jpg *.tif *.GIF )"));
+    if(filename.isEmpty())
+        return;
+    ReadImage(&ho_Image, HTuple(filename.toStdString().c_str()));
+    if (HDevWindowStack::IsOpen())
+        CloseWindow(HDevWindowStack::Pop());
+    Hlong winid = (Hlong)this->ui->preview->winId();
+    emit tell_detect_run(ho_Image,deal_Image,this->ui->preview->width(),this->ui->preview->height(),winid,drivesetting->get_algorithm());
+}

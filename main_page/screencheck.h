@@ -96,6 +96,8 @@ private slots:
 
     void on_checkBox_3_stateChanged(int arg1);
 
+    void on_pushButton_9_released();
+
 private:
     Ui::ScreenCheck *ui;
     QMap<QString ,Label *> object_label_map{};
