@@ -32,13 +32,13 @@ QJsonObject RemoteDB::CheckMacIPAndDownload(){
         database.setUserName("root");
         database.setPassword("zjzl123456");
         if(!database.open()){
-            DMessageBox::box(QMessageBox::Critical,"登录错误","无法连接到远程服务器\n请联系烽火科技1");
-            qDebug() << 12;
+//            DMessageBox::box(QMessageBox::Critical,"登录错误","无法连接到远程服务器\n请联系烽火科技1");
+//            qDebug() << 12;
             return obj;
         }
         QSqlQuery query(database);
         if(!query.exec(QString("SELECT * FROM device_table where mac_addr = \"%1\"").arg(mac))) {
-            DMessageBox::box(QMessageBox::Critical,"登录错误","无法连接到远程服务器\n请联系烽火科技2");
+//            DMessageBox::box(QMessageBox::Critical,"登录错误","无法连接到远程服务器\n请联系烽火科技2");
             return obj;
         }
         int i = 0;
@@ -58,7 +58,7 @@ QJsonObject RemoteDB::CheckMacIPAndDownload(){
 
         if (i == 0){
             if(!query.exec(QString("SELECT * FROM device_table where id = 1").arg(mac))) {
-                DMessageBox::box(QMessageBox::Critical,"登录错误","无法连接到远程服务器\n请联系烽火科技3");
+//                DMessageBox::box(QMessageBox::Critical,"登录错误","无法连接到远程服务器\n请联系烽火科技3");
                 return obj;
             }
 
@@ -78,7 +78,7 @@ QJsonObject RemoteDB::CheckMacIPAndDownload(){
             if (!query.exec(QString("INSERT INTO device_table(mac_addr, is_legal, latest_version, download_number, changelog, mandatory, create_time, remarks)"
                                     "VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\", \"%6\", \"%7\", \"%8\");").arg(mac).arg(is_legal1).arg(latest_version1)
                                 .arg(download_number1).arg(changelog1).arg(mandatory1).arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss")).arg(remarks1))){
-                DMessageBox::box(QMessageBox::Critical,"登录错误","无法连接到远程服务器\n请联系烽火科技4");
+//                DMessageBox::box(QMessageBox::Critical,"登录错误","无法连接到远程服务器\n请联系烽火科技4");
                 return obj;
             }
             else {

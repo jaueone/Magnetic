@@ -15,10 +15,25 @@ class DefectsDetect:public QObject
 public:
 	DefectsDetect();
     ~DefectsDetect();
-    void set_Params(int ThresholdBlack =33, int ThresholdWhite =26,float P1areaSelect_t_low =18.0,float P1areaSelect_t_high =28.0,float P1deviation_t_big  =6.0, int P1DefectsNum_small_t=30
-                    ,float P2areaSelect_t_low =18.0,float P2areaSelect_t_high =45.0,float P2deviation_t_big =6.0,float P2height_t = 12.518,float P2width_t = 12.016,int P2DefectsNum_small_t = 30);
+    void set_Params(int ThresholdBlack =36,
+    int ThresholdWhite =29,
+                    float P1areaSelect_t_low =18.0,
+                    float P1areaSelect_t_high =22.0,
+                    float P1deviation_t_big  =0.0,
+                    int P1DefectsNum_small_t=50,
+                    float P2areaSelect_t_low =16.0,
+                    float P2areaSelect_t_high =53.0,
+                    float P2deviation_t_big =6.0,
+                    float P2height_t = 13.518,
+                    float P2width_t = 13.016,
+                    int P2DefectsNum_small_t = 50,
+                    float confidence_Contain = 0.9998,
+                    float confidence_notContain = 0.83);
 
     void run(HObject ho_Image,HObject deal_image, const int width, const int height, const Hlong &winid, int x, int y);
+
+    int run_rujie(HObject ho_Image,HObject deal_image, const int width, const int height, const Hlong &winid);
+
     int get_result();
     int get_defectsType();
 
@@ -42,22 +57,28 @@ private:
     HObject  ho_P1RegionUnion2_big, ho_ImageSmooth, ho_ImageEdgeAmp2;
     HObject  ho_Regions2, ho_preConnectedRegions2, ho_P2Selectedarea_holes;
     HObject  ho_P2SelectedRegions_small, ho_RegionDilation2_small;
-    HObject  ho_P2SelectedRegions_big0,ho_P2SelectedRegions_big1, ho_RegionDilation2_big1;
+    HObject  ho_P2SelectedRegions_big0, ho_P2SelectedRegions_big1;
+    HObject  ho_RegionDilation2_big1, ho_P2SelectedRegions_big2_pre;
     HObject  ho_P2SelectedRegions_big2, ho_RegionDilation2_big2;
-    HObject  ho_RegionUnion2_small, ho_RegionUnion2_big;
+    HObject  ho_P2SelectedRegions_big3_pre, ho_P2SelectedRegions_big3;
+    HObject  ho_RegionDilation2_big3, ho_RegionUnion2_pre, ho_RegionUnion2_small;
+    HObject  ho_RegionUnion2_big, ho_ImagePreprocessed;
 
     // Local control variables
-    HTuple  hv_NumberNg, hv_NumberGood, hv_NumberOkNotGood;
-    HTuple  hv_Width, hv_Height, hv_WindowHandle, hv_ScratchExist;
-    HTuple  hv_WhitePointExist, hv_BlackPointExist, hv_ReturnIsOK;
-    HTuple  hv_ReturnIsGood, hv_medianDegree, hv_thresholdBlack;
-    HTuple  hv_smoothDegree, hv_thresholdWhite, hv_P1areaSelect_t_low;
-    HTuple  hv_P1areaSelect_t_high, hv_P1deviation_t_big, hv_P1DefectsNum_small_t;
-    HTuple  hv_P2areaSelect_t_low, hv_P2areaSelect_t_high, hv_P2deviation_t_big;
-    HTuple  hv_P2height_t, hv_P2width_t, hv_P2DefectsNum_small_t;
-    HTuple  hv_Mean, hv_Deviation, hv_P1DefectsNum_small, hv_P1DefectsNum_big;
-    HTuple  hv_P2NumberArea_holes, hv_P2DefectsNum_small, hv_P2DefectsNum2_big1;
-    HTuple  hv_P2DefectsNum2_big2, hv_P2DefectsNum2_big;
+    HTuple  hv_WindowHandle, hv_NumberNg, hv_NumberGood;
+    HTuple  hv_NumberOkNotGood, hv_DLClassifierHandle, hv_Width;
+    HTuple  hv_Height, hv_ScratchExist, hv_WhitePointExist;
+    HTuple  hv_BlackPointExist, hv_ReturnIsOK, hv_ReturnIsGood;
+    HTuple  hv_medianDegree, hv_smoothDegree, hv_thresholdBlack;
+    HTuple  hv_P1areaSelect_t_low, hv_P1areaSelect_t_high, hv_P1deviation_t_big;
+    HTuple  hv_P1DefectsNum_small_t, hv_thresholdWhite, hv_P2areaSelect_t_low;
+    HTuple  hv_P2areaSelect_t_high, hv_P2deviation_t_big, hv_P2height_t;
+    HTuple  hv_P2width_t, hv_P2DefectsNum_small_t, hv_confidence_Contain;
+    HTuple  hv_confidence_notContain, hv_Mean, hv_Deviation;
+    HTuple  hv_P1DefectsNum_small, hv_P1DefectsNum_big, hv_P2NumberArea_holes;
+    HTuple  hv_P2DefectsNum_small, hv_P2DefectsNum2_big1, hv_P2DefectsNum2_big2;
+    HTuple  hv_P2DefectsNum2_big3, hv_P2DefectsNum2_big, hv_DLClassifierResultHandle;
+    HTuple  hv_PredictedClass, hv_confidence, hv_Text;
 
 };
 

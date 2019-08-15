@@ -380,12 +380,18 @@ void DriveSeting::load_algorithm()
     }
     QList<QDoubleSpinBox*> list = this->ui->groupBox_5->findChildren<QDoubleSpinBox*>();
     QList<QDoubleSpinBox*> list1 = this->ui->groupBox_6->findChildren<QDoubleSpinBox*>();
+    QList<QDoubleSpinBox*> list2 = this->ui->groupBox_7->findChildren<QDoubleSpinBox*>();
     for (auto object:list) {
         if(!params[object->objectName()].toDouble())
             continue;
         object->setValue(params[object->objectName()].toDouble());
     }
     for (auto object:list1) {
+        if(!params[object->objectName()].toDouble())
+            continue;
+        object->setValue(params[object->objectName()].toDouble());
+    }
+    for (auto object:list2) {
         if(!params[object->objectName()].toDouble())
             continue;
         object->setValue(params[object->objectName()].toDouble());
@@ -397,10 +403,14 @@ QJsonObject DriveSeting::get_algorithm()
     QJsonObject params;
     QList<QDoubleSpinBox*> list = this->ui->groupBox_5->findChildren<QDoubleSpinBox*>();
     QList<QDoubleSpinBox*> list1 = this->ui->groupBox_6->findChildren<QDoubleSpinBox*>();
+    QList<QDoubleSpinBox*> list2 = this->ui->groupBox_7->findChildren<QDoubleSpinBox*>();
     for (auto object:list) {
         params[object->objectName()] = object->value();
     }
     for (auto object:list1) {
+        params[object->objectName()] = object->value();
+    }
+    for (auto object:list2) {
         params[object->objectName()] = object->value();
     }
     return params;
@@ -776,10 +786,14 @@ void DriveSeting::on_pushButton_5_released()
     }
     QList<QDoubleSpinBox*> list = this->ui->groupBox_5->findChildren<QDoubleSpinBox*>();
     QList<QDoubleSpinBox*> list1 = this->ui->groupBox_6->findChildren<QDoubleSpinBox*>();
+    QList<QDoubleSpinBox*> list2 = this->ui->groupBox_7->findChildren<QDoubleSpinBox*>();
     for (auto object:list) {
         params[object->objectName()] = object->value();
     }
     for (auto object:list1) {
+        params[object->objectName()] = object->value();
+    }
+    for (auto object:list2) {
         params[object->objectName()] = object->value();
     }
     QSqlQuery query(*db);
