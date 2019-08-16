@@ -286,6 +286,7 @@ CameraSetting DriveSeting::get_camera_setting()
     setting.lineSelector = static_cast<LineSelector>(map_1[this->ui->comboBox_6->currentText()]);
     setting.preDivider = static_cast<unsigned int>(this->ui->spinBox_8->value());
     setting.multiplier = static_cast<unsigned int>(this->ui->spinBox_9->value());
+    setting.gevSCPSPacketSize = static_cast<unsigned int>(this->ui->spinBox_10->value());
     return setting;
 }
 
@@ -348,6 +349,7 @@ void DriveSeting::load_setting()
 
     this->ui->spinBox_8->setValue(cam_obj["preDivider"].toInt());
     this->ui->spinBox_9->setValue(cam_obj["multiplier"].toInt());
+    this->ui->spinBox_10->setValue(cam_obj["gevSCPSPacketSize"].toInt());
 
     this->ui->serialPortInfoListBox->setCurrentText(ser_obj["name"].toString());
 }
@@ -420,6 +422,7 @@ void DriveSeting::save_setting(SerialSetting setting_ser, CameraSetting setting_
 {
     QByteArray serial = Serial::get_serial_bin(setting_ser);
     QByteArray camera = HKCamera::get_camera_bin(setting_cam);
+    qDebug() << camera;
 
     QString str_serial = serial;
     QString str_camera = camera;
@@ -499,6 +502,7 @@ void DriveSeting::set_camera_params()
     qDebug("%x",this->camera->setParams(DType::Enum, "LineSelector", setting.lineSelector));
     qDebug("%x",this->camera->setParams(DType::Int, "PreDivider", setting.preDivider));
     qDebug("%x",this->camera->setParams(DType::Int, "Multiplier", setting.multiplier));
+    qDebug("%x",this->camera->setParams(DType::Int, "GevSCPD", setting.gevSCPSPacketSize));
     this->ui->label_27->setText(QString::fromLocal8Bit("设置相机参数完成"));
 }
 
@@ -641,6 +645,7 @@ void DriveSeting::on_pushButton_9_released()
         messageBox.exec();
         return;
     }
+//    this->set_camera_params();
     this->ui->label_27->setText(QString::fromLocal8Bit("打开相机完成"));
 }
 
@@ -814,4 +819,9 @@ void DriveSeting::on_pushButton_5_released()
     }
 
     db->close();
+}
+
+void DriveSeting::on_pushButton_6_released()
+{
+    this->camera->collectFrame_2();
 }

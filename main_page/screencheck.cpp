@@ -406,7 +406,7 @@ void ScreenCheck::accept_stm_command(Command com, QVariant data)
 
     if (com == Command::ImageCapture)
     {
-        msleep(800);
+        msleep(this->ui->spinBox->value());
         this->ImageCapture();
     }
     else if (com == Command::WrapResult)

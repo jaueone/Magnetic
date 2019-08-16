@@ -92,6 +92,7 @@ struct CameraSetting{
 
     float exposureTime;
     bool nucEnable;
+    unsigned int gevSCPSPacketSize;
 
     TriggerSelector triggerSelector;
     TriggerMode triggerMode;
@@ -112,8 +113,6 @@ public:
     static void camera_message_done();
     static void HObjectToQImage(HObject himage,QImage **qimage);
 
-
-
     int enumDevices();
     int openDevice(const int &index);
 
@@ -121,6 +120,11 @@ public:
     int collectFrame(QLabel *label);
     int stopCollect();
     int closeDevice();
+
+    static void __stdcall ImageCallBack(unsigned char * pData, MV_FRAME_OUT_INFO* pFrameInfo, void* pUser);
+
+
+    void collectFrame_2();
 
     bool isOpened();
     bool isCollecting();
@@ -131,6 +135,7 @@ public:
     CameraSetting get_camera_setting();
     ~HKCamera();
 
+    static void *handle;
 signals:
     void tell_window_Image_info (MV_FRAME_OUT_INFO&);
 
@@ -142,7 +147,7 @@ private:
 
     bool is_start_collected = false;
     int nRet = -1;
-    void *handle = NULL;
+
 
     MV_CC_DEVICE_INFO m_stDevInfo;
     MV_CC_DEVICE_INFO_LIST m_stDevList;

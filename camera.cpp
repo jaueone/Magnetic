@@ -4,6 +4,7 @@
 //#define MAX_BUF_SIZE    (6576*4384)
 
 static HKCamera *camera_ = nullptr;
+void *HKCamera::handle = NULL;
 
 HKCamera *HKCamera::getInterface(){
     if (camera_ == nullptr){
@@ -62,7 +63,6 @@ int HKCamera::openDevice(const int &index)
         return -1;
     }
     qDebug() << "information camera opened";
-    qDebug() << MV_CC_SetIntValue(this->handle,"GevSCPD",7000);
     qDebug() << MV_CC_SetBoolValue(this->handle,"GevPAUSEFrameReception",true);
 //    MV_CC_SetEnumValue(this->handle,"TriggerSelector",9);
 //    MV_CC_SetEnumValue(this->handle,"TriggerMode",1);
@@ -71,6 +71,14 @@ int HKCamera::openDevice(const int &index)
 //    MV_CC_SetIntValue(this->handle,"Width",3800);
 //    MV_CC_SetIntValue(this->handle,"Height",3700);
 //    MV_CC_SetIntValue(this->handle,"OffsetX",150);
+
+    //注册数据回调函数
+//    nRet = MV_CC_RegisterImageCallBack(handle, HKCamera::ImageCallBack, NULL);
+//    if (MV_OK != nRet)
+//    {
+//        qDebug("error: RegisterImageCallBack fail [%x]\n", nRet);
+//        return;
+//    }
     return 0;
 }
 
@@ -152,6 +160,12 @@ int HKCamera::collectFrame(QLabel *label)
 
         emit tell_window_Image_info(stInfo);
 
+//        if(stInfo.nLostPacket > 0){
+//            free(pFrameBuf);
+//            free(data);
+//            collectFrame(label);
+//        }
+
         int hgt = height.nCurValue;
         int wid = width.nCurValue;
         qDebug() << "hgt" << hgt << "wid" << wid;
@@ -221,6 +235,60 @@ int HKCamera::closeDevice()
     }
     return 0;
 }
+
+
+void HKCamera::ImageCallBack(unsigned char *pData, MV_FRAME_OUT_INFO *pFrameInfo, void *pUser)
+{
+    qDebug() << "call back";
+    if (pFrameInfo)
+    {
+        if (pFrameInfo->nLostPacket > 0)
+            return;
+        MVCC_INTVALUE stIntvalue = {0};
+        int nRet = MV_CC_GetIntValue(handle, "PayloadSize", &stIntvalue);
+        if (nRet != MV_OK)
+        {
+            qDebug("Get PayloadSize failed! nRet [%x]\n", nRet);
+            return;
+        }
+        int nBufSize = stIntvalue.nCurValue; //一帧数据大小
+        qDebug() << " size of image:"<< nBufSize;
+        unsigned char*  data = NULL;
+        data = (unsigned char*)malloc(nBufSize);//转换到halcon数据使用
+
+        MVCC_INTVALUE width,height;
+        MV_CC_GetIntValue(handle, "Width",&width);
+        MV_CC_GetIntValue(handle, "Height",&height);
+
+        int hgt = height.nCurValue;
+        int wid = width.nCurValue;
+
+        memcpy(data, pData, (size_t)nBufSize);
+        HObject ho_Image;
+        GenImage1(&ho_Image, "byte", wid, hgt, (Hlong)(data));
+
+        //        WriteImage(ho_Image, "bmp", -1, HTuple("D:/photo/") + i);
+        free(data);
+        /**********************************************************************************/
+
+//        if (MV_OK != MV_CC_StopGrabbing(handle))
+//        {
+//            qDebug("error: StopGrabbing fail [%x]\n", nRet);
+//            return;
+//        }
+        qDebug() << "end";
+    }
+}
+
+void HKCamera::collectFrame_2()
+{
+    if (this->startCollect() != 0){
+        qDebug() << "start coolect failed";
+        return;
+    }
+}
+
+
 int HKCamera::destroyHandle()
 {
     /************************************************************************/
@@ -248,7 +316,7 @@ CameraSetting HKCamera::get_camera_setting()
         qDebug() << "camera no connected, get params fail";
         return setting;
     }
-    MVCC_INTVALUE width,height,offsetX,offsetY,acquisitionLineRate, multiplier, preDivider;
+    MVCC_INTVALUE width,height,offsetX,offsetY,acquisitionLineRate, multiplier, preDivider,gevSCPSPacketSize;
     MVCC_FLOATVALUE gain, gamma, exposureTime;
     MVCC_ENUMVALUE gainAuto, gammaSelector, triggerSelector, triggerMode, triggerSource, lineSelector;
 
@@ -275,6 +343,7 @@ CameraSetting HKCamera::get_camera_setting()
 
     MV_CC_GetIntValue(handle, "PreDivider",&preDivider);
     MV_CC_GetIntValue(handle, "Multiplier",&multiplier);
+    MV_CC_GetIntValue(handle, "GevSCPD",&gevSCPSPacketSize);
 
     setting.width = width.nCurValue;
     setting.height = height.nCurValue;
@@ -283,6 +352,7 @@ CameraSetting HKCamera::get_camera_setting()
     setting.acquisitionLineRate = acquisitionLineRate.nCurValue;
     setting.preDivider = preDivider.nCurValue;
     setting.multiplier = multiplier.nCurValue;
+    setting.gevSCPSPacketSize = gevSCPSPacketSize.nCurValue;
 
     setting.gain = gain.fCurValue;
     setting.gamma = gamma.fCurValue;
@@ -353,6 +423,7 @@ QByteArray HKCamera::get_camera_bin(CameraSetting setting)
         {"lineSelector",lineSelector_map[setting.lineSelector]},
         {"multiplier",(int)setting.multiplier},
         {"preDivider",(int)setting.preDivider},
+        {"gevSCPSPacketSize",(int)setting.gevSCPSPacketSize},
     };
 
     QJsonDocument camera_doc = QJsonDocument(camera_obj);

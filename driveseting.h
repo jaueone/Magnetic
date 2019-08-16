@@ -110,6 +110,8 @@ private slots:
 
     void on_pushButton_5_released();
 
+    void on_pushButton_6_released();
+
 private:
     Ui::DriveSeting *ui;
     QSerialPort *serial;

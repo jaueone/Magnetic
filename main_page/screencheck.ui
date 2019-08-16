@@ -1523,7 +1523,7 @@ border:1px solid rgb(0, 58, 176);</string>
     <rect>
      <x>510</x>
      <y>490</y>
-     <width>281</width>
+     <width>314</width>
      <height>31</height>
     </rect>
    </property>
@@ -1687,6 +1687,25 @@ border:1px solid rgb(0, 58, 176);</string>
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QSpinBox" name="spinBox">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>490</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="maximum">
+    <number>9999</number>
+   </property>
   </widget>
  </widget>
  <resources/>
