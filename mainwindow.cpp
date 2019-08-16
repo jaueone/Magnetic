@@ -114,6 +114,7 @@ void MainWindow::sigcon()
     this->connect(this->screen_check,&ScreenCheck::tell_window_start_check, this,&MainWindow::accept_camera_start_check);
     this->connect(this->screen_check,&ScreenCheck::tell_window_stm_status, this->drivesetting,&DriveSeting::accept_stm_status);
     this->connect(this->screen_check,&ScreenCheck::ask_serial_setting, this->drivesetting,&DriveSeting::accept_return_serial_setting);
+    this->connect(this->camera,&HKCamera::tell_window_Image_info,this->screen_check,&ScreenCheck::HKInfoCallBack);
     this->connect(this->drivesetting,&DriveSeting::tell_screencheck_setting,this->screen_check,&ScreenCheck::accept_serial_setting);
     this->connect(this->screen_check,&ScreenCheck::tell_result_update_data, this->screen_result,&ScreenResult::accept_update_data);
 

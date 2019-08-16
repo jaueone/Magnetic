@@ -102,14 +102,16 @@ struct CameraSetting{
 };
 
 
-class HKCamera
+class HKCamera:public QObject
 {
+    Q_OBJECT
 public:
     static HKCamera *getInterface();
     static QByteArray get_camera_bin(CameraSetting setting);
     static void camera_message_warn();
     static void camera_message_done();
     static void HObjectToQImage(HObject himage,QImage **qimage);
+
 
 
     int enumDevices();
@@ -128,6 +130,9 @@ public:
     int setParams(DType type,const char *params, QVariant value);
     CameraSetting get_camera_setting();
     ~HKCamera();
+
+signals:
+    void tell_window_Image_info (MV_FRAME_OUT_INFO&);
 
 private:
     static void rgb3_to_interleaved(HObject ho_ImageRGB, HObject *ho_ImageInterleaved);

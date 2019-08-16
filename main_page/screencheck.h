@@ -15,6 +15,7 @@
 #include <QMap>
 #include <QString>
 #include <QtSerialPort>
+#include <functional>
 
 namespace Ui {
 class ScreenCheck;
@@ -42,6 +43,8 @@ public:
     void addlabel(const QString &name,const QString &content);
     void start_check();
     int getMaxID();
+
+
     Worker* workerObj(){return this->worker;}
     void setMen(const Meninfo &info);
     void setSerial(QSerialPort* serial_);
@@ -67,6 +70,7 @@ public slots:
     void accept_worker_step(int step);
 
     void accept_detect_result(int result,int itype,HObject deal_image);
+    void HKInfoCallBack(const MV_FRAME_OUT_INFO &SInfo);
 
 signals:
     void tell_window_step_page(int page);

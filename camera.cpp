@@ -140,6 +140,7 @@ int HKCamera::collectFrame(QLabel *label)
         MV_FRAME_OUT_INFO stInfo;
         memset(&stInfo, 0, sizeof(MV_FRAME_OUT_INFO));
 
+
         //上层应用程序需要根据帧率，控制好调用该接口的频率
         //此次代码仅供参考，实际应用建议另建线程进行图像帧采集和处理
 
@@ -148,6 +149,8 @@ int HKCamera::collectFrame(QLabel *label)
         MVCC_INTVALUE width,height;
         MV_CC_GetIntValue(handle, "Width",&width);
         MV_CC_GetIntValue(handle, "Height",&height);
+
+        emit tell_window_Image_info(stInfo);
 
         int hgt = height.nCurValue;
         int wid = width.nCurValue;

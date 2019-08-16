@@ -190,6 +190,12 @@ int ScreenCheck::getMaxID()
     }
 }
 
+void ScreenCheck::HKInfoCallBack(const MV_FRAME_OUT_INFO &SInfo)
+{
+    qDebug() << "nLostPacket" << SInfo.nLostPacket;
+    this->ui->label_12->setText(QString("%1").arg(SInfo.nLostPacket));
+}
+
 void ScreenCheck::setMen(const Meninfo &info)
 {
     this->men_info = info;
